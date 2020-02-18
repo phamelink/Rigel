@@ -4,6 +4,8 @@ import ch.epfl.rigel.math.Interval;
 
 public final class Preconditions {
 
+    private Preconditions(){}
+
     public static void checkArgument(boolean isTrue){
         if(isTrue) throw new IllegalArgumentException();
     }
