@@ -28,12 +28,12 @@ abstract public class Interval {
     //redefinitions to raise exceptions
 
     @Override
-    public int hashCode() {
+    final public int hashCode() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public boolean equals(Object obj) {
+    final public boolean equals(Object obj) {
         throw new UnsupportedOperationException();
     }
 
