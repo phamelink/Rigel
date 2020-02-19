@@ -17,7 +17,7 @@ class ClosedIntervalTest {
     void symmetricThrowsException(){
         assertThrows(IllegalArgumentException.class, () -> {ClosedInterval.symmetric(-1);});
     }
-
+//sefhjnsdkfjnasdfkhjasfmnxydf ajsnraksrw
     @Test
     void clipTrivialTest() {
         ClosedInterval a  = ClosedInterval.of(0, 1);
