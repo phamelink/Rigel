@@ -15,17 +15,15 @@ public final class Angle {
     }
 
     public static double ofArcsec(double sec){
-
-        return 0;
-    }
+        return sec/3600; }
 
     public static double ofDMS(int deg, int min, double sec){
 
         if(!HOUR_INTERVAL.contains(min) || !HOUR_INTERVAL.contains(sec)) throw new IllegalArgumentException();
 
-        return 0;
+        return ((deg + min/60 + sec/3600)*TAU)/360;
     }
-//heyoo
+
     public static double ofDeg(double deg){
         return (deg/360)*TAU;
     }
@@ -36,12 +34,12 @@ public final class Angle {
 
     public static double ofHr(double hr){
 
-        return 0;
+        return (TAU*hr)/24;
     }
 
     public static double toHR(double rad){
 
-        return 0;
+        return (rad*24)/TAU;
     }
 
 }

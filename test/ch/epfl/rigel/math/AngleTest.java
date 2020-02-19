@@ -28,12 +28,12 @@ class AngleTest {
 
     @Test
     void ofDeg() {
-        assertEquals(1.5707, Angle.ofDeg(90), 1e-5);
+        assertEquals(1.5707, Angle.ofDeg(90), 1e-4);
     }
 
     @Test
     void toDeg() {
-        assertEquals(11.45915, Angle.toDeg(0.2), 1e-6);
+        assertEquals(11.45915, Angle.toDeg(0.2), 1e-4);
     }
 
     @Test
