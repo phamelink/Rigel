@@ -21,7 +21,7 @@ public final class Angle {
 
         if(!HOUR_INTERVAL.contains(min) || !HOUR_INTERVAL.contains(sec)) throw new IllegalArgumentException();
 
-        return ((deg + min/60 + sec/3600)*TAU)/360;
+        return ((deg + min/60.0 + sec/3600)*TAU)/360;
     }
 
     public static double ofDeg(double deg){

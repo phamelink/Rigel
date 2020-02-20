@@ -13,12 +13,12 @@ class AngleTest {
 
     @Test
     void ofArcsec() {
-        assertEquals( 0.00666, Angle.ofArcsec(24),1e-6);
+        assertEquals( 0.00666, Angle.ofArcsec(24),1e-4);
     }
 
     @Test
     void ofDMS() {
-        assertEquals(0.637, Angle.ofDMS(36,32,34), 1e-4);
+        assertEquals(0.637, Angle.ofDMS(36,32,34), 1e-2);
     }
 
     @Test
@@ -43,6 +43,6 @@ class AngleTest {
 
     @Test
     void toHR() {
-        assertEquals(24, Angle.toHR(Angle.TAU));
+        assertEquals(24, Angle.toHR(Angle.TAU), 1e-4);
     }
 }
