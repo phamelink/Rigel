@@ -30,10 +30,12 @@ final public class Polynomial {
     @Override
     public String toString() {
         StringBuilder str = new StringBuilder();
+        int exp = coeffs.length;
         for (double val : coeffs) {
             if (val != 0) {
-
+                str.append(val.toString() + "^" + exp.toString() + " ");
             }
+            exp--;
         }
     }
 
