@@ -2,7 +2,13 @@ package ch.epfl.rigel.math;
 
 public final class Angle {
 
-    public static final double TAU = 6.2831853071;
+    public static final double TAU = 2.0 * Math.PI;
+
+    private static final double RAD_PER_SEC = 1.0 / 3600.0;
+    private static final double RAD_PER_MIN = 1.0 / 60.0;
+    private static final double HR_PER_RAD = 24.0 / TAU;
+    private static final double RAD_PER_HR = TAU / 24.0;
+
     public static final RightOpenInterval STANDARD_INTERVAL = RightOpenInterval.of(0, TAU);
     private static final RightOpenInterval HOUR_INTERVAL = RightOpenInterval.of(0, 60);
 
@@ -14,32 +20,23 @@ public final class Angle {
         return STANDARD_INTERVAL.reduce(rad);
     }
 
-    public static double ofArcsec(double sec){
-        return sec/3600; }
+    public static double ofArcsec(double sec){ return sec * RAD_PER_SEC; }
 
     public static double ofDMS(int deg, int min, double sec){
 
         if(!HOUR_INTERVAL.contains(min) || !HOUR_INTERVAL.contains(sec)) throw new IllegalArgumentException();
+        return Math.toRadians(deg + min * RAD_PER_MIN + sec * RAD_PER_SEC);
 
-        return ((deg + min/60.0 + sec/3600)*TAU)/360;
     }
 
-    public static double ofDeg(double deg){
-        return (deg/360)*TAU;
-    }
+    public static double ofDeg(double deg){ return Math.toRadians(deg); }
 
     public static double toDeg(double rad){
-        return (rad/TAU)*360;
+        return Math.toDegrees(rad);
     }
 
-    public static double ofHr(double hr){
+    public static double ofHr(double hr){ return hr * RAD_PER_HR; }
 
-        return (TAU*hr)/24;
-    }
-
-    public static double toHR(double rad){
-
-        return (rad*24)/TAU;
-    }
+    public static double toHR(double rad){ return rad * HR_PER_RAD; }
 
 }
