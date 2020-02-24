@@ -6,11 +6,23 @@ public final class RightOpenInterval extends Interval {
     private RightOpenInterval(double inf, double sup) {
         super(inf, sup);
     }
+
+    /**
+     * public method to instanciate a right open interval
+     * @param low (double): lower bound
+     * @param high (double): upper bound
+     * @return (RightOpenInterval)
+     */
     public static RightOpenInterval of(double low, double high){
         if(low >= high) throw new IllegalArgumentException();
         return new RightOpenInterval(low, high);
     }
 
+    /**
+     * public method to instanciate a right open interval centered at 0
+     * @param radius (double): lower and upper bound
+     * @return (RightOpenInterval)
+     */
     public static RightOpenInterval symmetric(double radius){
         if(radius <= 0) throw new IllegalArgumentException();
         return new RightOpenInterval(-radius,radius);
@@ -22,6 +34,11 @@ public final class RightOpenInterval extends Interval {
         return v >= this.low() && v < this.high();
     }
 
+    /**
+     * reduces its argument to the interval
+     * @param v (double): argument to be reduced
+     * @return (double)
+     */
     public double reduce(double v){
 
         return this.low() + floorMod(v-this.low(), this.high()-this.low());
@@ -32,7 +49,8 @@ public final class RightOpenInterval extends Interval {
         return String.format(Locale.ROOT, "[%s,%s[", this.low(), this.high());
     }
 
-    static double floorMod(double x, double y){
+
+    private static double floorMod(double x, double y){
         return x-y*Math.floor(x/y);
     }
 }

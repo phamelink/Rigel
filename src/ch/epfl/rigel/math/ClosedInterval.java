@@ -9,11 +9,22 @@ public class ClosedInterval extends Interval {
 
     //Public construction methods
 
+    /**
+     * public method to instanciate a closed interval
+     * @param low (double): lower bound
+     * @param high (double): upper bound
+     * @return (ClosedInterval)
+     */
     public static ClosedInterval of(double low, double high){
         if(low >= high) throw new IllegalArgumentException();
         return new ClosedInterval(low, high);
     }
 
+    /**
+     * public method to instanciate a closed interval centered at 0
+     * @param radius (double): lower and upper bound
+     * @return (ClosedInterval)
+     */
     public static ClosedInterval symmetric(double radius){
         if(radius <= 0) throw new IllegalArgumentException();
         return new ClosedInterval(-radius,radius);
@@ -25,6 +36,11 @@ public class ClosedInterval extends Interval {
         return v >= this.low() && v <= this.high();
     }
 
+    /**
+     * clips the value to the interval
+     * @param v (double)
+     * @return (double)
+     */
     public double clip(double v){
         if(this.contains(v)){
             return v;

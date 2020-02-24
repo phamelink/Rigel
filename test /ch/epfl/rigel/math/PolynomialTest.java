@@ -100,19 +100,4 @@ class PolynomialTest {
             Polynomial.of(1).hashCode();
         });
     }
-
-
-    @Test
-    void testToString() {
-        Polynomial p = Polynomial.of(4,-1,0,2);
-        System.out.println(p);
-        assertEquals("4.0x^3-x^2+2.0", p.toString());
-
-    }
-
-    @Test
-    void at() {
-        var poly = Polynomial.of(1,3,5,7,9);
-        assertEquals(poly.at(2), 83);
-    }
 }

@@ -16,12 +16,29 @@ public final class Angle {
     private Angle() {
     }
 
+    /**
+     * normalizes the angle to reduce it to the interval [0,TAU[
+     * @param rad (double): the angle in radians
+     * @return (double): the normalized angle within the interval
+     */
     public static double normalizePositive(double rad){
         return STANDARD_INTERVAL.reduce(rad);
     }
 
+    /**
+     * returns the angle according to the number of seconds in the given arc (negative or positive)
+     * @param sec (double): seconds in the arc
+     * @return (double): the angle
+     */
     public static double ofArcsec(double sec){ return sec * RAD_PER_SEC; }
 
+    /**
+     * returns the angle according to deg°min''sec' and throws an error if the argument is not between 0 and 60 for min and sec
+     * @param deg (double): degrees
+     * @param min (double): minutes
+     * @param sec (double): seconds
+     * @return (double):
+     */
     public static double ofDMS(int deg, int min, double sec){
 
         if(!HOUR_INTERVAL.contains(min) || !HOUR_INTERVAL.contains(sec)) throw new IllegalArgumentException();
@@ -37,6 +54,6 @@ public final class Angle {
 
     public static double ofHr(double hr){ return hr * RAD_PER_HR; }
 
-    public static double toHR(double rad){ return rad * HR_PER_RAD; }
+    public static double toHr(double rad){ return rad * HR_PER_RAD; }
 
 }
