@@ -34,7 +34,7 @@ public final class GeographicCoordinates extends SphericalCoordinates {
 
     @Override
     public String toString() {
-        return String.format(Locale.ROOT, "( lon=%.4f°, lat=%.4f°))", lonDeg(), latDeg());
+        return String.format(Locale.ROOT, "(lon=%.4f°, lat=%.4f°)", lonDeg(), latDeg());
     }
 
     public double lonDeg() {
