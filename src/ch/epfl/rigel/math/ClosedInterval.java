@@ -22,12 +22,12 @@ public class ClosedInterval extends Interval {
 
     /**
      * public method to instanciate a closed interval centered at 0
-     * @param radius (double): lower and upper bound
+     * @param diameter (double): lower and upper bound
      * @return (ClosedInterval)
      */
-    public static ClosedInterval symmetric(double radius){
-        if(radius <= 0) throw new IllegalArgumentException();
-        return new ClosedInterval(-radius,radius);
+    public static ClosedInterval symmetric(double diameter){
+        if(diameter <= 0) throw new IllegalArgumentException();
+        return new ClosedInterval(-diameter/2.0,diameter/2.0);
     }
 
 
