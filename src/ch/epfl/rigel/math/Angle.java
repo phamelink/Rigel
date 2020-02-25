@@ -37,7 +37,7 @@ public final class Angle {
      * @param deg (double): degrees
      * @param min (double): minutes
      * @param sec (double): seconds
-     * @return (double):
+     * @return (double): angle
      */
     public static double ofDMS(int deg, int min, double sec){
 
@@ -46,14 +46,34 @@ public final class Angle {
 
     }
 
+    /**
+     * returns angle corresponding to the angle in degrees
+     * @param deg (double): given angle in degrees
+     * @return (double): angle
+     */
     public static double ofDeg(double deg){ return Math.toRadians(deg); }
 
+    /**
+     * returns angles in degrees corresponding to the given angle
+     * @param rad (double): angle given
+     * @return (double): angle in degrees
+     */
     public static double toDeg(double rad){
         return Math.toDegrees(rad);
     }
 
+    /**
+     * returns the angle corresponding to the angle given in hours
+     * @param hr (double): angle given in hours
+     * @return (double): angle in rad
+     */
     public static double ofHr(double hr){ return hr * RAD_PER_HR; }
 
+    /**
+     * returns angle in hours corresponding to the angle given in radians
+     * @param rad (double): angle to translate in hours
+     * @return (double): angle in hours
+     */
     public static double toHr(double rad){ return rad * HR_PER_RAD; }
 
 }
