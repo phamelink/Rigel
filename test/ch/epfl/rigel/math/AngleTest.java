@@ -27,6 +27,8 @@ public class AngleTest {
     void normalizePositiveWorksOnWholeTurns() {
         for (int t = -5; t <= 5; t++)
             assertEquals(0, Angle.normalizePositive(2 * PI * t));
+
+        assertEquals(Angle.ofDeg(360.0-160.0), Angle.normalizePositive(Angle.ofDeg(200.0)));
     }
 
     @Test

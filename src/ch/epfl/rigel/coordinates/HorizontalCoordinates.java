@@ -4,31 +4,57 @@ import ch.epfl.rigel.math.Angle;
 import ch.epfl.rigel.math.ClosedInterval;
 import ch.epfl.rigel.math.RightOpenInterval;
 
+import java.util.Locale;
+import java.util.NoSuchElementException;
+
 public final class HorizontalCoordinates extends SphericalCoordinates {
 
     public static final RightOpenInterval AZIMUTH_INTERVAL = RightOpenInterval.of(0, 360);
     public static final ClosedInterval ALTITUDE_INTERVAL = ClosedInterval.of(-90, 90);
 
-    public enum OCTANTS {
-        N(),
-        NE(),
-        E(),
-        SE(),
-        S(),
-        SO(),
-        O(),
-        NO();
+    public enum OCTANT {
+        N(0,0, 45, "N", new CARDINAL[]{CARDINAL.N}),
+        NE(1,45, 90, "NE", new CARDINAL[]{CARDINAL.N, CARDINAL.E}),
+        E(2,90,135, "E", new CARDINAL[]{CARDINAL.E}),
+        SE(3,135, 180, "SE", new CARDINAL[]{CARDINAL.S, CARDINAL.E}),
+        S(4,180, 225, "S", new CARDINAL[]{CARDINAL.S}),
+        SO(5,225, 270, "SW", new CARDINAL[]{CARDINAL.S, CARDINAL.W}),
+        O(6,270, 315, "W", new CARDINAL[]{CARDINAL.W}),
+        NO(7,315, 360, "NW", new CARDINAL[]{CARDINAL.N, CARDINAL.W});
 
-        private RightOpenInterval octantInterval;
+        final int key;
+        final RightOpenInterval octantInterval;
+        final String name;
+        final CARDINAL[] placeholder;
 
-        OCTANTS(){
+        OCTANT(int key, int beginDeg, int endDeg, String name, CARDINAL[] placeholder){
+            final double size = 45.0/2.0;
+            octantInterval = RightOpenInterval.of(beginDeg-size, endDeg-size);
+            this.key = key;
+            this.name = name;
+            this.placeholder = placeholder;
+        }
 
+        public static OCTANT octantOfDeg(double deg){
+            double mod = deg % 360.0;
+            for(OCTANT oc : OCTANT.values()){
+                if (oc.octantInterval.contains(mod)) return oc;
+            }
+            throw new NoSuchElementException();
+        }
+
+        public OCTANT octantOf(double rad){
+            return octantOfDeg(Angle.toDeg(rad));
         }
     }
 
+    public enum CARDINAL {
+        N,S,E,W;
+    }
 
-    private HorizontalCoordinates(double longitude, double latitude) {
-        super(longitude, latitude);
+
+    private HorizontalCoordinates(double azimuth, double altitude) {
+        super(azimuth, altitude);
     }
 
     public static HorizontalCoordinates of(double az, double alt){
@@ -39,7 +65,7 @@ public final class HorizontalCoordinates extends SphericalCoordinates {
 
     }
 
-    private static HorizontalCoordinates ofDeg(double azDeg, double altDeg) {
+    public static HorizontalCoordinates ofDeg(double azDeg, double altDeg) {
         if(!isValidAz(azDeg) || !isValidAlt(altDeg)) throw new IllegalArgumentException();
 
         return new HorizontalCoordinates(azDeg, altDeg);
@@ -54,16 +80,50 @@ public final class HorizontalCoordinates extends SphericalCoordinates {
     }
 
     public double az(){
-        return Angle.ofDeg(super.lon());
+        return lon();
     }
 
     public double azDeg(){
-        return super.lon();
+        return lonDeg();
     }
 
-    public double azOctantName(String n, String e, String s, String w){
+    public double alt(){
+        return lat();
+    }
 
+    public double altDeg(){
+        return latDeg();
+    }
 
+    public String azOctantName(String n, String e, String s, String w){
+        OCTANT currentOctant = OCTANT.octantOfDeg(this.azDeg());
+        StringBuilder str = new StringBuilder();
+        for(CARDINAL c : currentOctant.placeholder){
+            switch (c) {
+                case N:
+                    str.append(n);
+                    break;
+                case W:
+                    str.append(w);
+                    break;
+                case E:
+                    str.append(e);
+                    break;
+                case S:
+                    str.append(s);
+                    break;
+                default:
+                    throw new IllegalArgumentException();
+            }
+        }
+        return str.toString();
 
     }
+
+    @Override
+    public String toString() {
+        return String.format(Locale.ROOT, "(az=%.4f°, alt=%.4f°)", azDeg(), altDeg());
+    }
+
+
 }
