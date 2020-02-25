@@ -4,8 +4,8 @@ public final class Angle {
 
     public static final double TAU = 2.0 * Math.PI;
 
-    private static final double RAD_PER_SEC = 1.0 / 3600.0;
-    private static final double RAD_PER_MIN = 1.0 / 60.0;
+    private static final double RAD_PER_SEC = TAU / (360.0 * 3600.0);
+    private static final double RAD_PER_MIN = TAU / (120.0 * 180);
     private static final double HR_PER_RAD = 24.0 / TAU;
     private static final double RAD_PER_HR = TAU / 24.0;
 
@@ -42,7 +42,7 @@ public final class Angle {
     public static double ofDMS(int deg, int min, double sec){
 
         if(!HOUR_INTERVAL.contains(min) || !HOUR_INTERVAL.contains(sec)) throw new IllegalArgumentException();
-        return Math.toRadians(deg + min * RAD_PER_MIN + sec * RAD_PER_SEC);
+        return Math.toRadians(deg) + min * RAD_PER_MIN + ofArcsec(sec);
 
     }
 

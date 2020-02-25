@@ -23,9 +23,9 @@ public final class RightOpenInterval extends Interval {
      * @param radius (double): lower and upper bound
      * @return (RightOpenInterval)
      */
-    public static RightOpenInterval symmetric(double radius){
-        if(radius <= 0) throw new IllegalArgumentException();
-        return new RightOpenInterval(-radius,radius);
+    public static RightOpenInterval symmetric(double diameter){
+        if(diameter <= 0) throw new IllegalArgumentException();
+        return new RightOpenInterval(-diameter/2.0,diameter/2.0);
     }
 
 

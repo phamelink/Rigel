@@ -3,27 +3,23 @@ package ch.epfl.rigel.coordinates;
 import ch.epfl.rigel.math.Angle;
 
 abstract class SphericalCoordinates {
-    private double longitude;
-    private double latitude;
+    private final double longitude;
+    private final double latitude;
 
     SphericalCoordinates(double longitude, double latitude) {
         this.longitude = longitude;
         this.latitude = latitude;
     }
 
-    //TODO
-    double lon(){
-        return 0;
-    }
+    double lon(){ return Angle.ofDeg(longitude); }
 
-    double lonDeg(){ return Angle.toDeg(lon()); }
+    double lonDeg(){ return longitude; }
 
-    //TODO
     double lat(){
-        return 0;
+        return Angle.ofDeg(latitude);
     }
 
-    double latDeg(){ return Angle.toDeg(lat()); }
+    double latDeg(){ return latitude; }
 
     @Override
     final public int hashCode() {
