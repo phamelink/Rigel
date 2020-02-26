@@ -28,7 +28,7 @@ public final class Angle {
     /**
      * returns the angle according to the number of seconds in the given arc (negative or positive)
      * @param sec (double): seconds in the arc
-     * @return (double): the angle
+     * @return (double): the angle in radians
      */
     public static double ofArcsec(double sec){ return sec * RAD_PER_SEC; }
 
@@ -37,7 +37,7 @@ public final class Angle {
      * @param deg (double): degrees
      * @param min (double): minutes
      * @param sec (double): seconds
-     * @return (double): angle
+     * @return (double): angle in radians
      */
     public static double ofDMS(int deg, int min, double sec){
 
@@ -49,7 +49,7 @@ public final class Angle {
     /**
      * returns angle corresponding to the angle in degrees
      * @param deg (double): given angle in degrees
-     * @return (double): angle
+     * @return (double): angle in radians
      */
     public static double ofDeg(double deg){ return Math.toRadians(deg); }
 
