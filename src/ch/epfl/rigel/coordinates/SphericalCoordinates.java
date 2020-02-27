@@ -11,14 +11,30 @@ abstract class SphericalCoordinates {
         this.latitude = latitude;
     }
 
+    /**
+     * returns longitude (in radians)
+     * @return (double) longitude
+     */
     double lon(){ return Angle.ofDeg(longitude); }
 
+    /**
+     * returns longitude (in degrees)
+     * @return (double) longitude
+     */
     double lonDeg(){ return longitude; }
 
+    /**
+     * returns latitude (in radians)
+     * @return (double) latitude
+     */
     double lat(){
         return Angle.ofDeg(latitude);
     }
 
+    /**
+     * returns latitude (in degrees)
+     * @return (double) latitude
+     */
     double latDeg(){ return latitude; }
 
     @Override

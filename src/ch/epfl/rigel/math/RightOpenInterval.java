@@ -20,7 +20,7 @@ public final class RightOpenInterval extends Interval {
 
     /**
      * public method to instanciate a right open interval centered at 0
-     * @param radius (double): lower and upper bound
+     * @param diameter (double): lower and upper bound
      * @return (RightOpenInterval)
      */
     public static RightOpenInterval symmetric(double diameter){
