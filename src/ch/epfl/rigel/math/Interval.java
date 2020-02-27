@@ -44,7 +44,7 @@ abstract public class Interval {
      * @param v (double): value to be checked
      * @return (boolean)
      */
-    abstract boolean contains(double v);
+    abstract public boolean contains(double v);
 
     //redefinitions to raise exceptions
 
