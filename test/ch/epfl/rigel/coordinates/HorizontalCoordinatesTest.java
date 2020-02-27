@@ -8,13 +8,19 @@ import static org.junit.jupiter.api.Assertions.*;
 public final class HorizontalCoordinatesTest {
 
     @Test
-    void ofThrowsException(){
+    void ofandOfDegThrowsException(){
 
         assertThrows(IllegalArgumentException.class, () -> {
             HorizontalCoordinates hc = HorizontalCoordinates.of(0.5, Angle.TAU);
         });
         assertThrows(IllegalArgumentException.class, () -> {
             HorizontalCoordinates hc = HorizontalCoordinates.of(-0.1, -0.5);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            HorizontalCoordinates hc = HorizontalCoordinates.ofDeg(3, 360);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            HorizontalCoordinates hc = HorizontalCoordinates.of(-10, -10);
         });
     }
 
@@ -37,6 +43,22 @@ public final class HorizontalCoordinatesTest {
 
         double d = a.angularDistanceTo(b);
         assertEquals(0.0279, d, 1e-4);
+
+        a = HorizontalCoordinates.ofDeg(8.5476, 0);
+        b = HorizontalCoordinates.ofDeg(8.5476, 0);
+        d = a.angularDistanceTo(b);
+        assertEquals(0, d, 1e-4);
+
+        a = HorizontalCoordinates.ofDeg(8.5476, 0);
+        b = HorizontalCoordinates.ofDeg(0, 0);
+        d = a.angularDistanceTo(b);
+        assertEquals(Angle.ofDeg(8.5476), d, 1e-4);
+
+        a = HorizontalCoordinates.ofDeg(0, 0);
+        b = HorizontalCoordinates.ofDeg(0, 90);
+        d = a.angularDistanceTo(b);
+        assertEquals(Angle.ofDeg(90), d, 1e-4);
+
 
     }
 
