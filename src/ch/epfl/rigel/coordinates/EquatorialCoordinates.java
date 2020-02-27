@@ -80,13 +80,13 @@ public final class EquatorialCoordinates extends SphericalCoordinates {
      * returns the declination (in radians)
      * @return (double) dec
      */
-    public double dec() { return super.lon(); }
+    public double dec() { return super.lat(); }
 
     /**
      * returns the declination (in degrees)
      * @return (double) dec
      */
-    public double decDeg() { return super.lonDeg(); }
+    public double decDeg() { return super.latDeg(); }
 
     @Override
     public String toString() {

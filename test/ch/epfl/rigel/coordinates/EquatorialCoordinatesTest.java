@@ -1,6 +1,7 @@
 package ch.epfl.rigel.coordinates;
 
 import ch.epfl.rigel.math.Angle;
+import ch.epfl.rigel.math.Polynomial;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -42,26 +43,34 @@ class EquatorialCoordinatesTest {
 
     @Test
     void ra() {
-        assertEquals(180, EquatorialCoordinates.of(12,45).ra(), 1e-2);
+        assertEquals(3.14, EquatorialCoordinates.of(12,45).ra(), 1e-2);
     }
 
     @Test
     void raDeg() {
+        assertEquals(180, EquatorialCoordinates.of(12,45).raDeg(), 1e-2);
     }
 
     @Test
     void raHr() {
+        assertEquals(14, EquatorialCoordinates.of(14,45).raHr(), 1e-4);
     }
 
     @Test
     void dec() {
+        assertEquals(0.785, EquatorialCoordinates.of(12,45).dec(), 1e-2);
     }
 
     @Test
     void decDeg() {
+        assertEquals(73, EquatorialCoordinates.of(12,73).decDeg(), 1e-2);
     }
 
     @Test
     void testToString() {
+        EquatorialCoordinates ec1 = EquatorialCoordinates.of(13.4,38);
+        assertEquals("(ra=13.4000h, dec=38.0000°)", ec1.toString());
+        EquatorialCoordinates ec2 = EquatorialCoordinates.ofDeg(180,38);
+        assertEquals("(ra=12.0000h, dec=38.0000°)", ec2.toString());
     }
 }
