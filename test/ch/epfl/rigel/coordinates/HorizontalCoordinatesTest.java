@@ -62,4 +62,9 @@ public final class HorizontalCoordinatesTest {
 
     }
 
+    @Test
+    void equalsTest(){
+        assertThrows(UnsupportedOperationException.class, () -> {HorizontalCoordinates.of(0,0).equals("hello");});
+    }
+
 }
