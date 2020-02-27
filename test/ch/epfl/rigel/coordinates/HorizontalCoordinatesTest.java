@@ -34,6 +34,10 @@ public final class HorizontalCoordinatesTest {
     void angularDistanceTest(){
         HorizontalCoordinates a = HorizontalCoordinates.ofDeg(6.5682, 46.5183);
         HorizontalCoordinates b = HorizontalCoordinates.ofDeg(8.5476, 47.3763);
+
+        double d = a.angularDistanceTo(b);
+        assertEquals(0.0279, d, 1e-4);
+
     }
 
 }
