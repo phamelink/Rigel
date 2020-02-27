@@ -21,7 +21,8 @@ public final class EquatorialCoordinates extends SphericalCoordinates {
      * @return (EquatorialCoordinates)
      */
     public static EquatorialCoordinates of(double ra, double dec) {
-        double raDeg = Angle.ofHr(ra);
+        double raRad = Angle.ofHr(ra);
+        double raDeg = Angle.toDeg(raRad);
         if (!isValidRa(raDeg) || !isValidDec(dec)) throw new IllegalArgumentException();
 
         return new EquatorialCoordinates(raDeg, dec);
@@ -42,7 +43,7 @@ public final class EquatorialCoordinates extends SphericalCoordinates {
     /**
      * checks if the given right ascension is valid
      * @param ra (double): ra in degrees
-     * @return
+     * @return (boolean): the right ascension is valid or not
      */
     public static boolean isValidRa(double ra) {
         return RIGHT_ASCENSION_INTERVAL.contains(ra);
@@ -51,20 +52,40 @@ public final class EquatorialCoordinates extends SphericalCoordinates {
     /**
      * checks if the given declination is valid
      * @param dec (double): dec in degrees
-     * @return
+     * @return (boolean): the declination is valid or not
      */
     public static boolean isValidDec(double dec) {
         return DECLINATION_INTERVAL.contains(dec);
     }
 
+    /**
+     * returns the right ascension (in radians)
+     * @return (double) ra
+     */
     public double ra() { return super.lon(); }
 
+    /**
+     * returns the right ascension (in degrees)
+     * @return (double) ra
+     */
     public double raDeg() { return super.lonDeg(); }
 
+    /**
+     * returns the right ascension (in hours)
+     * @return (double) ra
+     */
     public double raHr() { return Angle.toHr(super.lon()); }
 
+    /**
+     * returns the declination (in radians)
+     * @return (double) dec
+     */
     public double dec() { return super.lon(); }
 
+    /**
+     * returns the declination (in degrees)
+     * @return (double) dec
+     */
     public double decDeg() { return super.lonDeg(); }
 
     @Override
