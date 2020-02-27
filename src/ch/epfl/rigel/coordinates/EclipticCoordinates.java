@@ -22,7 +22,7 @@ public final class EclipticCoordinates extends SphericalCoordinates {
      * @return (EclipticCoordinates)
      */
     public static EclipticCoordinates of(double lon, double lat){
-        return ofDeg(Angle.ofDeg(lon), Angle.ofDeg(lat));
+        return ofDeg(Angle.toDeg(lon), Angle.toDeg(lat));
     }
 
     /**

@@ -34,6 +34,9 @@ public final class HorizontalCoordinatesTest {
                 .azOctantName("bim", "bam", "boum", "wee"));
         assertEquals("wee", HorizontalCoordinates.of(Angle.normalizePositive(Angle.ofDeg(-90.0)),0.8)
                 .azOctantName("bim", "bam", "boum", "wee"));
+        assertEquals("", HorizontalCoordinates.of(Angle.normalizePositive(Angle.ofDeg(-90.0)),0.8)
+                .azOctantName("", "", "", ""));
+
     }
 
     @Test
@@ -58,6 +61,11 @@ public final class HorizontalCoordinatesTest {
         b = HorizontalCoordinates.ofDeg(0, 90);
         d = a.angularDistanceTo(b);
         assertEquals(Angle.ofDeg(90), d, 1e-4);
+
+        a = HorizontalCoordinates.ofDeg(36, 45);
+        b = HorizontalCoordinates.ofDeg(67, 12);
+        d = a.angularDistanceTo(b);
+        assertEquals(Angle.ofDeg(42.2788), d, 1e-4);
 
 
     }

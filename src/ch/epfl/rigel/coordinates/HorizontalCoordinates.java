@@ -12,6 +12,8 @@ public final class HorizontalCoordinates extends SphericalCoordinates {
     public static final RightOpenInterval AZIMUTH_INTERVAL = RightOpenInterval.of(0, 360);
     public static final ClosedInterval ALTITUDE_INTERVAL = ClosedInterval.of(-90, 90);
 
+    private GeographicCoordinates refPoint;
+
     public enum OCTANT {
         N(0,0, 45, "N", new CARDINAL[]{CARDINAL.N}),
         NE(1,45, 90, "NE", new CARDINAL[]{CARDINAL.N, CARDINAL.E}),
@@ -168,6 +170,18 @@ public final class HorizontalCoordinates extends SphericalCoordinates {
     public double angularDistanceTo(HorizontalCoordinates that){
         return Math.acos(Math.sin(this.lat()) * Math.sin(that.lat()) + Math.cos(this.lat()) * Math.cos(that.lat()) *
                 Math.cos(this.lon() - that.lon()));
+    }
+
+    public void setRefPoint(GeographicCoordinates refPoint){
+        this.refPoint = refPoint;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public GeographicCoordinates getRefPoint(){
+        return this.refPoint;
     }
 
     @Override
