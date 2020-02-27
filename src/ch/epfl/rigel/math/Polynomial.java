@@ -13,12 +13,22 @@ final public class Polynomial {
     }
 
 
-
+    /**
+     * returns a polynomial function with the given coefficients in decreasing order
+     * @param coefficientN (double): highest coefficient (cannot be 0)
+     * @param coefficients (double[]): array of the remaining coefficients (can be empty)
+     * @return (Polynomial)
+     */
     public static Polynomial of(double coefficientN, double... coefficients) {
         if (coefficientN == 0) throw new IllegalArgumentException();
         return new Polynomial (coefficientN, coefficients);
     }
 
+    /**
+     * returns value of the function with given parameter as x
+     * @param x (double): value given to calculate function
+     * @return (double)
+     */
     public double at(double x) {
 
         final int maxDeg = coeffs.length - 1;

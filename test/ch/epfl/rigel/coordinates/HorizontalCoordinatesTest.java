@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class HorizontalCoordinatesTest {
+public final class HorizontalCoordinatesTest {
 
     @Test
     void ofThrowsException(){
@@ -28,6 +28,12 @@ class HorizontalCoordinatesTest {
                 .azOctantName("bim", "bam", "boum", "wee"));
         assertEquals("wee", HorizontalCoordinates.of(Angle.normalizePositive(Angle.ofDeg(-90.0)),0.8)
                 .azOctantName("bim", "bam", "boum", "wee"));
+    }
+
+    @Test
+    void angularDistanceTest(){
+        HorizontalCoordinates a = HorizontalCoordinates.ofDeg(6.5682, 46.5183);
+        HorizontalCoordinates b = HorizontalCoordinates.ofDeg(8.5476, 47.3763);
     }
 
 }

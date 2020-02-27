@@ -120,6 +120,11 @@ public final class HorizontalCoordinates extends SphericalCoordinates {
 
     }
 
+    public double angularDistanceTo(HorizontalCoordinates that){
+        return Math.acos(Math.sin(this.lat()) * Math.sin(that.lat()) + Math.cos(this.lat()) * Math.cos(that.lat()) *
+                Math.cos(this.lon() - that.lon()));
+    }
+
     @Override
     public String toString() {
         return String.format(Locale.ROOT, "(az=%.4f°, alt=%.4f°)", azDeg(), altDeg());

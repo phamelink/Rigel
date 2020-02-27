@@ -1,23 +1,28 @@
 package ch.epfl.rigel.coordinates;
 
+import ch.epfl.rigel.math.Angle;
 import ch.epfl.rigel.math.ClosedInterval;
 import ch.epfl.rigel.math.RightOpenInterval;
 
 import java.util.Locale;
 
-public final class GeographicCoordinates extends SphericalCoordinates {
+public final class EclipticCoordinates extends SphericalCoordinates {
 
     private static final RightOpenInterval LONGITUDE_INTERVAL = RightOpenInterval.of(-180, 180);
     private static final ClosedInterval LATITUDE_INTERVAL = ClosedInterval.of(-90, 90);
 
-    private GeographicCoordinates(double longitude, double latitude) {
+    private EclipticCoordinates(double longitude, double latitude) {
         super(longitude, latitude);
     }
 
-    public static GeographicCoordinates ofDeg(double lonDeg, double latDeg){
+    public static EclipticCoordinates of(double lon, double lat){
+        return ofDeg(Angle.ofDeg(lon), Angle.ofDeg(lat));
+    }
+
+    public static EclipticCoordinates ofDeg(double lonDeg, double latDeg){
         if(!isValidLatDeg(latDeg)|| !isValidLonDeg(lonDeg)) throw new IllegalArgumentException();
 
-        return new GeographicCoordinates(lonDeg, latDeg);
+        return new EclipticCoordinates(lonDeg, latDeg);
     }
 
     public static boolean isValidLonDeg(double lonDeg){
@@ -34,7 +39,7 @@ public final class GeographicCoordinates extends SphericalCoordinates {
 
     @Override
     public String toString() {
-        return String.format(Locale.ROOT, "(lon=%.4f°, lat=%.4f°)", lonDeg(), latDeg());
+        return String.format(Locale.ROOT, "(λ=%.4f°, β=%.4f°)", lonDeg(), latDeg());
     }
 
     public double lonDeg() {
