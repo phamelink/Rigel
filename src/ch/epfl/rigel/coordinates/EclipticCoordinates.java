@@ -8,11 +8,11 @@ import java.util.Locale;
 
 public final class EclipticCoordinates extends SphericalCoordinates {
 
-    private static final RightOpenInterval LONGITUDE_INTERVAL = RightOpenInterval.of(-180, 180);
+    private static final RightOpenInterval LONGITUDE_INTERVAL = RightOpenInterval.of(0, 360);
     private static final ClosedInterval LATITUDE_INTERVAL = ClosedInterval.of(-90, 90);
 
-    private EclipticCoordinates(double longitude, double latitude) {
-        super(longitude, latitude);
+    private EclipticCoordinates(double longitudeDeg, double latitudeDeg) {
+        super(longitudeDeg, latitudeDeg);
     }
 
     /**

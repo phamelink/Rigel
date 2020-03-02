@@ -28,10 +28,12 @@ public final class HorizontalCoordinates extends SphericalCoordinates {
         final RightOpenInterval octantInterval;
         final String name;
         final CARDINAL[] placeholder;
+        static final double size = 45.0/2.0; //Rotation offset size to normalize in right interval
 
         OCTANT(int key, int beginDeg, int endDeg, String name, CARDINAL[] placeholder){
-            final double size = 45.0/2.0;
-            octantInterval = RightOpenInterval.of(beginDeg-size, endDeg-size);
+
+            octantInterval = RightOpenInterval.of(beginDeg, endDeg);
+            System.out.println(octantInterval);
             this.key = key;
             this.name = name;
             this.placeholder = placeholder;
@@ -43,11 +45,11 @@ public final class HorizontalCoordinates extends SphericalCoordinates {
          * @return (OCTANT) corresponding octant
          */
         public static OCTANT octantOfDeg(double deg){
-            double mod = deg % 360.0;
+            double mod = (deg+size) % 360.0;
             for(OCTANT oc : OCTANT.values()){
                 if (oc.octantInterval.contains(mod)) return oc;
             }
-            throw new NoSuchElementException();
+            throw new NoSuchElementException(Double.toString(mod));
         }
 
         /**

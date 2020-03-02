@@ -7,11 +7,13 @@ import ch.epfl.rigel.math.RightOpenInterval;
 import java.util.Locale;
 
 public final class EquatorialCoordinates extends SphericalCoordinates {
-    public static final RightOpenInterval RIGHT_ASCENSION_INTERVAL = RightOpenInterval.of(0, 360);
+    public static final RightOpenInterval RIGHT_ASCENSION_INTERVAL = RightOpenInterval.of(0, 24);
     public static final ClosedInterval DECLINATION_INTERVAL = ClosedInterval.symmetric(180);
 
-    private EquatorialCoordinates(double longitude, double latitude) {
-        super(longitude, latitude);
+    private EquatorialCoordinates(double raHr, double decDeg) {
+
+        super(Angle.toDeg(Angle.ofHr(raHr)), decDeg);
+
     }
 
     /**
@@ -21,11 +23,9 @@ public final class EquatorialCoordinates extends SphericalCoordinates {
      * @return (EquatorialCoordinates)
      */
     public static EquatorialCoordinates of(double ra, double dec) {
-        double raRad = Angle.ofHr(ra);
-        double raDeg = Angle.toDeg(raRad);
-        if (!isValidRa(raDeg) || !isValidDec(dec)) throw new IllegalArgumentException();
+        if (!isValidRa(ra) || !isValidDec(dec)) throw new IllegalArgumentException();
 
-        return new EquatorialCoordinates(raDeg, dec);
+        return new EquatorialCoordinates(Angle.toHr(ra), Angle.toDeg(dec));
     }
 
     /**
@@ -46,7 +46,7 @@ public final class EquatorialCoordinates extends SphericalCoordinates {
      * @return (boolean): the right ascension is valid or not
      */
     public static boolean isValidRa(double ra) {
-        return RIGHT_ASCENSION_INTERVAL.contains(ra);
+        return RIGHT_ASCENSION_INTERVAL.contains(Angle.toHr(ra));
     }
 
     /**
@@ -55,7 +55,7 @@ public final class EquatorialCoordinates extends SphericalCoordinates {
      * @return (boolean): the declination is valid or not
      */
     public static boolean isValidDec(double dec) {
-        return DECLINATION_INTERVAL.contains(dec);
+        return DECLINATION_INTERVAL.contains(Angle.toDeg(dec));
     }
 
     /**
