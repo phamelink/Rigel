@@ -18,8 +18,8 @@ public final class EquatorialCoordinates extends SphericalCoordinates {
 
     /**
      * Construction method
-     * @param ra (double): right ascension (angle in hours [0h,24h[)
-     * @param dec (double): declination (angle in degrees [-90°,90°])
+     * @param ra (double): right ascension (angle in radians [0, TAU[)
+     * @param dec (double): declination (angle in radians [-PI/2, PI/2])
      * @return (EquatorialCoordinates)
      */
     public static EquatorialCoordinates of(double ra, double dec) {
@@ -37,12 +37,12 @@ public final class EquatorialCoordinates extends SphericalCoordinates {
     public static EquatorialCoordinates ofDeg(double raDeg, double dec) {
         if (!isValidRa(raDeg) || !isValidDec(dec)) throw new IllegalArgumentException();
 
-        return new EquatorialCoordinates(raDeg, dec);
+        return new EquatorialCoordinates(Angle.toHr(Angle.ofDeg(raDeg)), dec);
     }
 
     /**
      * checks if the given right ascension is valid
-     * @param ra (double): ra in degrees
+     * @param ra (double): ra in radians
      * @return (boolean): the right ascension is valid or not
      */
     public static boolean isValidRa(double ra) {
@@ -51,7 +51,7 @@ public final class EquatorialCoordinates extends SphericalCoordinates {
 
     /**
      * checks if the given declination is valid
-     * @param dec (double): dec in degrees
+     * @param dec (double): dec in radians
      * @return (boolean): the declination is valid or not
      */
     public static boolean isValidDec(double dec) {
