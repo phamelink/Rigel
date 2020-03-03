@@ -11,7 +11,7 @@ public enum Epoch {
 
 
     private static final double MILLI_SEC_IN_ONE_DAY = 1000*60*60*24;
-    private static final double DAYS_IN_ONE_JULIAN_CENTURY = 36625;
+    private static final double DAYS_IN_ONE_JULIAN_CENTURY = 36525;
     private final ZonedDateTime epochTimeStamp;
 
 
