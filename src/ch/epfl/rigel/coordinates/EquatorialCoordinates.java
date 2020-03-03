@@ -23,7 +23,7 @@ public final class EquatorialCoordinates extends SphericalCoordinates {
      * @return (EquatorialCoordinates)
      */
     public static EquatorialCoordinates of(double ra, double dec) {
-        if (!isValidRa(ra) || !isValidDec(dec)) throw new IllegalArgumentException();
+        if (!isValidRa(ra) || !isValidDec(dec)) throw new IllegalArgumentException(ra + "|" + dec);
 
         return new EquatorialCoordinates(Angle.toHr(ra), Angle.toDeg(dec));
     }

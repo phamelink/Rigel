@@ -15,8 +15,8 @@ class EclipticToEquatorialConversionTest {
     @Test
     void apply() {
 
-        EclipticToEquatorialConversion conv = new EclipticToEquatorialConversion(ZonedDateTime.of(2007,7,6,0,0,0,0, ZoneOffset.UTC));
-        EclipticCoordinates ecl = EclipticCoordinates.of(Angle.ofDMS(139, 41, 10), Angle.ofDMS(4, 52,31));
+        EclipticToEquatorialConversion conv = new EclipticToEquatorialConversion(ZonedDateTime.of(2001, 1,1,0,0,0,0, ZoneOffset.UTC));
+         EclipticCoordinates ecl = EclipticCoordinates.of(Angle.ofDMS(9,0 , 0), Angle.ofDMS(42, 2,0));
 
         EquatorialCoordinates eq = conv.apply(ecl);
         System.out.println(eq);

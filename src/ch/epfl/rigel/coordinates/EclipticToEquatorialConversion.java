@@ -42,7 +42,7 @@ public class EclipticToEquatorialConversion implements Function<EclipticCoordina
 
         double ra = Math.atan2((cosObliquity * sinLambda * cosBeta - sinObliquity * sinBeta), cosBeta * cosLambda);
         double dec = Math.asin(cosObliquity * sinBeta + sinObliquity * cosBeta * sinLambda);
-        EquatorialCoordinates eqc = EquatorialCoordinates.of(ra,dec);
+        EquatorialCoordinates eqc = EquatorialCoordinates.of(Angle.normalizePositive(ra),dec);
         return eqc;
     }
 

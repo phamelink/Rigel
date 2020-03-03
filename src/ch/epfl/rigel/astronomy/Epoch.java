@@ -3,6 +3,7 @@ package ch.epfl.rigel.astronomy;
 import java.time.*;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
+import java.util.Date;
 
 public enum Epoch {
 
@@ -42,4 +43,6 @@ public enum Epoch {
     public double julianCenturiesUntil(ZonedDateTime when) {
         return daysUntil(when)/DAYS_IN_ONE_JULIAN_CENTURY;
     }
+
+
 }
