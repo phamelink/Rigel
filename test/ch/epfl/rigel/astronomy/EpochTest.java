@@ -15,6 +15,7 @@ class EpochTest {
                 LocalTime.of(18,0),
                 ZoneOffset.UTC);
         assertEquals(2.25, Epoch.J2000.daysUntil(d), 1e-2);
+
     }
 
     @Test
@@ -23,7 +24,7 @@ class EpochTest {
                 LocalDate.of(2020, Month.FEBRUARY, 28),
                 LocalTime.of(18,0),
                 ZoneOffset.UTC);
-        assertEquals(0.20104, Epoch.J2000.julianCenturiesUntil(d), 1e-4);
+        assertEquals(0.20159, Epoch.J2000.julianCenturiesUntil(d), 1e-4);
 
     }
 }

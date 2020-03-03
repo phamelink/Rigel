@@ -14,7 +14,7 @@ public enum Epoch {
     private ZoneOffset zoneOffset;
 
     private final double MILLI_SEC_IN_ONE_DAY = 1000*60*60*24;
-    private final double DAYS_IN_ONE_JULIAN_CENTURY = 36625;
+    private final double DAYS_IN_ONE_JULIAN_CENTURY = 36525;
 
 
     private Epoch(LocalDate localDate, LocalTime localTime, ZoneOffset zoneOffset) {

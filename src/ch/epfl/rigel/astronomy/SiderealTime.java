@@ -12,7 +12,7 @@ import java.time.temporal.TemporalUnit;
 
 public final class SiderealTime {
     private static final Polynomial SIDEREAL_TIME_0 = Polynomial.of(0.000025862,2400.051336, 6.697374558);
-    private static final Polynomial SIDEREAL_TIME_1 = Polynomial.of(1.002737909);
+    private static final Polynomial SIDEREAL_TIME_1 = Polynomial.of(1.002737909, 0);
 
     private SiderealTime() {}
 
@@ -22,12 +22,12 @@ public final class SiderealTime {
      * @return (double) siderealtime in radians
      */
     public static double greenwich(ZonedDateTime when) {
-        ZonedDateTime truncatedDate = when.truncatedTo(ChronoUnit.HOURS);
+        ZonedDateTime truncatedDate = when.truncatedTo(ChronoUnit.DAYS);
         double julianCenturiesDifference = Epoch.J2000.julianCenturiesUntil(truncatedDate);
-        double hoursSinceBeginningOfDay = truncatedDate.until(when, ChronoUnit.MILLIS)/3600000;
+        double hoursSinceBeginningOfDay = ChronoUnit.MILLIS.between(truncatedDate, when)/3600000d;
         double siderealTimeGreenwichHr = SIDEREAL_TIME_0.at(julianCenturiesDifference) + SIDEREAL_TIME_1.at(hoursSinceBeginningOfDay);
-        double siderealTimeGreenwichRad = Angle.ofHr(siderealTimeGreenwichHr);
-        return Angle.normalizePositive(siderealTimeGreenwichRad);
+        double siderealTimeGreenwichRad = Angle.normalizePositive(Angle.ofHr(siderealTimeGreenwichHr));
+        return siderealTimeGreenwichRad;
     }
 
     /**
@@ -38,7 +38,6 @@ public final class SiderealTime {
      */
     public static double local(ZonedDateTime when, GeographicCoordinates where) {
         ZonedDateTime inGreenwichTime = when.withZoneSameInstant(ZoneId.of("Greenwich"));
-        double localLongitude = Angle.toHr(where.lon());
-        return Angle.normalizePositive(greenwich(inGreenwichTime) + localLongitude);
+        return Angle.normalizePositive(greenwich(inGreenwichTime) + where.lon());
     }
 }
