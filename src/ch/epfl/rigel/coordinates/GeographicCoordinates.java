@@ -1,5 +1,6 @@
 package ch.epfl.rigel.coordinates;
 
+import ch.epfl.rigel.math.Angle;
 import ch.epfl.rigel.math.ClosedInterval;
 import ch.epfl.rigel.math.RightOpenInterval;
 
@@ -23,7 +24,7 @@ public final class GeographicCoordinates extends SphericalCoordinates {
     public static GeographicCoordinates ofDeg(double lonDeg, double latDeg){
         if(!isValidLatDeg(latDeg)|| !isValidLonDeg(lonDeg)) throw new IllegalArgumentException();
 
-        return new GeographicCoordinates(lonDeg, latDeg);
+        return new GeographicCoordinates(Angle.ofDeg(lonDeg),Angle.ofDeg(latDeg));
     }
 
     /**

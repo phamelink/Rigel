@@ -1,76 +1,76 @@
 package ch.epfl.rigel.coordinates;
 
-import ch.epfl.rigel.math.Angle;
-import ch.epfl.rigel.math.Polynomial;
+import ch.epfl.test.TestRandomizer;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static java.lang.Math.PI;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class EquatorialCoordinatesTest {
+    @Test
+    void equOfWorksWithValidCoordinates() {
+        var rng = TestRandomizer.newRandom();
+        for (int i = 0; i < TestRandomizer.RANDOM_ITERATIONS; i++) {
+            var ra = rng.nextDouble(0, 2d * PI);
+            var dec = rng.nextDouble(-PI / 2d, PI / 2d);
+            var c = EquatorialCoordinates.of(ra, dec);
+            assertEquals(ra, c.ra(), 1e-8);
+            assertEquals(dec, c.dec(), 1e-8);
+        }
+    }
 
     @Test
-    void ofThrowsException() {
+    void equOfFailsWithInvalidCoordinates() {
         assertThrows(IllegalArgumentException.class, () -> {
-            EquatorialCoordinates ec = EquatorialCoordinates.of(0,102);
+            EquatorialCoordinates.of(2d * PI + 1e-8, 0);
         });
         assertThrows(IllegalArgumentException.class, () -> {
-            EquatorialCoordinates ec = EquatorialCoordinates.of(-3,45);
-        });
-    }
-
-    @Test
-    void ofDegThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            EquatorialCoordinates ec = EquatorialCoordinates.ofDeg(360,-46);
+            EquatorialCoordinates.of(-1e-8, 0);
         });
         assertThrows(IllegalArgumentException.class, () -> {
-            EquatorialCoordinates ec = EquatorialCoordinates.ofDeg(-13,76);
+            EquatorialCoordinates.of(0, PI + 1e-8);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            EquatorialCoordinates.of(0, -(PI + 1e-8));
         });
     }
 
     @Test
-    void isValidRa() {
-        assertTrue(EquatorialCoordinates.isValidRa(30.0));
-        assertFalse(EquatorialCoordinates.isValidRa(360));
-        assertFalse(EquatorialCoordinates.isValidRa(-60));
+    void raDegAndDecDegReturnCoordinatesInDegrees() {
+        var rng = TestRandomizer.newRandom();
+        for (int i = 0; i < TestRandomizer.RANDOM_ITERATIONS; i++) {
+            var ra = rng.nextDouble(0, 2d * PI);
+            var dec = rng.nextDouble(-PI / 2d, PI / 2d);
+            var c = EquatorialCoordinates.of(ra, dec);
+            assertEquals(Math.toDegrees(ra), c.raDeg(), 1e-8);
+            assertEquals(Math.toDegrees(dec), c.decDeg(), 1e-8);
+        }
     }
 
     @Test
-    void isValidDec() {
-        assertTrue(EquatorialCoordinates.isValidDec(-90.0));
-        assertFalse(EquatorialCoordinates.isValidDec(360));
+    void raHrReturnsRightAscensionInHours() {
+        var rng = TestRandomizer.newRandom();
+        for (int i = 0; i < TestRandomizer.RANDOM_ITERATIONS; i++) {
+            var ra = rng.nextDouble(0, 2d * PI);
+            var dec = rng.nextDouble(-PI / 2d, PI / 2d);
+            var c = EquatorialCoordinates.of(ra, dec);
+            assertEquals(Math.toDegrees(ra) / 15d, c.raHr(), 1e-8);
+        }
     }
 
     @Test
-    void ra() {
-        assertEquals(3.14, EquatorialCoordinates.of(12,45).ra(), 1e-2);
+    void equEqualsThrowsUOE() {
+        assertThrows(UnsupportedOperationException.class, () -> {
+            var c = EquatorialCoordinates.of(0, 0);
+            c.equals(c);
+        });
     }
 
     @Test
-    void raDeg() {
-        assertEquals(180, EquatorialCoordinates.of(12,45).raDeg(), 1e-2);
-    }
-
-    @Test
-    void raHr() {
-        assertEquals(14, EquatorialCoordinates.of(14,45).raHr(), 1e-4);
-    }
-
-    @Test
-    void dec() {
-        assertEquals(0.785, EquatorialCoordinates.of(12,45).dec(), 1e-2);
-    }
-
-    @Test
-    void decDeg() {
-        assertEquals(73, EquatorialCoordinates.of(12,73).decDeg(), 1e-2);
-    }
-
-    @Test
-    void testToString() {
-        EquatorialCoordinates ec1 = EquatorialCoordinates.of(13.4,38);
-        assertEquals("(ra=13.4000h, dec=38.0000°)", ec1.toString());
-        EquatorialCoordinates ec2 = EquatorialCoordinates.ofDeg(180,38);
-        assertEquals("(ra=12.0000h, dec=38.0000°)", ec2.toString());
+    void equHashCodeThrowsUOE() {
+        assertThrows(UnsupportedOperationException.class, () -> {
+            EquatorialCoordinates.of(0, 0).hashCode();
+        });
     }
 }

@@ -9,8 +9,8 @@ import java.util.NoSuchElementException;
 
 public final class HorizontalCoordinates extends SphericalCoordinates {
 
-    public static final RightOpenInterval AZIMUTH_INTERVAL = RightOpenInterval.of(0, 360);
-    public static final ClosedInterval ALTITUDE_INTERVAL = ClosedInterval.of(-90, 90);
+    public static final RightOpenInterval AZIMUTH_INTERVAL = RightOpenInterval.of(0, Angle.TAU);
+    public static final ClosedInterval ALTITUDE_INTERVAL = ClosedInterval.symmetric(Math.PI);
 
     private GeographicCoordinates refPoint;
 
@@ -78,10 +78,9 @@ public final class HorizontalCoordinates extends SphericalCoordinates {
      * @return (HorizontalCoordinates) new HorizontalCoordinates object
      */
     public static HorizontalCoordinates of(double az, double alt){
-        double azDeg = Angle.toDeg(az);
-        double altDeg = Angle.toDeg(alt);
 
-        return ofDeg(azDeg, altDeg);
+        if(!isValidAz(az) || !isValidAlt(alt)) throw new IllegalArgumentException();
+        return new HorizontalCoordinates(az, alt);
 
     }
 
@@ -92,27 +91,27 @@ public final class HorizontalCoordinates extends SphericalCoordinates {
      * @return (HorizontalCoordinates) New HorizontalCoordinates object
      */
     public static HorizontalCoordinates ofDeg(double azDeg, double altDeg) {
-        if(!isValidAz(azDeg) || !isValidAlt(altDeg)) throw new IllegalArgumentException();
 
-        return new HorizontalCoordinates(azDeg, altDeg);
+       return of(Angle.ofDeg(azDeg), Angle.ofDeg(altDeg));
+
     }
 
     /**
      * Returns true if valid azimuth.
-     * @param azDeg (double) azimuth angle in deg
+     * @param az (double) azimuth angle in rad
      * @return (boolean) the angle is valid
      */
-    public static boolean isValidAz(double azDeg){
-        return AZIMUTH_INTERVAL.contains(azDeg);
+    public static boolean isValidAz(double az){
+        return AZIMUTH_INTERVAL.contains(az);
     }
 
     /**
      * Returns true if valid altitude.
-     * @param altDeg (double) altitude in deg
+     * @param alt (double) altitude in rad
      * @return (boolean) the angle is valid
      */
-    public static boolean isValidAlt(double altDeg){
-        return ALTITUDE_INTERVAL.contains(altDeg);
+    public static boolean isValidAlt(double alt){
+        return ALTITUDE_INTERVAL.contains(alt);
     }
 
     public double az(){

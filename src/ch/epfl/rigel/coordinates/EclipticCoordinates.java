@@ -8,11 +8,11 @@ import java.util.Locale;
 
 public final class EclipticCoordinates extends SphericalCoordinates {
 
-    private static final RightOpenInterval LONGITUDE_INTERVAL = RightOpenInterval.of(0, 360);
-    private static final ClosedInterval LATITUDE_INTERVAL = ClosedInterval.of(-90, 90);
+    private static final RightOpenInterval LONGITUDE_INTERVAL = RightOpenInterval.of(0, Angle.TAU);
+    private static final ClosedInterval LATITUDE_INTERVAL = ClosedInterval.symmetric(Math.PI);
 
-    private EclipticCoordinates(double longitudeDeg, double latitudeDeg) {
-        super(longitudeDeg, latitudeDeg);
+    private EclipticCoordinates(double longitude, double latitude) {
+        super(longitude, latitude);
     }
 
     /**
@@ -22,7 +22,9 @@ public final class EclipticCoordinates extends SphericalCoordinates {
      * @return (EclipticCoordinates)
      */
     public static EclipticCoordinates of(double lon, double lat){
-        return ofDeg(Angle.toDeg(lon), Angle.toDeg(lat));
+        if(!isValidLat(lat)|| !isValidLon(lon)) throw new IllegalArgumentException();
+
+        return new EclipticCoordinates(lon, lat);
     }
 
     /**
@@ -32,27 +34,25 @@ public final class EclipticCoordinates extends SphericalCoordinates {
      * @return (EclipticCoordinates)
      */
     public static EclipticCoordinates ofDeg(double lonDeg, double latDeg){
-        if(!isValidLatDeg(latDeg)|| !isValidLonDeg(lonDeg)) throw new IllegalArgumentException();
-
-        return new EclipticCoordinates(lonDeg, latDeg);
+        return of(Angle.ofDeg(lonDeg), Angle.ofDeg(latDeg));
     }
 
     /**
      * checks if the given longitude is valid
-     * @param lonDeg (double): lon in degrees
+     * @param lon (double): lon in radians
      * @return (boolean): the longitude is valid or not
      */
-    public static boolean isValidLonDeg(double lonDeg){
-        return LONGITUDE_INTERVAL.contains(lonDeg);
+    private static boolean isValidLon(double lon){
+        return LONGITUDE_INTERVAL.contains(lon);
     }
 
     /**
      * checks if the given latitude is valid
-     * @param latDeg (double): lat in degrees
+     * @param lat (double): lat in radians
      * @return (boolean): the latitude is valid or not
      */
-    public static boolean isValidLatDeg(double latDeg){
-        return LATITUDE_INTERVAL.contains(latDeg);
+    private static boolean isValidLat(double lat){
+        return LATITUDE_INTERVAL.contains(lat);
     }
 
     @Override

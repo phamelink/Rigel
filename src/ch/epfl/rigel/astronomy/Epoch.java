@@ -9,18 +9,18 @@ public enum Epoch {
     J2000(LocalDate.of(2000,Month.JANUARY,1), LocalTime.of(12,0), ZoneOffset.UTC),
     J2010(LocalDate.of(2010,Month.JANUARY,1).minusDays(1), LocalTime.of(0,0), ZoneOffset.UTC);
 
-    private LocalDate localDate;
-    private LocalTime localTime;
-    private ZoneOffset zoneOffset;
 
-    private final double MILLI_SEC_IN_ONE_DAY = 1000*60*60*24;
-    private final double DAYS_IN_ONE_JULIAN_CENTURY = 36625;
+    private static final double MILLI_SEC_IN_ONE_DAY = 1000*60*60*24;
+    private static final double DAYS_IN_ONE_JULIAN_CENTURY = 36625;
+    private final ZonedDateTime epochTimeStamp;
 
 
     private Epoch(LocalDate localDate, LocalTime localTime, ZoneOffset zoneOffset) {
-        this.localDate = localDate;
-        this.localTime = localTime;
-        this.zoneOffset = zoneOffset;
+        this.epochTimeStamp = ZonedDateTime.of(localDate, localTime, zoneOffset.normalized());
+    }
+
+    public ZonedDateTime getEpochTimeStamp(){
+        return epochTimeStamp;
     }
 
     /**
@@ -29,8 +29,7 @@ public enum Epoch {
      * @return (double) number of days
      */
     public double daysUntil(ZonedDateTime when) {
-        ZonedDateTime epoch = ZonedDateTime.of(this.localDate, this.localTime, this.zoneOffset.normalized());
-        double milliSecUntil = epoch.until(when, ChronoUnit.MILLIS);
+        double milliSecUntil = this.epochTimeStamp.until(when, ChronoUnit.MILLIS);
         return milliSecUntil/MILLI_SEC_IN_ONE_DAY;
     }
 

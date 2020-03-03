@@ -3,8 +3,8 @@ package ch.epfl.rigel.coordinates;
 import ch.epfl.rigel.math.Angle;
 
 abstract class SphericalCoordinates {
-    private final double longitude;
-    private final double latitude;
+    private final double longitude; //in radians
+    private final double latitude; //in radians
 
     SphericalCoordinates(double longitude, double latitude) {
         this.longitude = longitude;
@@ -13,29 +13,27 @@ abstract class SphericalCoordinates {
 
     /**
      * returns longitude (in radians)
-     * @return (double) longitude
+     * @return (double) longitude in radians
      */
-    double lon(){ return Angle.ofDeg(longitude); }
+    double lon(){ return longitude; }
 
     /**
      * returns longitude (in degrees)
-     * @return (double) longitude
+     * @return (double) longitude in degrees
      */
-    double lonDeg(){ return longitude; }
+    double lonDeg(){ return Angle.toDeg(longitude); }
 
     /**
      * returns latitude (in radians)
-     * @return (double) latitude
+     * @return (double) latitude in radians
      */
-    double lat(){
-        return Angle.ofDeg(latitude);
-    }
+    double lat(){ return latitude; }
 
     /**
      * returns latitude (in degrees)
-     * @return (double) latitude
+     * @return (double) latitude in degrees
      */
-    double latDeg(){ return latitude; }
+    double latDeg(){ return Angle.toDeg(latitude); }
 
     @Override
     final public int hashCode() {
