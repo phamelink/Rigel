@@ -6,6 +6,7 @@ import ch.epfl.rigel.math.Polynomial;
 
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.function.Function;
 
 public class EclipticToEquatorialConversion implements Function<EclipticCoordinates, EquatorialCoordinates> {

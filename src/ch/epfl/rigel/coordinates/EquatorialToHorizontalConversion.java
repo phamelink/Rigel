@@ -4,6 +4,8 @@ import ch.epfl.rigel.astronomy.SiderealTime;
 import ch.epfl.rigel.math.Angle;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
 public class EquatorialToHorizontalConversion implements Function<EquatorialCoordinates, HorizontalCoordinates> {
@@ -11,6 +13,16 @@ public class EquatorialToHorizontalConversion implements Function<EquatorialCoor
     private final double localSiderealTime;
     private final double sinLat;
     private final double cosLat;
+
+    private final ArrayList<EquatorialCoordinates> toConvert = new ArrayList<>() {{
+        add(EquatorialCoordinates.ofDeg(10, 40));
+        add(EquatorialCoordinates.ofDeg(0, 0));
+        add(EquatorialCoordinates.ofDeg(359.999999, 0));
+        add(EquatorialCoordinates.ofDeg(10, -90));
+        add(EquatorialCoordinates.ofDeg(10, 90));
+    }};
+
+
 
 
     public EquatorialToHorizontalConversion(ZonedDateTime when, GeographicCoordinates where) {
