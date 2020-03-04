@@ -1,6 +1,7 @@
 package ch.epfl.rigel.astronomy;
 
 import java.time.*;
+import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
 import java.util.Date;
@@ -13,15 +14,18 @@ public enum Epoch {
     private LocalDate localDate;
     private LocalTime localTime;
     private ZoneOffset zoneOffset;
+    private final ZonedDateTime epoch;
 
-    private final double MILLI_SEC_IN_ONE_DAY = 1000*60*60*24;
-    private final double DAYS_IN_ONE_JULIAN_CENTURY = 36525;
+    private static final double MILLI_SEC_IN_ONE_DAY = 1000*60*60*24;
+    private static final double DAYS_IN_ONE_JULIAN_CENTURY = 36525;
+    private static final double NANO_IN_A_DAY = 8.64e+13;
 
 
     private Epoch(LocalDate localDate, LocalTime localTime, ZoneOffset zoneOffset) {
         this.localDate = localDate;
         this.localTime = localTime;
         this.zoneOffset = zoneOffset;
+        this.epoch = ZonedDateTime.of(this.localDate, this.localTime, this.zoneOffset.normalized());
     }
 
     /**
@@ -30,9 +34,19 @@ public enum Epoch {
      * @return (double) number of days
      */
     public double daysUntil(ZonedDateTime when) {
-        ZonedDateTime epoch = ZonedDateTime.of(this.localDate, this.localTime, this.zoneOffset.normalized());
+        //Calculate separately for better precision
+        double dayDelta;
+        long intraDayDelta;
+        ZonedDateTime truncatedDate = when.truncatedTo(ChronoUnit.DAYS);
+        ZonedDateTime truncatedEpoch = epoch.truncatedTo(ChronoUnit.DAYS);
+        dayDelta = truncatedEpoch.until(truncatedDate, ChronoUnit.DAYS);
+        long nanoOfDay = when.getLong(ChronoField.NANO_OF_DAY);
+        long nanoOfEpoch = epoch.getLong(ChronoField.NANO_OF_DAY);
+        intraDayDelta = nanoOfDay - nanoOfEpoch;
+
         double milliSecUntil = epoch.until(when, ChronoUnit.MILLIS);
-        return milliSecUntil/MILLI_SEC_IN_ONE_DAY;
+        //return milliSecUntil/MILLI_SEC_IN_ONE_DAY;
+        return dayDelta + intraDayDelta / NANO_IN_A_DAY ;
     }
 
     /**
@@ -44,5 +58,7 @@ public enum Epoch {
         return daysUntil(when)/DAYS_IN_ONE_JULIAN_CENTURY;
     }
 
-
+    public ZonedDateTime getZDT(){
+        return epoch;
+    }
 }

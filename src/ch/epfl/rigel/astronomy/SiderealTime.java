@@ -6,7 +6,9 @@ import ch.epfl.rigel.math.Polynomial;
 import ch.epfl.rigel.math.RightOpenInterval;
 
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 
@@ -16,18 +18,23 @@ public final class SiderealTime {
 
     private SiderealTime() {}
 
+    private static final double NANO_PER_HOUR = 3.6e+12;
+
     /**
      * returns sidereal time in Greenwich (in radians and within the interval [0,TAU[)
      * @param when (ZonedDateTime) the time and date in greenwich
      * @return (double) siderealtime in radians
      */
     public static double greenwich(ZonedDateTime when) {
-        ZonedDateTime truncatedDate = when.truncatedTo(ChronoUnit.DAYS);
+        ZonedDateTime correctedOffset = when.plusSeconds(when.getOffset().getTotalSeconds()); //CorrectOffset
+        System.out.println(correctedOffset);
+        ZonedDateTime truncatedDate = correctedOffset.truncatedTo(ChronoUnit.DAYS);
         double julianCenturiesDifference = Epoch.J2000.julianCenturiesUntil(truncatedDate);
-        double hoursSinceBeginningOfDay = ChronoUnit.MILLIS.between(truncatedDate, when)/3600000d;
+
+        double hoursSinceBeginningOfDay = correctedOffset.getLong(ChronoField.NANO_OF_DAY) / NANO_PER_HOUR;
+        System.out.println("JD diff : " + (julianCenturiesDifference + hoursSinceBeginningOfDay/876600));
         double siderealTimeGreenwichHr = SIDEREAL_TIME_0.at(julianCenturiesDifference) + SIDEREAL_TIME_1.at(hoursSinceBeginningOfDay);
-        double siderealTimeGreenwichRad = Angle.normalizePositive(Angle.ofHr(siderealTimeGreenwichHr));
-        return siderealTimeGreenwichRad;
+        return Angle.normalizePositive(Angle.ofHr(siderealTimeGreenwichHr));
     }
 
     /**
@@ -37,7 +44,6 @@ public final class SiderealTime {
      * @return (double) local sidereal time in radians
      */
     public static double local(ZonedDateTime when, GeographicCoordinates where) {
-        ZonedDateTime inGreenwichTime = when.withZoneSameInstant(ZoneId.of("Greenwich"));
-        return Angle.normalizePositive(greenwich(inGreenwichTime) + where.lon());
+        return Angle.normalizePositive(greenwich(when) + where.lon());
     }
 }
