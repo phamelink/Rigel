@@ -14,7 +14,7 @@ class EpochTest {
                 LocalDate.of(2000, Month.JANUARY, 3),
                 LocalTime.of(18,0),
                 ZoneOffset.UTC);
-        assertEquals(2.25, Epoch.J2000.daysUntil(d), 1e-2);
+        assertEquals(2.25, Epoch.J2000.daysUntil(d), 1e-4);
 
     }
 

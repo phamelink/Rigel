@@ -1,5 +1,7 @@
 package ch.epfl.rigel.astronomy;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.*;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
@@ -17,8 +19,12 @@ public enum Epoch {
     private final ZonedDateTime epoch;
 
     private static final double MILLI_SEC_IN_ONE_DAY = 1000*60*60*24;
-    private static final double DAYS_IN_ONE_JULIAN_CENTURY = 36525;
+    private static final double JD_PER_MILLI = 1.160576283970827623434167721946407810448055e-8;
+    private static final int DAYS_IN_ONE_JULIAN_CENTURY = 36525;
     private static final double NANO_IN_A_DAY = 8.64e+13;
+
+    private static final double JD_PER_DAY = 1.00273790935079506664712091176169634822711936939293;
+    private static final double NANO_IN_A_JD = 86164090530832.88;
 
 
     private Epoch(LocalDate localDate, LocalTime localTime, ZoneOffset zoneOffset) {
@@ -45,8 +51,11 @@ public enum Epoch {
         intraDayDelta = nanoOfDay - nanoOfEpoch;
 
         double milliSecUntil = epoch.until(when, ChronoUnit.MILLIS);
+        System.out.println("->" + (milliSecUntil/MILLI_SEC_IN_ONE_DAY));
         //return milliSecUntil/MILLI_SEC_IN_ONE_DAY;
+
         return dayDelta + intraDayDelta / NANO_IN_A_DAY ;
+        //return milliSecUntil * JD_PER_MILLI;
     }
 
     /**
@@ -54,9 +63,7 @@ public enum Epoch {
      * @param when (ZonedDateTime): date and time to calculate number of julian centuries from
      * @return (double) number of julian centuries
      */
-    public double julianCenturiesUntil(ZonedDateTime when) {
-        return daysUntil(when)/DAYS_IN_ONE_JULIAN_CENTURY;
-    }
+    public double julianCenturiesUntil(ZonedDateTime when) { return daysUntil(when) / DAYS_IN_ONE_JULIAN_CENTURY; }
 
     public ZonedDateTime getZDT(){
         return epoch;

@@ -46,4 +46,12 @@ class EclipticToEquatorialConversionTest {
         }
 
     }
+
+    @Test
+    void testObliquity(){
+        EclipticToEquatorialConversion conv =
+                new EclipticToEquatorialConversion(ZonedDateTime.of(2009, 7,6,0,0,0,0, ZoneOffset.UTC));
+
+        assertEquals(23.4380549791,Angle.toDeg(conv.getObliquity()), 1e-4 );
+    }
 }

@@ -18,20 +18,28 @@ public class EclipticToEquatorialConversion implements Function<EclipticCoordina
     private final double cosObliquity;
 
 
+
     public EclipticToEquatorialConversion(ZonedDateTime when) {
+        System.out.println("-->" + (Epoch.J2000.julianCenturiesUntil(when)));
         this.eclipticObliquity = obliquityAt(Epoch.J2000.julianCenturiesUntil(when));
         this.sinObliquity = Math.sin(eclipticObliquity);
         this.cosObliquity = Math.cos(eclipticObliquity);
 
     }
 
-    private static final double obliquityA = Angle.ofArcsec(0.00181);
-    private static final double obliquityB = Angle.ofArcsec(-0.0006);
-    private static final double obliquityC = Angle.ofArcsec(-46.815);
-    private static final Polynomial obliquityExpression = Polynomial.of( obliquityA, obliquityB, obliquityC, OBLIQUITY_REF);
+    private static final double obliquityA = -0.00181;
+    private static final double obliquityB = 0.0006;
+    private static final double obliquityC = 46.815;
+    private static final Polynomial obliquityExpression = Polynomial.of( obliquityA, obliquityB, obliquityC, 0);
 
-    private static double obliquityAt(double julianCenturiesFromJ200) {
-        return obliquityExpression.at(julianCenturiesFromJ200);
+    private static double obliquityAt(double julianCenturiesFromJ2000) {
+        double DE = obliquityExpression.at(julianCenturiesFromJ2000);
+        double obl = Angle.ofArcsec(DE);
+        return OBLIQUITY_REF - obl;
+    }
+
+    public double getObliquity(){
+        return this.eclipticObliquity;
     }
 
     @Override

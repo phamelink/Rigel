@@ -28,12 +28,15 @@ public final class SiderealTime {
     public static double greenwich(ZonedDateTime when) {
         ZonedDateTime correctedOffset = when.plusSeconds(when.getOffset().getTotalSeconds()); //CorrectOffset
         System.out.println(correctedOffset);
+
         ZonedDateTime truncatedDate = correctedOffset.truncatedTo(ChronoUnit.DAYS);
         double julianCenturiesDifference = Epoch.J2000.julianCenturiesUntil(truncatedDate);
 
         double hoursSinceBeginningOfDay = correctedOffset.getLong(ChronoField.NANO_OF_DAY) / NANO_PER_HOUR;
-        System.out.println("JD diff : " + (julianCenturiesDifference + hoursSinceBeginningOfDay/876600));
-        double siderealTimeGreenwichHr = SIDEREAL_TIME_0.at(julianCenturiesDifference) + SIDEREAL_TIME_1.at(hoursSinceBeginningOfDay);
+        double t = julianCenturiesDifference;
+        System.out.println("t: " + t);
+        double siderealTimeGreenwichHr =  SIDEREAL_TIME_0.at(julianCenturiesDifference) + SIDEREAL_TIME_1.at(hoursSinceBeginningOfDay);
+        System.out.println("R: " + Angle.toHr(Angle.normalizePositive(Angle.ofHr(siderealTimeGreenwichHr))));
         return Angle.normalizePositive(Angle.ofHr(siderealTimeGreenwichHr));
     }
 
