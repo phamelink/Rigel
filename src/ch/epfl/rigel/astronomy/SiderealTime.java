@@ -26,7 +26,7 @@ public final class SiderealTime {
      * @return (double) siderealtime in radians
      */
     public static double greenwich(ZonedDateTime when) {
-        ZonedDateTime correctedOffset = when.plusSeconds(when.getOffset().getTotalSeconds()); //CorrectOffset
+        ZonedDateTime correctedOffset = when.withZoneSameInstant(ZoneId.of("UTC"));
         System.out.println(correctedOffset);
 
         ZonedDateTime truncatedDate = correctedOffset.truncatedTo(ChronoUnit.DAYS);
@@ -34,7 +34,7 @@ public final class SiderealTime {
 
         double hoursSinceBeginningOfDay = correctedOffset.getLong(ChronoField.NANO_OF_DAY) / NANO_PER_HOUR;
         double t = julianCenturiesDifference;
-        System.out.println("t: " + t);
+        System.out.println(t);
         double siderealTimeGreenwichHr =  SIDEREAL_TIME_0.at(julianCenturiesDifference) + SIDEREAL_TIME_1.at(hoursSinceBeginningOfDay);
         System.out.println("R: " + Angle.toHr(Angle.normalizePositive(Angle.ofHr(siderealTimeGreenwichHr))));
         return Angle.normalizePositive(Angle.ofHr(siderealTimeGreenwichHr));
