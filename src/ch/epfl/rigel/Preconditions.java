@@ -22,7 +22,7 @@ public final class Preconditions {
      * @return (double) value: returns the value or an IllegalArgumentException
      */
     public static double checkInInterval(Interval interval, double value){
-        if(value < interval.low() || value > interval.high()){
+        if(!interval.contains(value)){
             throw new IllegalArgumentException();
         }else{
             return value;

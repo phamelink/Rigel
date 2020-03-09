@@ -16,8 +16,8 @@ public final class Moon extends CelestialObject {
 
     public Moon(EquatorialCoordinates equatorialPos, float angularSize, float magnitude, float phase) {
         super(BODY_NAME, equatorialPos, angularSize, magnitude);
-        Preconditions.checkInInterval(PHASE_INTERVAL, phase);
-        this.phase = phase;
+
+        this.phase = (float) Preconditions.checkInInterval(PHASE_INTERVAL, phase);
     }
 
     @Override

@@ -12,7 +12,7 @@ public final class Angle {
     private static final double RAD_PER_HR = TAU / 24.0;
 
     public static final RightOpenInterval STANDARD_INTERVAL = RightOpenInterval.of(0, TAU);
-    private static final RightOpenInterval HOUR_INTERVAL = RightOpenInterval.of(0, 60);
+    private static final RightOpenInterval HOUR_INTERVAL = RightOpenInterval.of(0, 60.0);
 
     //prevent instantiation
     private Angle() {
@@ -42,9 +42,9 @@ public final class Angle {
      * @return (double): angle in radians
      */
     public static double ofDMS(int deg, int min, double sec){
-        Preconditions.checkInInterval(HOUR_INTERVAL, min);
-        Preconditions.checkInInterval(HOUR_INTERVAL, sec);
-        return Math.toRadians(deg) + min * RAD_PER_MIN + ofArcsec(sec);
+        return Math.toRadians(deg)
+                + Preconditions.checkInInterval(HOUR_INTERVAL, min) * RAD_PER_MIN
+                + ofArcsec(Preconditions.checkInInterval(HOUR_INTERVAL, sec));
 
     }
 
