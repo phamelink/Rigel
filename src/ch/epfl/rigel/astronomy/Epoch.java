@@ -28,7 +28,7 @@ public enum Epoch {
         Calculating days until truncated date and adding nanoseconds until hour of day yields a more precise
         result over extended periods of time, compared to method given.
          */
-
+        when = when.withZoneSameInstant(ZoneId.of("UTC"));
         double dayDelta;
         long intraDayDelta;
         ZonedDateTime truncatedDate = when.truncatedTo(ChronoUnit.DAYS);

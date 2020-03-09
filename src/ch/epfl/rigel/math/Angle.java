@@ -1,5 +1,7 @@
 package ch.epfl.rigel.math;
 
+import ch.epfl.rigel.Preconditions;
+
 public final class Angle {
 
     public static final double TAU = 2.0 * Math.PI;
@@ -40,8 +42,8 @@ public final class Angle {
      * @return (double): angle in radians
      */
     public static double ofDMS(int deg, int min, double sec){
-
-        if(!HOUR_INTERVAL.contains(min) || !HOUR_INTERVAL.contains(sec)) throw new IllegalArgumentException();
+        Preconditions.checkInInterval(HOUR_INTERVAL, min);
+        Preconditions.checkInInterval(HOUR_INTERVAL, sec);
         return Math.toRadians(deg) + min * RAD_PER_MIN + ofArcsec(sec);
 
     }
