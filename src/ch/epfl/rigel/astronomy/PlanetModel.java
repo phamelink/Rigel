@@ -113,7 +113,7 @@ public enum PlanetModel implements CelestialObjectModel<Planet>{
         return new DatedPlanetInfo(daysSinceJ2010, radius, helioLon, radiusProj, helioCoords);
     }
 
-    private final class DatedPlanetInfo{
+    private static final class DatedPlanetInfo{
         private final double daysSinceJ2010;
         private final double distanceFromSun;
         private final double helioLon;
