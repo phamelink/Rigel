@@ -6,6 +6,12 @@ import ch.epfl.rigel.math.RightOpenInterval;
 
 import java.util.Locale;
 
+/**
+ * Ecliptic coordinates
+ *
+ * @author Philip Hamelink (311769)
+ * @author Malo Ranzetti (296956)
+ */
 public final class EclipticCoordinates extends SphericalCoordinates {
 
     private static final RightOpenInterval LONGITUDE_INTERVAL = RightOpenInterval.of(0, Angle.TAU);
@@ -17,8 +23,10 @@ public final class EclipticCoordinates extends SphericalCoordinates {
 
     /**
      * Construction method
-     * @param lon (double): longitude (angle in radians)
-     * @param lat (double): latitude (angle in radians)
+     * @param lon (double):
+     *            longitude (angle in radians)
+     * @param lat (double):
+     *            latitude (angle in radians)
      * @return (EclipticCoordinates)
      */
     public static EclipticCoordinates of(double lon, double lat){
@@ -29,8 +37,10 @@ public final class EclipticCoordinates extends SphericalCoordinates {
 
     /**
      * Construction method
-     * @param lonDeg (double): longitude (angle in degrees [-180,180[)
-     * @param latDeg (double): latitude (angle in degrees [-90,90])
+     * @param lonDeg (double):
+     *               longitude (angle in degrees [-180,180[)
+     * @param latDeg (double):
+     *               latitude (angle in degrees [-90,90])
      * @return (EclipticCoordinates)
      */
     public static EclipticCoordinates ofDeg(double lonDeg, double latDeg){
@@ -39,7 +49,8 @@ public final class EclipticCoordinates extends SphericalCoordinates {
 
     /**
      * checks if the given longitude is valid
-     * @param lon (double): lon in radians
+     * @param lon (double):
+     *            lon in radians
      * @return (boolean): the longitude is valid or not
      */
     private static boolean isValidLon(double lon){
@@ -48,7 +59,8 @@ public final class EclipticCoordinates extends SphericalCoordinates {
 
     /**
      * checks if the given latitude is valid
-     * @param lat (double): lat in radians
+     * @param lat (double):
+     *            lat in radians
      * @return (boolean): the latitude is valid or not
      */
     private static boolean isValidLat(double lat){

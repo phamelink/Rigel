@@ -2,6 +2,12 @@ package ch.epfl.rigel.coordinates;
 
 import ch.epfl.rigel.math.Angle;
 
+/**
+ * Spherical coordinates (sbtract class)
+ *
+ * @author Philip Hamelink (311769)
+ * @author Malo Ranzetti (296956)
+ */
 abstract class SphericalCoordinates {
     private final double longitude; //in radians
     private final double latitude; //in radians

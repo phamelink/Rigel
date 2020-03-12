@@ -6,6 +6,12 @@ import ch.epfl.rigel.math.RightOpenInterval;
 
 import java.util.Locale;
 
+/**
+ * Geographic coordinates
+ *
+ * @author Philip Hamelink (311769)
+ * @author Malo Ranzetti (296956)
+ */
 public final class GeographicCoordinates extends SphericalCoordinates {
 
     private static final RightOpenInterval LONGITUDE_INTERVAL = RightOpenInterval.of(-180, 180);
@@ -17,8 +23,10 @@ public final class GeographicCoordinates extends SphericalCoordinates {
 
     /**
      * Construction method
-     * @param lonDeg (double): longitude (angle in degrees [-180°, 180°[)
-     * @param latDeg (double): latitude (angle in degrees [-90°,90°])
+     * @param lonDeg (double):
+     *               longitude (angle in degrees [-180°, 180°[)
+     * @param latDeg (double):
+     *               latitude (angle in degrees [-90°,90°])
      * @return (GeographicCoordinates)
      */
     public static GeographicCoordinates ofDeg(double lonDeg, double latDeg){
@@ -29,7 +37,8 @@ public final class GeographicCoordinates extends SphericalCoordinates {
 
     /**
      * checks if the given longitude is valid
-     * @param lonDeg (double): lon in degrees
+     * @param lonDeg (double):
+     *               lon in degrees
      * @return (boolean): the longitude is valid or not
      */
     public static boolean isValidLonDeg(double lonDeg){
@@ -38,7 +47,8 @@ public final class GeographicCoordinates extends SphericalCoordinates {
 
     /**
      * checks if the given latitude is valid
-     * @param latDeg (double): lat in degrees
+     * @param latDeg (double):
+     *               lat in degrees
      * @return (boolean): the latitude is valid or not
      */
     public static boolean isValidLatDeg(double latDeg){

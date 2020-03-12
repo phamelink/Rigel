@@ -6,6 +6,13 @@ import ch.epfl.rigel.math.RightOpenInterval;
 
 import java.util.Locale;
 
+
+/**
+ * Equatorial coordinates
+ *
+ * @author Philip Hamelink (311769)
+ * @author Malo Ranzetti (296956)
+ */
 public final class EquatorialCoordinates extends SphericalCoordinates {
     public static final RightOpenInterval RIGHT_ASCENSION_INTERVAL = RightOpenInterval.of(0, Angle.TAU);
     public static final ClosedInterval DECLINATION_INTERVAL = ClosedInterval.symmetric(Math.PI);
@@ -18,8 +25,10 @@ public final class EquatorialCoordinates extends SphericalCoordinates {
 
     /**
      * Construction method
-     * @param ra (double): right ascension (angle in radians)
-     * @param dec (double): declination (angle in radians)
+     * @param ra (double):
+     *           right ascension (angle in radians)
+     * @param dec (double):
+     *            declination (angle in radians)
      * @return (EquatorialCoordinates)
      */
     public static EquatorialCoordinates of(double ra, double dec) {
@@ -30,8 +39,10 @@ public final class EquatorialCoordinates extends SphericalCoordinates {
 
     /**
      * Construction method
-     * @param raDeg (double): right ascension (angle in degrees [0°, 360°[)
-     * @param decDeg (double): declination (angle in degrees [-90°,90°])
+     * @param raDeg (double):
+     *              right ascension (angle in degrees [0°, 360°[)
+     * @param decDeg (double):
+     *               declination (angle in degrees [-90°,90°])
      * @return (EquatorialCoordinates)
      */
     public static EquatorialCoordinates ofDeg(double raDeg, double decDeg) {
@@ -40,7 +51,8 @@ public final class EquatorialCoordinates extends SphericalCoordinates {
 
     /**
      * checks if the given right ascension is valid
-     * @param ra (double): ra in hours
+     * @param ra (double):
+     *           ra in hours
      * @return (boolean): the right ascension is valid or not
      */
     public static boolean isValidRa(double ra) {
@@ -49,7 +61,8 @@ public final class EquatorialCoordinates extends SphericalCoordinates {
 
     /**
      * checks if the given declination is valid
-     * @param dec (double): dec in degrees
+     * @param dec (double):
+     *            dec in degrees
      * @return (boolean): the declination is valid or not
      */
     public static boolean isValidDec(double dec) {

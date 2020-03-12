@@ -2,6 +2,12 @@ package ch.epfl.rigel.math;
 
 import java.util.Locale;
 
+/**
+ * Right open interval
+ *
+ * @author Philip Hamelink (311769)
+ * @author Malo Ranzetti (296956)
+ */
 public final class RightOpenInterval extends Interval {
     private RightOpenInterval(double inf, double sup) {
         super(inf, sup);
@@ -9,8 +15,11 @@ public final class RightOpenInterval extends Interval {
 
     /**
      * public method to instanciate a right open interval
-     * @param low (double): lower bound
-     * @param high (double): upper bound
+     * @param low (double):
+     *            lower bound
+     * @param high (double):
+     *             upper bound
+     * @throws IllegalArgumentException if low is bigger or equal to high
      * @return (RightOpenInterval)
      */
     public static RightOpenInterval of(double low, double high){
@@ -20,7 +29,9 @@ public final class RightOpenInterval extends Interval {
 
     /**
      * public method to instanciate a right open interval centered at 0
-     * @param diameter (double): lower and upper bound
+     * @param diameter (double):
+     *                 lower and upper bound
+     * @throws IllegalArgumentException if diameter is smaller or equal to than 0
      * @return (RightOpenInterval)
      */
     public static RightOpenInterval symmetric(double diameter){
@@ -36,7 +47,8 @@ public final class RightOpenInterval extends Interval {
 
     /**
      * reduces its argument to the interval
-     * @param v (double): argument to be reduced
+     * @param v (double):
+     *          argument to be reduced
      * @return (double)
      */
     public double reduce(double v){

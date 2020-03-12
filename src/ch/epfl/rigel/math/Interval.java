@@ -1,11 +1,19 @@
 package ch.epfl.rigel.math;
 
+/**
+ * Interval
+ *
+ * @author Philip Hamelink (311769)
+ * @author Malo Ranzetti (296956)
+ */
 abstract public class Interval {
 
     /**
      * Constructor
-     * @param inf (double): the lower bound of the interval
-     * @param sup (double): the upper bound of the interval
+     * @param inf (double):
+     *            the lower bound of the interval
+     * @param sup (double):
+     *            the upper bound of the interval
      */
     public Interval(double inf, double sup) {
         this.inf = inf;
@@ -41,8 +49,9 @@ abstract public class Interval {
 
     /**
      * Tells if the value is included in the interval or not
-     * @param v (double): value to be checked
-     * @return (boolean)
+     * @param v (double):
+     *          value to be checked
+     * @return (boolean) if the value is included in the interval or not
      */
     abstract public boolean contains(double v);
 

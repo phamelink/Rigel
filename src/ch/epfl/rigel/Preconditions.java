@@ -3,13 +3,21 @@ package ch.epfl.rigel;
 import ch.epfl.rigel.math.ClosedInterval;
 import ch.epfl.rigel.math.Interval;
 
+/**
+ * Preconditions
+ *
+ * @author Philip Hamelink (311769)
+ * @author Malo Ranzetti (296956)
+ */
 public final class Preconditions {
 
     private Preconditions(){}
 
     /**
      * Throws IllegalArgumentException if the argument is false
-     * @param isTrue (boolean): argument to be checked
+     * @param isTrue (boolean):
+     *               argument to be checked
+     * @throws IllegalArgumentException if argument is false
      */
     public static void checkArgument(boolean isTrue){
         if(!isTrue) throw new IllegalArgumentException();
@@ -17,8 +25,10 @@ public final class Preconditions {
 
     /**
      * Throws exception if "value" does not belong to the interval
-     * @param interval (Interval): interval in which we verify the value
-     * @param value (double): value to be verified
+     * @param interval (Interval):
+     *                 interval in which we verify the value
+     * @param value (double):
+     *              value to be verified
      * @return (double) value: returns the value or an IllegalArgumentException
      */
     public static double checkInInterval(Interval interval, double value){

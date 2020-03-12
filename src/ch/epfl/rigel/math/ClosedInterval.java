@@ -2,6 +2,12 @@ package ch.epfl.rigel.math;
 
 import java.util.Locale;
 
+/**
+ * Closed Interval
+ *
+ * @author Philip Hamelink (311769)
+ * @author Malo Ranzetti (296956)
+ */
 public class ClosedInterval extends Interval {
     private ClosedInterval(double inf, double sup) {
         super(inf, sup);
@@ -11,8 +17,11 @@ public class ClosedInterval extends Interval {
 
     /**
      * public method to instanciate a closed interval
-     * @param low (double): lower bound
-     * @param high (double): upper bound
+     * @param low (double):
+     *            lower bound
+     * @param high (double):
+     *             upper bound
+     * @throws IllegalArgumentException if low is bigger or equal to high
      * @return (ClosedInterval)
      */
     public static ClosedInterval of(double low, double high){
@@ -22,8 +31,10 @@ public class ClosedInterval extends Interval {
 
     /**
      * public method to instanciate a closed interval centered at 0
-     * @param diameter (double): lower and upper bound
-     * @return (ClosedInterval)
+     * @param diameter (double):
+     *                 lower and upper bound
+     * @throws IllegalArgumentException if diameter is smaller or equal to than 0
+     * @return (ClosedInterval) closed interval centered at 0
      */
     public static ClosedInterval symmetric(double diameter){
         if(diameter <= 0) throw new IllegalArgumentException();
@@ -39,7 +50,9 @@ public class ClosedInterval extends Interval {
     /**
      * clips the value to the interval
      * @param v (double)
-     * @return (double)
+     *          value to clip
+     * @throws ArithmeticException if v is not conatined in interval
+     * @return (double) value if v is contained in interval
      */
     public double clip(double v){
         if(this.contains(v)){

@@ -4,6 +4,11 @@ import java.time.*;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 
+/**
+ * Epoch class
+ * @author Philip Hamelink (311769)
+ * @author Malo Ranzetti (296956)
+ */
 public enum Epoch {
 
     J2000(LocalDate.of(2000,Month.JANUARY,1), LocalTime.of(12,0), ZoneOffset.UTC),
@@ -20,8 +25,9 @@ public enum Epoch {
 
     /**
      * returns number of days from the chosen reference date (J200 or J2010) to the date given in parameters
-     * @param when (ZonedDateTime): date and time to calculate number of days from
-     * @return (double) number of days
+     * @param when
+     *          date and time to calculate number of days from
+     * @return number of days
      */
     public double daysUntil(ZonedDateTime when) {
         /*
@@ -44,8 +50,9 @@ public enum Epoch {
 
     /**
      * returns number of julian centuries from the chosen reference date (J200 or J2010) to the date given in parameters
-     * @param when (ZonedDateTime): date and time to calculate number of julian centuries from
-     * @return (double) number of julian centuries
+     * @param when
+     *          date and time to calculate number of julian centuries from
+     * @return number of julian centuries
      */
     public double julianCenturiesUntil(ZonedDateTime when) { return daysUntil(when) / DAYS_IN_ONE_JULIAN_CENTURY; }
 

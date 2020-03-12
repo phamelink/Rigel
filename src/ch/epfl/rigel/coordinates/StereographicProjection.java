@@ -2,23 +2,48 @@ package ch.epfl.rigel.coordinates;
 
 import java.util.function.Function;
 
+/**
+ * The strereographic projection
+ *
+ * @author Philip Hamelink (311769)
+ * @author Malo Ranzetti (296956)
+ */
 public final class StereographicProjection implements Function<HorizontalCoordinates, CartesianCoordinates> {
 
     private final HorizontalCoordinates center;
     private final double cosPhi1;
     private final double sinPhi1;
 
+    /**
+     * Class constructor returning a stereographic projection centered at "center"
+     * @param center
+     *      where the stereographic projection is centered
+     */
     public StereographicProjection(HorizontalCoordinates center) {
         this.center = center;
         this.cosPhi1 = Math.cos(center.alt());
         this.sinPhi1 = Math.sin(center.az());
     }
 
+    /**
+     * returns the coordinates of the center of the circle according to the projection
+     * of the parallel passing through the point "hor"
+     * The ordinate of this center can be infinite
+     * @param hor
+     *          the horizontal coordinates of the point through which the parallel passes
+     * @return the coordinates of the center of the circle according to the projection
+     *          of the parallel passing through the point "hor"
+     */
     public CartesianCoordinates circleCenterForParallel(HorizontalCoordinates hor){
 
         return CartesianCoordinates.of(0,circleRadiusForParallel(hor));
     }
 
+    /**
+     * returns the radius of the circle corresponding to the projection of the parallel pass
+     * @param parallel
+     * @return
+     */
     public double circleRadiusForParallel (HorizontalCoordinates parallel){
         return Math.cos(parallel.alt()) / (Math.sin(parallel.alt()) + sinPhi1);
     }
@@ -44,6 +69,14 @@ public final class StereographicProjection implements Function<HorizontalCoordin
 
     }
 
+    /**
+     * Returns horizontal coordinates of the point of which the projection is the point
+     * of cartesian coordinates xy
+     * @param xy
+     *          Cartesian coordinates of the projection's point
+     * @returnhorizontal coordinates of the point of which the projection is the point
+     *          of cartesian coordinates xy
+     */
     public HorizontalCoordinates inverseApply(CartesianCoordinates xy){
         double x = xy.x();
         double y = xy.y();
@@ -55,13 +88,21 @@ public final class StereographicProjection implements Function<HorizontalCoordin
         double lam = (x * sinC) / (rho * cosPhi1 * cosC - y * sinPhi1 * sinC) + center.az();
 
         double phi = Math.asin(cosC * sinPhi1) + (y * sinC * cosPhi1) / rho ;
-
+        System.out.println("lam: " + lam + "%n phi: " + phi);
         //TODO Verify case where rho = 0 !
 
         return HorizontalCoordinates.of(lam, phi);
 
     }
 
+    /**
+     * returns the diameter projected by a sphere of angular size rad centered
+     * at the center of projection, considering it is on the horizon
+     * @param rad
+     *          angular size
+     * @return the diameter projected by a sphere of angular size rad centered
+     *          at the center of projection, considering it is on the horizon
+     */
     public double applyToAngle(double rad){
         return 2 * Math.tan(rad / 4);
     }

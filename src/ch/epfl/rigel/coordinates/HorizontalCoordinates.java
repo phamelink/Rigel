@@ -7,6 +7,12 @@ import ch.epfl.rigel.math.RightOpenInterval;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 
+/**
+ * Horizontal coordinates
+ *
+ * @author Philip Hamelink (311769)
+ * @author Malo Ranzetti (296956)
+ */
 public final class HorizontalCoordinates extends SphericalCoordinates {
 
     public static final RightOpenInterval AZIMUTH_INTERVAL = RightOpenInterval.of(0, Angle.TAU);
@@ -41,7 +47,8 @@ public final class HorizontalCoordinates extends SphericalCoordinates {
 
         /**
          * Return octant corresponding to deg.
-         * @param deg (double) azimuth in degrees
+         * @param deg (double)
+         *            azimuth in degrees
          * @return (OCTANT) corresponding octant
          */
         public static OCTANT octantOfDeg(double deg){
@@ -54,7 +61,8 @@ public final class HorizontalCoordinates extends SphericalCoordinates {
 
         /**
          * Return octant corresponding to rad.
-         * @param rad (double) azimuth angle in rad
+         * @param rad (double)
+         *            azimuth angle in rad
          * @return (OCTANT) corresponding octant
          */
         public OCTANT octantOf(double rad){
@@ -73,8 +81,10 @@ public final class HorizontalCoordinates extends SphericalCoordinates {
 
     /**
      * Return a HorizontalCoordinates object of azimuth az and altitude alt (in rad).
-     * @param az (double) azimuth in rad
-     * @param alt (double) altitude in rad
+     * @param az (double)
+     *           azimuth in rad
+     * @param alt (double)
+     *            altitude in rad
      * @return (HorizontalCoordinates) new HorizontalCoordinates object
      */
     public static HorizontalCoordinates of(double az, double alt){
@@ -86,8 +96,10 @@ public final class HorizontalCoordinates extends SphericalCoordinates {
 
     /**
      * Return a HorizontalCoordinates object of azimuth az and altitude alt (in deg).
-     * @param azDeg (double) azimuth angle in deg
-     * @param altDeg (double) altitude angle in deg
+     * @param azDeg (double)
+     *              azimuth angle in deg
+     * @param altDeg (double)
+     *               altitude angle in deg
      * @return (HorizontalCoordinates) New HorizontalCoordinates object
      */
     public static HorizontalCoordinates ofDeg(double azDeg, double altDeg) {
@@ -98,7 +110,8 @@ public final class HorizontalCoordinates extends SphericalCoordinates {
 
     /**
      * Returns true if valid azimuth.
-     * @param az (double) azimuth angle in rad
+     * @param az (double)
+     *           azimuth angle in rad
      * @return (boolean) the angle is valid
      */
     public static boolean isValidAz(double az){
@@ -107,7 +120,8 @@ public final class HorizontalCoordinates extends SphericalCoordinates {
 
     /**
      * Returns true if valid altitude.
-     * @param alt (double) altitude in rad
+     * @param alt (double)
+     *            altitude in rad
      * @return (boolean) the angle is valid
      */
     public static boolean isValidAlt(double alt){
@@ -132,10 +146,14 @@ public final class HorizontalCoordinates extends SphericalCoordinates {
 
     /**
      * Returns a string with the octant name of the azimuth of this object generated using the given strings
-     * @param n (String) NORTH characters
-     * @param e (String) EAST characters
-     * @param s (String) SOUTH characters
-     * @param w (String) WEST characters
+     * @param n (String)
+     *          NORTH characters
+     * @param e (String)
+     *          EAST characters
+     * @param s (String)
+     *          SOUTH characters
+     * @param w (String)
+     *          WEST characters
      * @return (String) Combination from the given characters corresponding to the octant
      */
     public String azOctantName(String n, String e, String s, String w){
@@ -165,7 +183,8 @@ public final class HorizontalCoordinates extends SphericalCoordinates {
 
     /**
      * Calculates the angular distance between the coordinates of this object and another object (that)
-     * @param that (HorizontalCoordinates) other object
+     * @param that (HorizontalCoordinates)
+     *             other object
      * @return (double) angular distance in rad
      */
     public double angularDistanceTo(HorizontalCoordinates that){
@@ -173,13 +192,18 @@ public final class HorizontalCoordinates extends SphericalCoordinates {
                 Math.cos(this.lon() - that.lon()));
     }
 
+    /**
+     * sets reference point
+     * @param refPoint
+     *          reference point to set
+     */
     public void setRefPoint(GeographicCoordinates refPoint){
         this.refPoint = refPoint;
     }
 
     /**
-     *
-     * @return
+     * returns reference point
+     * @return reference point
      */
     public GeographicCoordinates getRefPoint(){
         return this.refPoint;
