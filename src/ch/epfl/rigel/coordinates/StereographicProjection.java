@@ -3,7 +3,7 @@ package ch.epfl.rigel.coordinates;
 import java.util.function.Function;
 
 /**
- * The strereographic projection
+ * Function for converting horizontal coordinates to a strereographic projection
  *
  * @author Philip Hamelink (311769)
  * @author Malo Ranzetti (296956)
@@ -22,7 +22,7 @@ public final class StereographicProjection implements Function<HorizontalCoordin
     public StereographicProjection(HorizontalCoordinates center) {
         this.center = center;
         this.cosPhi1 = Math.cos(center.alt());
-        this.sinPhi1 = Math.sin(center.az());
+        this.sinPhi1 = Math.sin(center.alt());
     }
 
     /**
@@ -36,7 +36,7 @@ public final class StereographicProjection implements Function<HorizontalCoordin
      */
     public CartesianCoordinates circleCenterForParallel(HorizontalCoordinates hor){
 
-        return CartesianCoordinates.of(0,circleRadiusForParallel(hor));
+        return CartesianCoordinates.of(0,cosPhi1 / (Math.sin(hor.alt()) + sinPhi1));
     }
 
     /**
@@ -61,7 +61,7 @@ public final class StereographicProjection implements Function<HorizontalCoordin
         double cosLamDelta = Math.cos(lamDelta);
 
         double d = 1 / (1 + sinPhi * sinPhi1 + cosPhi * cosPhi1 * cosLamDelta);
-
+        System.out.println("d: " + d);
         double x = d * cosPhi * sinLamDelta;
         double y = d * (sinPhi * cosPhi1 - cosPhi * sinPhi1 * cosLamDelta);
 

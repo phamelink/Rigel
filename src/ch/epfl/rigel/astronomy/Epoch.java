@@ -14,7 +14,7 @@ public enum Epoch {
     J2000(LocalDate.of(2000,Month.JANUARY,1), LocalTime.of(12,0), ZoneOffset.UTC),
     J2010(LocalDate.of(2010,Month.JANUARY,1).minusDays(1), LocalTime.of(0,0), ZoneOffset.UTC);
 
-    private final ZonedDateTime epoch;
+    public final ZonedDateTime epoch;
 
     private static final int DAYS_IN_ONE_JULIAN_CENTURY = 36525;
     private static final double NANO_IN_A_DAY = 8.64e+13;

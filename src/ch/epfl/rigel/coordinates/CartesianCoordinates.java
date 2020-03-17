@@ -57,6 +57,6 @@ public final class CartesianCoordinates {
 
     @Override
     public String toString() {
-        return String.format(Locale.ROOT, "(x=%.4fh, y=%.4f°)", x, y);
+        return String.format(Locale.ROOT, "(x=%.4f, y=%.4f)", x, y);
     }
 }
