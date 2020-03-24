@@ -1,5 +1,7 @@
 package ch.epfl.rigel.coordinates;
 
+import ch.epfl.rigel.math.Angle;
+
 import java.util.function.Function;
 
 /**
@@ -85,13 +87,13 @@ public final class StereographicProjection implements Function<HorizontalCoordin
         double sinC = (2 * rho) / (rho2 + 1);
         double cosC = (1-rho2) / (rho2 + 1);
 
-        double lam = (x * sinC) / (rho * cosPhi1 * cosC - y * sinPhi1 * sinC) + center.az();
+        double lam = Math.atan2((x * sinC) , (rho * cosPhi1 * cosC - y * sinPhi1 * sinC)) + center.az();
 
-        double phi = Math.asin(cosC * sinPhi1) + (y * sinC * cosPhi1) / rho ;
-        System.out.println("lam: " + lam + "%n phi: " + phi);
+        double phi = Math.asin(cosC * sinPhi1 + (y * sinC * cosPhi1) / rho );
+        System.out.println("lam: " + lam + " phi: " + phi);
         //TODO Verify case where rho = 0 !
 
-        return HorizontalCoordinates.of(lam, phi);
+        return HorizontalCoordinates.of(Angle.normalizePositive(lam), phi);
 
     }
 
@@ -106,5 +108,16 @@ public final class StereographicProjection implements Function<HorizontalCoordin
     public double applyToAngle(double rad){
         return 2 * Math.tan(rad / 4);
     }
+
+    @Override
+    final public int hashCode() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    final public boolean equals(Object obj) {
+        throw new UnsupportedOperationException();
+    }
+
 
 }

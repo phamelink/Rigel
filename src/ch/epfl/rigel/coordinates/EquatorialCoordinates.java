@@ -17,9 +17,9 @@ public final class EquatorialCoordinates extends SphericalCoordinates {
     public static final RightOpenInterval RIGHT_ASCENSION_INTERVAL = RightOpenInterval.of(0, Angle.TAU);
     public static final ClosedInterval DECLINATION_INTERVAL = ClosedInterval.symmetric(Math.PI);
 
-    private EquatorialCoordinates(double raHr, double decDeg) {
+    private EquatorialCoordinates(double ra, double dec) {
 
-        super(Angle.ofHr(raHr), Angle.ofDeg(decDeg));
+        super(ra, dec);
 
     }
 
@@ -34,7 +34,7 @@ public final class EquatorialCoordinates extends SphericalCoordinates {
     public static EquatorialCoordinates of(double ra, double dec) {
         if (!isValidRa(ra) || !isValidDec(dec)) throw new IllegalArgumentException(ra + "|" + dec);
 
-        return new EquatorialCoordinates(Angle.toHr(ra), Angle.toDeg(dec));
+        return new EquatorialCoordinates(ra, dec);
     }
 
     /**
