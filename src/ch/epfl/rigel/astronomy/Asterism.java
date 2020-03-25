@@ -1,5 +1,7 @@
 package ch.epfl.rigel.astronomy;
 
+import ch.epfl.rigel.Preconditions;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -20,6 +22,7 @@ public final class Asterism {
      * @throws IllegalArgumentException if given list is empty
      */
     public Asterism(List<Star> stars) {
+        Preconditions.checkArgument(!stars.isEmpty());
         this.stars = List.copyOf(stars);
     }
 

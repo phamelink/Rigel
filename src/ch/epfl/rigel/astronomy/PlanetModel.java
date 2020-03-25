@@ -98,18 +98,21 @@ public enum PlanetModel implements CelestialObjectModel<Planet>{
         final EquatorialCoordinates geocentricCoord;
 
         final double lambda;
+        final double expression1 = R * Math.sin(lP - L);
+        System.out.println(this.name);
         if(isOuterPlanet){
             //Outer Planets
-            lambda = lP + Math.atan(R * Math.sin(lP - L) / (rP - R * Math.cos(lP - L)));
+            lambda = lP + Math.atan2(expression1 , (rP - R * Math.cos(lP - L)));
         }else{
             //Inner Planets
-            lambda = Math.PI + L + Math.atan(rP * Math.sin(L - lP) / (R - rP * Math.cos(L - lP)));
+            lambda = Math.PI + L + Math.atan2(rP * Math.sin(L - lP) , (R - rP * Math.cos(L - lP)));
         }
 
-        final double beta = Math.atan(rP * Math.tan(helioLat) * Math.sin(lambda - lP) /
-                (R * Math.sin(lP - L)));
+        final double beta = Math.atan(rP * Math.tan(helioLat) * Math.sin(lambda - lP) / expression1);
+        System.out.println(Angle.toDeg(lambda));
+        System.out.println("*" + Angle.toDeg(beta));
 
-        geocentricCoord = EquatorialCoordinates.of(lambda, beta);
+        geocentricCoord = EquatorialCoordinates.of(Angle.normalizePositive(lambda), beta);
 
         final double rho = Math.sqrt(Math.abs(R*R + r*r - 2 * R * r * Math.cos(l - L) * Math.cos(helioLat)));
         final double angularSize = theta0 / rho;
@@ -120,7 +123,8 @@ public enum PlanetModel implements CelestialObjectModel<Planet>{
         return new Planet(name, geocentricCoord, (float) angularSize, (float) apparentMagnitude);
     }
 
-    private DatedPlanetInfo getDatedPlanetInfo(double daysSinceJ2010){
+    //MEMO : WARNING, epoch is J2010, not J2000!
+    public DatedPlanetInfo getDatedPlanetInfo(double daysSinceJ2010){
         final double meanAnom = (Angle.TAU * daysSinceJ2010) / (365.242191 * revTime) + jLon - periLon;
         final double trueAnom = meanAnom + 2 * exc * Math.sin(meanAnom);
 
@@ -129,13 +133,14 @@ public enum PlanetModel implements CelestialObjectModel<Planet>{
         final double helioLat = Math.asin(Math.sin(helioLon - ascNodeLon) * Math.sin(incl));
 
         final double radiusProj = radius * Math.cos(helioLat);
-        final double lonProj = Math.atan((Math.sin(helioLon - ascNodeLon) * Math.cos(incl) / Math.cos(helioLon-ascNodeLon))) + ascNodeLon;
+        final double lonProj = Math.atan2(Math.sin(helioLon - ascNodeLon) * Math.cos(incl), Math.cos(helioLon-ascNodeLon)) + ascNodeLon;
 
-        final EclipticCoordinates helioCoords = EclipticCoordinates.of(lonProj, helioLat);
+        final EclipticCoordinates helioCoords = EclipticCoordinates.of(Angle.normalizePositive(lonProj), helioLat);
+        System.out.println("c " + Angle.toDeg(helioCoords.lon()));
         return new DatedPlanetInfo(daysSinceJ2010, radius, helioLon, radiusProj, helioCoords);
     }
 
-    private static final class DatedPlanetInfo{
+    public static final class DatedPlanetInfo{
         private final double daysSinceJ2010;
         private final double distanceFromSun;
         private final double helioLon;
