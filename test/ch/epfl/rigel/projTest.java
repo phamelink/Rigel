@@ -15,7 +15,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.function.Function;
 
-public class projTest extends Canvas {
+public class projTest extends JPanel {
 
     private static JLabel label;
     private static double initialTime;
@@ -26,31 +26,34 @@ public class projTest extends Canvas {
     private static final CartesianCoordinates SUN = transform(CartesianCoordinates.of(0,0));
     public static double refreshRate = 10;
     private static double radiusFactor = 1;
-    private static double delta = 0.5;
+    private static double delta = 0.001;
 
 
     public static void main(String[] args){
         initialTime = System.nanoTime();
         JFrame frame = new JFrame("planetModel Test");
-        Canvas canvas = new projTest();
+        JPanel canvas = new projTest();
         canvas.setSize(xsize, ysize);
-        label = new JLabel("Test");
+        frame.setSize(xsize, ysize);
+        //label = new JLabel("Test");
         frame.add(canvas);
         frame.addKeyListener(new KeyListener());
         //frame.add(label);
-        frame.pack();
+
         frame.setVisible(true);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
 
-        int delay = (int) refreshRate; //milliseconds
         ActionListener taskPerformer = new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
                 days = days + delta;
-               canvas.repaint();
+                canvas.repaint();
             }
         };
-        new Timer(delay, taskPerformer).start();
+
+        javax.swing.Timer timer = new Timer((int)refreshRate, taskPerformer);
+        timer.setRepeats(true);
+        timer.start();
     }
 
     static CartesianCoordinates transform(CartesianCoordinates xy){
@@ -60,6 +63,7 @@ public class projTest extends Canvas {
     @Override
     public void paint(Graphics g) {
 
+        super.paint(g);
 
         EclipticToEquatorialConversion ecl = new EclipticToEquatorialConversion(Epoch.J2000.epoch.plusDays((long) days));
         EquatorialToHorizontalConversion conv = new EquatorialToHorizontalConversion(Epoch.J2000.epoch.plusDays((long) days),GeographicCoordinates.ofDeg(0,0));
