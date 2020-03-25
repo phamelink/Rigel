@@ -42,8 +42,8 @@ public final class Star extends CelestialObject {
     }
 
     /**
-     * returns Hipparcois number
-     * @return Hipparcois number
+     * returns Hipparcos number
+     * @return Hipparcos number
      */
     public int hipparcosId(){
         return hipparcosId;

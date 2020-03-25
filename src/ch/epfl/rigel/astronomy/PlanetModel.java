@@ -99,7 +99,6 @@ public enum PlanetModel implements CelestialObjectModel<Planet>{
 
         final double lambda;
         final double expression1 = R * Math.sin(lP - L);
-        System.out.println(this.name);
         if(isOuterPlanet){
             //Outer Planets
             lambda = lP + Math.atan2(expression1 , (rP - R * Math.cos(lP - L)));
@@ -109,8 +108,9 @@ public enum PlanetModel implements CelestialObjectModel<Planet>{
         }
 
         final double beta = Math.atan(rP * Math.tan(helioLat) * Math.sin(lambda - lP) / expression1);
-        System.out.println(Angle.toDeg(lambda));
-        System.out.println("*" + Angle.toDeg(beta));
+
+        System.out.println("lambda : " + Angle.toDeg(Angle.normalizePositive(lambda)));
+        System.out.println("lambda : " + Angle.toDeg(beta));
 
         geocentricCoord = EclipticCoordinates.of(Angle.normalizePositive(lambda), beta);
 
@@ -124,18 +124,30 @@ public enum PlanetModel implements CelestialObjectModel<Planet>{
 
     //MEMO : WARNING, epoch is J2010, not J2000!
     public DatedPlanetInfo getDatedPlanetInfo(double daysSinceJ2010){
-        final double meanAnom = (Angle.TAU * daysSinceJ2010) / (365.242191 * revTime) + jLon - periLon;
-        final double trueAnom = meanAnom + 2 * exc * Math.sin(meanAnom);
+        double meanAnom = (Angle.TAU * daysSinceJ2010) / (365.242191 * revTime) + jLon - periLon;
+        meanAnom = Angle.normalizePositive(meanAnom);
+        System.out.println("Mp : " + Angle.toDeg(meanAnom));
+        double trueAnom = meanAnom + 2 * exc * Math.sin(meanAnom);
+        trueAnom = Angle.normalizePositive(trueAnom);
+        System.out.println("vp : " + Angle.toDeg(trueAnom));
 
         final double radius = axis * (1-exc*exc) / (1 + exc * Math.cos(trueAnom));
-        final double helioLon = trueAnom + periLon;
+        double helioLon = trueAnom + periLon;
+        helioLon = Angle.normalizePositive(helioLon);
+        System.out.println("l : " + Angle.toDeg(helioLon));
+        System.out.println("r : " + radius);
+
         final double helioLat = Math.asin(Math.sin(helioLon - ascNodeLon) * Math.sin(incl));
+
+        System.out.println("trident : " + Angle.toDeg(helioLat));
 
         final double radiusProj = radius * Math.cos(helioLat);
         final double lonProj = Math.atan2(Math.sin(helioLon - ascNodeLon) * Math.cos(incl), Math.cos(helioLon-ascNodeLon)) + ascNodeLon;
 
+        System.out.println("rp : " + radiusProj);
+        System.out.println("lp : " + Angle.toDeg(lonProj));
+
         final EclipticCoordinates helioCoords = EclipticCoordinates.of(Angle.normalizePositive(lonProj), helioLat);
-        System.out.println("c " + Angle.toDeg(helioCoords.lon()));
         return new DatedPlanetInfo(daysSinceJ2010, radius, helioLon, radiusProj, helioCoords);
     }
 
