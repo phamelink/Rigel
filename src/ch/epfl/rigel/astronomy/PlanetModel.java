@@ -95,7 +95,7 @@ public enum PlanetModel implements CelestialObjectModel<Planet>{
         A verifier si ça doit être des coordonnées écliptiques transformées en equatorial
         pour la mettre dans new planet ou laisser comme t'as fait
          */
-        final EquatorialCoordinates geocentricCoord;
+        final EclipticCoordinates geocentricCoord;
 
         final double lambda;
         final double expression1 = R * Math.sin(lP - L);
@@ -112,15 +112,14 @@ public enum PlanetModel implements CelestialObjectModel<Planet>{
         System.out.println(Angle.toDeg(lambda));
         System.out.println("*" + Angle.toDeg(beta));
 
-        geocentricCoord = EquatorialCoordinates.of(Angle.normalizePositive(lambda), beta);
+        geocentricCoord = EclipticCoordinates.of(Angle.normalizePositive(lambda), beta);
 
         final double rho = Math.sqrt(Math.abs(R*R + r*r - 2 * R * r * Math.cos(l - L) * Math.cos(helioLat)));
         final double angularSize = theta0 / rho;
 
         final double phase = ((1 + Math.cos(planetInfo.getHeliocentricCoordinates().lon() - l)) / 2);
         final double apparentMagnitude = magnitude + 5 * Math.log10(r*rho / Math.sqrt(phase));
-
-        return new Planet(name, geocentricCoord, (float) angularSize, (float) apparentMagnitude);
+        return new Planet(name, eclipticToEquatorialConversion.apply(geocentricCoord), (float) angularSize, (float) apparentMagnitude);
     }
 
     //MEMO : WARNING, epoch is J2010, not J2000!
