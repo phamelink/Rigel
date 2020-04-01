@@ -63,7 +63,6 @@ public final class StereographicProjection implements Function<HorizontalCoordin
         double cosLamDelta = Math.cos(lamDelta);
 
         double d = 1 / (1 + sinPhi * sinPhi1 + cosPhi * cosPhi1 * cosLamDelta);
-        System.out.println("d: " + d);
         double x = d * cosPhi * sinLamDelta;
         double y = d * (sinPhi * cosPhi1 - cosPhi * sinPhi1 * cosLamDelta);
 
@@ -90,8 +89,7 @@ public final class StereographicProjection implements Function<HorizontalCoordin
         double lam = Math.atan2((x * sinC) , (rho * cosPhi1 * cosC - y * sinPhi1 * sinC)) + center.az();
 
         double phi = Math.asin(cosC * sinPhi1 + (y * sinC * cosPhi1) / rho );
-        System.out.println("lam: " + lam + " phi: " + phi);
-        //TODO Verify case where rho = 0 !
+
 
         return HorizontalCoordinates.of(Angle.normalizePositive(lam), phi);
 

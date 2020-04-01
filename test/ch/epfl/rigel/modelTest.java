@@ -27,7 +27,7 @@ public class modelTest extends JPanel {
     private static final CartesianCoordinates SUN = transform(CartesianCoordinates.of(0,0));
     public static double refreshRate = 5;
     private static double radiusFactor = 200;
-    private static double delta = 0.1;
+    private static double delta = -0.1;
 
 
     public static void main(String[] args){
@@ -88,15 +88,19 @@ public class modelTest extends JPanel {
 
             double marsLon = model.at(days,ecl).equatorialPos().ra();
             //double marsLon = model.getDatedPlanetInfo(days).getHelioLon();
-            System.out.println("Test : "+ Angle.toDeg(marsLon));
             double marsX = radius * Math.cos(marsLon);
             double marsY = radius * Math.sin(marsLon);
-            System.out.println(model.name());
-            System.out.println(marsLon);
+
             g.setColor(Color.BLACK);
             g.drawLine((int) CENTER.x(), (int) CENTER.y(),(int)(CENTER.x() + marsX), (int)( CENTER.y() + marsY) );
             
         }
+        double moonLon = MoonModel.MOON.at(days,ecl).equatorialPos().ra();
+        double moonX = radius*0.4 * Math.cos(moonLon);
+        double moonY = radius*0.4 * Math.sin(moonLon);
+        g.setColor(Color.BLUE);
+        g.drawLine((int) CENTER.x(), (int) CENTER.y(),(int)(CENTER.x() + moonX), (int)( CENTER.y() + moonY) );
+        
 
 
 
@@ -114,8 +118,7 @@ public class modelTest extends JPanel {
 
             double marsX = model.getDatedPlanetInfo(days).getDistanceFromSun() *radiusFactor * Math.cos(marsLon);
             double marsY = model.getDatedPlanetInfo(days).getDistanceFromSun() *radiusFactor * Math.sin(marsLon);
-            System.out.println(model.name());
-            System.out.println(marsLon);
+
             g.setColor(Color.GREEN);
             g.drawLine((int) SUN.x(), (int) SUN.y(),(int)(SUN.x() + marsX), (int)( SUN.y() + marsY) );
             g.setColor(Color.RED);

@@ -40,10 +40,8 @@ public class EquatorialToHorizontalConversion implements Function<EquatorialCoor
     public HorizontalCoordinates apply(EquatorialCoordinates eqc){
         double sinDelta = Math.sin(eqc.dec());
         double cosDelta = Math.cos(eqc.dec());
-        System.out.println("lst " + Angle.toHr(localSiderealTime));
         double hourAngle = Angle.normalizePositive(localSiderealTime - eqc.ra());
 
-        System.out.println(Angle.toHr(hourAngle));
         double sinAlt = sinDelta * sinLat + cosDelta * cosLat * Math.cos(hourAngle);
         double alt = Math.asin(sinAlt);
         double azimuth = Math.acos((sinDelta - sinLat * sinAlt) / (cosLat * Math.cos(alt)));

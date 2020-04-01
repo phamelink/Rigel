@@ -31,7 +31,6 @@ public class EclipticToEquatorialConversion implements Function<EclipticCoordina
      *          date/time to convert
      */
     public EclipticToEquatorialConversion(ZonedDateTime when) {
-        System.out.println("-->" + (Epoch.J2000.julianCenturiesUntil(when)));
         this.eclipticObliquity = obliquityAt(Epoch.J2000.julianCenturiesUntil(when));
         this.sinObliquity = Math.sin(eclipticObliquity);
         this.cosObliquity = Math.cos(eclipticObliquity);

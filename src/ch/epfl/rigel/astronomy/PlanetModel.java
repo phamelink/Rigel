@@ -2,11 +2,8 @@ package ch.epfl.rigel.astronomy;
 
 import ch.epfl.rigel.coordinates.EclipticCoordinates;
 import ch.epfl.rigel.coordinates.EclipticToEquatorialConversion;
-import ch.epfl.rigel.coordinates.EquatorialCoordinates;
 import ch.epfl.rigel.math.Angle;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 
@@ -109,65 +106,54 @@ public enum PlanetModel implements CelestialObjectModel<Planet>{
 
         final double beta = Math.atan(rP * Math.tan(helioLat) * Math.sin(lambda - lP) / expression1);
 
-        System.out.println("lambda : " + Angle.toDeg(Angle.normalizePositive(lambda)));
-        System.out.println("lambda : " + Angle.toDeg(beta));
-
         geocentricCoord = EclipticCoordinates.of(Angle.normalizePositive(lambda), beta);
 
         final double rho = Math.sqrt(Math.abs(R*R + r*r - 2 * R * r * Math.cos(l - L) * Math.cos(helioLat)));
+
         final double angularSize = theta0 / rho;
 
-        final double phase = ((1 + Math.cos(planetInfo.getHeliocentricCoordinates().lon() - l)) / 2);
+        final double phase = ((1 + Math.cos(Angle.normalizePositive(lambda) - l)) / 2);
         final double apparentMagnitude = magnitude + 5 * Math.log10(r*rho / Math.sqrt(phase));
-        return new Planet(name, eclipticToEquatorialConversion.apply(geocentricCoord), (float) angularSize, (float) apparentMagnitude);
+        return new Planet(name, eclipticToEquatorialConversion.apply(geocentricCoord), (float) Angle.ofArcsec(angularSize), (float) apparentMagnitude);
     }
 
-    //MEMO : WARNING, epoch is J2010, not J2000!
+
+    /**
+     * A method used to generate useful information about a planet and its heliocentric position in the solar system
+     *
+     * @param  daysSinceJ2010 : (double) amount of days elapsed since J2010 epoch
+     * @return : (DatedPlanetInfo) Data package containing useful planet information for a given time.
+     */
     public DatedPlanetInfo getDatedPlanetInfo(double daysSinceJ2010){
+
         double meanAnom = (Angle.TAU * daysSinceJ2010) / (365.242191 * revTime) + jLon - periLon;
         meanAnom = Angle.normalizePositive(meanAnom);
-        System.out.println("Mp : " + Angle.toDeg(meanAnom));
         double trueAnom = meanAnom + 2 * exc * Math.sin(meanAnom);
         trueAnom = Angle.normalizePositive(trueAnom);
-        System.out.println("vp : " + Angle.toDeg(trueAnom));
-
         final double radius = axis * (1-exc*exc) / (1 + exc * Math.cos(trueAnom));
         double helioLon = trueAnom + periLon;
         helioLon = Angle.normalizePositive(helioLon);
-        System.out.println("l : " + Angle.toDeg(helioLon));
-        System.out.println("r : " + radius);
 
         final double helioLat = Math.asin(Math.sin(helioLon - ascNodeLon) * Math.sin(incl));
-
-        System.out.println("trident : " + Angle.toDeg(helioLat));
 
         final double radiusProj = radius * Math.cos(helioLat);
         final double lonProj = Math.atan2(Math.sin(helioLon - ascNodeLon) * Math.cos(incl), Math.cos(helioLon-ascNodeLon)) + ascNodeLon;
 
-        System.out.println("rp : " + radiusProj);
-        System.out.println("lp : " + Angle.toDeg(lonProj));
-
         final EclipticCoordinates helioCoords = EclipticCoordinates.of(Angle.normalizePositive(lonProj), helioLat);
-        return new DatedPlanetInfo(daysSinceJ2010, radius, helioLon, radiusProj, helioCoords);
+        return new DatedPlanetInfo(radius, helioLon, radiusProj, helioCoords);
     }
 
     public static final class DatedPlanetInfo{
-        private final double daysSinceJ2010;
         private final double distanceFromSun;
         private final double helioLon;
         private final double eclipticRadius;
         private final EclipticCoordinates heliocentric;
 
-        public DatedPlanetInfo(double daysSinceJ2010, double distanceFromSun, double helioLon, double eclipticRadius, EclipticCoordinates heliocentric) {
-            this.daysSinceJ2010 = daysSinceJ2010;
+        public DatedPlanetInfo(double distanceFromSun, double helioLon, double eclipticRadius, EclipticCoordinates heliocentric) {
             this.distanceFromSun = distanceFromSun;
             this.helioLon = helioLon;
             this.eclipticRadius = eclipticRadius;
             this.heliocentric = heliocentric;
-        }
-
-        public double getDaysSinceJ2010() {
-            return daysSinceJ2010;
         }
 
         public double getDistanceFromSun() {

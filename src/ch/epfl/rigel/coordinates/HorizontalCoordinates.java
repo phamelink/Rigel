@@ -39,7 +39,6 @@ public final class HorizontalCoordinates extends SphericalCoordinates {
         OCTANT(int key, int beginDeg, int endDeg, String name, CARDINAL[] placeholder){
 
             octantInterval = RightOpenInterval.of(beginDeg, endDeg);
-            System.out.println(octantInterval);
             this.key = key;
             this.name = name;
             this.placeholder = placeholder;
