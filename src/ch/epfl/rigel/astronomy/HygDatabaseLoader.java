@@ -28,17 +28,18 @@ public enum HygDatabaseLoader implements StarCatalogue.Loader {
      */
     @Override
     public void load(InputStream inputStream, StarCatalogue.Builder builder) throws IOException {
-        try (InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.US_ASCII)) {
-            BufferedReader reader = new BufferedReader(inputStreamReader);
-
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.US_ASCII))) {
             reader.readLine();
             String s;
+            int line = 0;
             while ((s = reader.readLine()) != null) {
+                ++line;
                 String[] values = s.split(",");
                 int hipID;
                 try {
                     hipID = Integer.parseInt(values[ColumnNames.HIP.ordinal()]);
                 } catch (NumberFormatException e) {
+                    System.err.println("Defaulting to 0 for HPC ID on line " + line);
                     hipID = 0;
                 }
 
@@ -61,17 +62,23 @@ public enum HygDatabaseLoader implements StarCatalogue.Loader {
 
                 float magnitude;
                 try {
-                    magnitude = Integer.parseInt(values[ColumnNames.MAG.ordinal()]);
+                    magnitude = (float) Double.parseDouble(values[ColumnNames.MAG.ordinal()]);
                 } catch (NumberFormatException e) {
+                    System.err.println("Defaulting to 0 for MAGNITUDE on line " + line);
                     magnitude = 0;
                 }
 
                 float colorIndex = 0;
                 try {
-                    colorIndex = Integer.parseInt(values[ColumnNames.MAG.ordinal()]);
+                    colorIndex = (float) Double.parseDouble(values[ColumnNames.CI.ordinal()]);
                 } catch (NumberFormatException e) {
+                    System.err.println("Defaulting to 0 for COLOR INDEX on line " + line);
                     colorIndex = 0;
                 }
+
+                StringBuilder str = new StringBuilder();
+                str.append(hipID).append(" ").append(name).append(" ").append(coord).append(" ").append(magnitude).append(" ").append(colorIndex);
+                //System.out.println(str);
                 builder.addStar(new Star(hipID, name, coord, magnitude, colorIndex));
             }
 
