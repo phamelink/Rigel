@@ -8,6 +8,12 @@ import jdk.jfr.StackTrace;
 
 import java.lang.reflect.Field;
 
+/**
+ * Moon model
+ *
+ * @author Philip Hamelink (311769)
+ * @author Malo Ranzetti (296956)
+ */
 public enum MoonModel implements CelestialObjectModel<Moon> {
     MOON(Angle.ofDeg(91.929336), Angle.ofDeg(130.143076), Angle.ofDeg(291.682547), Angle.ofDeg(5.145396), 0.0549);
 
@@ -18,6 +24,15 @@ public enum MoonModel implements CelestialObjectModel<Moon> {
     private final double orbitIncl;
     private final double exc;
 
+
+    /**
+     * Moon model constructor
+     * @param meanLon mean longitude
+     * @param meanPeriLon mean longitude at perigee
+     * @param ascNodeLon ascending node longitude
+     * @param orbitIncl inclination of the orbit
+     * @param exc excentricity of the orbit
+     */
     MoonModel(double meanLon, double meanPeriLon, double ascNodeLon, double orbitIncl, double exc) {
         this.meanLon = meanLon;
         this.meanPeriLon = meanPeriLon;
@@ -94,10 +109,10 @@ public enum MoonModel implements CelestialObjectModel<Moon> {
         System.out.println("lamM: " + n(moonEclLon));
         System.out.println("betaM: " + n(moonEclLat));
 
-         */
+
         System.out.println(n(moonAngularSize));
         System.out.println(moonPhase);
-
+        */
         return new Moon(moonEqCoord, moonAngularSize, moonMagnitude, moonPhase);
     }
 
