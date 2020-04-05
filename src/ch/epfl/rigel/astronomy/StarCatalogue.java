@@ -192,7 +192,7 @@ public final class StarCatalogue {
      * loads stars/asterisms from inputStream and adds them to the star catalogue being built by builder
      */
     public interface Loader {
-        public abstract void load(InputStream inputStream, Builder builder) throws IOException;
+        void load(InputStream inputStream, Builder builder) throws IOException;
     }
 
 }

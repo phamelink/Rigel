@@ -42,9 +42,9 @@ public final class StereographicProjection implements Function<HorizontalCoordin
     }
 
     /**
-     * returns the radius of the circle corresponding to the projection of the parallel pass
-     * @param parallel
-     * @return
+     * returns the radius of the circle corresponding to the projection of the parallel passing through coordinates
+     * @param parallel : horizontal coordinates of parallel
+     * @return radius of the parallel
      */
     public double circleRadiusForParallel (HorizontalCoordinates parallel){
         return Math.cos(parallel.alt()) / (Math.sin(parallel.alt()) + sinPhi1);
@@ -75,7 +75,7 @@ public final class StereographicProjection implements Function<HorizontalCoordin
      * of cartesian coordinates xy
      * @param xy
      *          Cartesian coordinates of the projection's point
-     * @returnhorizontal coordinates of the point of which the projection is the point
+     * @return horizontal coordinates of the point of which the projection is the point
      *          of cartesian coordinates xy
      */
     public HorizontalCoordinates inverseApply(CartesianCoordinates xy){
@@ -108,12 +108,12 @@ public final class StereographicProjection implements Function<HorizontalCoordin
     }
 
     @Override
-    final public int hashCode() {
+    public final int hashCode() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    final public boolean equals(Object obj) {
+    public final boolean equals(Object obj) {
         throw new UnsupportedOperationException();
     }
 

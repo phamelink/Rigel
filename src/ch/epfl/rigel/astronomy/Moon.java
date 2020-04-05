@@ -4,7 +4,6 @@ import ch.epfl.rigel.Preconditions;
 import ch.epfl.rigel.coordinates.EquatorialCoordinates;
 import ch.epfl.rigel.math.ClosedInterval;
 
-import java.text.Format;
 import java.util.Locale;
 
 /**

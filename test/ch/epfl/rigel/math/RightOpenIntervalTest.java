@@ -28,9 +28,7 @@ class RightOpenIntervalTest {
         var rng = TestRandomizer.newRandom();
         for (int i = 0; i < TestRandomizer.RANDOM_ITERATIONS; i++) {
             var lowAndHigh = rng.nextDouble();
-            assertThrows(IllegalArgumentException.class, () -> {
-                RightOpenInterval.of(lowAndHigh, lowAndHigh);
-            });
+            assertThrows(IllegalArgumentException.class, () -> RightOpenInterval.of(lowAndHigh, lowAndHigh));
         }
     }
 
@@ -40,9 +38,7 @@ class RightOpenIntervalTest {
         for (int i = 0; i < TestRandomizer.RANDOM_ITERATIONS; i++) {
             var v1 = rng.nextDouble();
             var v2 = rng.nextDouble();
-            assertThrows(IllegalArgumentException.class, () -> {
-                RightOpenInterval.of(max(v1, v2), min(v1, v2));
-            });
+            assertThrows(IllegalArgumentException.class, () -> RightOpenInterval.of(max(v1, v2), min(v1, v2)));
         }
     }
 
@@ -63,17 +59,13 @@ class RightOpenIntervalTest {
         var rng = TestRandomizer.newRandom();
         for (int i = 0; i < TestRandomizer.RANDOM_ITERATIONS; i++) {
             var size = -rng.nextDouble(Double.MIN_VALUE,10);
-            assertThrows(IllegalArgumentException.class, () -> {
-                RightOpenInterval.symmetric(size);
-            });
+            assertThrows(IllegalArgumentException.class, () -> RightOpenInterval.symmetric(size));
         }
     }
 
     @Test
     void symmetricFailsOnTrivialInterval() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            RightOpenInterval.symmetric(0);
-        });
+        assertThrows(IllegalArgumentException.class, () -> RightOpenInterval.symmetric(0));
     }
 
     @Test
@@ -129,8 +121,6 @@ class RightOpenIntervalTest {
 
     @Test
     void hashCodeThrowsUOE() {
-        assertThrows(UnsupportedOperationException.class, () -> {
-            RightOpenInterval.symmetric(1).hashCode();
-        });
+        assertThrows(UnsupportedOperationException.class, () -> RightOpenInterval.symmetric(1).hashCode());
     }
 }

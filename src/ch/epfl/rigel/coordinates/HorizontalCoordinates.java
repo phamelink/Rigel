@@ -70,7 +70,7 @@ public final class HorizontalCoordinates extends SphericalCoordinates {
     }
 
     public enum CARDINAL {
-        N,S,E,W;
+        N,S,E,W
     }
 
 

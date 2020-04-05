@@ -1,8 +1,5 @@
 package ch.epfl.rigel.math;
 
-import java.util.List;
-import java.util.Locale;
-
 /**
  * Polynomial
  *

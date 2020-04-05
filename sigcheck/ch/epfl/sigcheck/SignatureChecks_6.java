@@ -1,8 +1,6 @@
 package ch.epfl.sigcheck;
 
 import ch.epfl.rigel.astronomy.*;
-import ch.epfl.rigel.coordinates.EclipticToEquatorialConversion;
-import ch.epfl.rigel.coordinates.EquatorialCoordinates;
 
 import java.io.IOException;
 import java.io.InputStream;

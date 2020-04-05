@@ -4,9 +4,6 @@ import ch.epfl.rigel.coordinates.EclipticCoordinates;
 import ch.epfl.rigel.coordinates.EclipticToEquatorialConversion;
 import ch.epfl.rigel.coordinates.EquatorialCoordinates;
 import ch.epfl.rigel.math.Angle;
-import jdk.jfr.StackTrace;
-
-import java.lang.reflect.Field;
 
 public enum MoonModel implements CelestialObjectModel<Moon> {
     MOON(Angle.ofDeg(91.929336), Angle.ofDeg(130.143076), Angle.ofDeg(291.682547), Angle.ofDeg(5.145396), 0.0549);

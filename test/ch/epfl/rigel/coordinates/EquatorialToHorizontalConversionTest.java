@@ -72,8 +72,6 @@ class EquatorialToHorizontalConversionTest {
 
     @Test
     void e2hHashCodeThrowsUOE() {
-        assertThrows(UnsupportedOperationException.class, () -> {
-            new EquatorialToHorizontalConversion(ZDT_SEMESTER_START, EPFL).hashCode();
-        });
+        assertThrows(UnsupportedOperationException.class, () -> new EquatorialToHorizontalConversion(ZDT_SEMESTER_START, EPFL).hashCode());
     }
 }

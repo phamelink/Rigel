@@ -10,22 +10,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class PolynomialTest {
     @Test
     void ofFailsWithFirstCoefficient0() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            Polynomial.of(0, 2, 45, -1, 0);
-        });
-        assertThrows(IllegalArgumentException.class, () -> {
-            Polynomial.of(0, 1);
-        });
-        assertThrows(IllegalArgumentException.class, () -> {
-            Polynomial.of(0);
-        });
+        assertThrows(IllegalArgumentException.class, () -> Polynomial.of(0, 2, 45, -1, 0));
+        assertThrows(IllegalArgumentException.class, () -> Polynomial.of(0, 1));
+        assertThrows(IllegalArgumentException.class, () -> Polynomial.of(0));
     }
 
     @Test
     void ofFailsWithNullArray() {
-        assertThrows(NullPointerException.class, () -> {
-            Polynomial.of(1, null);
-        });
+        assertThrows(NullPointerException.class, () -> Polynomial.of(1, null));
     }
 
     @Test
@@ -96,8 +88,6 @@ class PolynomialTest {
 
     @Test
     void hashCodeThrowsUOE() {
-        assertThrows(UnsupportedOperationException.class, () -> {
-            Polynomial.of(1).hashCode();
-        });
+        assertThrows(UnsupportedOperationException.class, () -> Polynomial.of(1).hashCode());
     }
 }

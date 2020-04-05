@@ -19,9 +19,7 @@ public class PlanetTest {
 
     @Test
     void planetConstructorFailsWhenEquatorialPositionIsNull() {
-        assertThrows(NullPointerException.class, () -> {
-            new Planet("Planet B", null, 0, 0);
-        });
+        assertThrows(NullPointerException.class, () -> new Planet("Planet B", null, 0, 0));
     }
 
     @Test

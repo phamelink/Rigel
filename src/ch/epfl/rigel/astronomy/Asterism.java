@@ -17,9 +17,8 @@ public final class Asterism {
     /**
      * Asterism constructor
      * Constructs an asterism composed of a list of given stars
-     * @param stars
-     *              given stars
-     * @throws IllegalArgumentException if given list is empty
+     * @param stars : given stars
+     * @throws IllegalArgumentException : if given list is empty
      */
     public Asterism(List<Star> stars) {
         Preconditions.checkArgument(!stars.isEmpty());
@@ -27,7 +26,7 @@ public final class Asterism {
     }
 
     /**
-     * returns the list of stars
+     * Returns the list of stars
      * @return the list of stars
      */
     public List<Star> stars() {

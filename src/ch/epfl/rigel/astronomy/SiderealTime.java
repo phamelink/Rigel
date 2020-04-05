@@ -3,14 +3,11 @@ package ch.epfl.rigel.astronomy;
 import ch.epfl.rigel.coordinates.GeographicCoordinates;
 import ch.epfl.rigel.math.Angle;
 import ch.epfl.rigel.math.Polynomial;
-import ch.epfl.rigel.math.RightOpenInterval;
 
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 
 /**
  * Sidereal time class
@@ -39,7 +36,6 @@ public final class SiderealTime {
         double julianCenturiesDifference = Epoch.J2000.julianCenturiesUntil(truncatedDate);
 
         double hoursSinceBeginningOfDay = correctedOffset.getLong(ChronoField.NANO_OF_DAY) / NANO_PER_HOUR;
-        double t = julianCenturiesDifference;
         double siderealTimeGreenwichHr =  SIDEREAL_TIME_0.at(julianCenturiesDifference) + SIDEREAL_TIME_1.at(hoursSinceBeginningOfDay);
         return Angle.normalizePositive(Angle.ofHr(siderealTimeGreenwichHr));
     }

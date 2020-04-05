@@ -22,18 +22,10 @@ class EclipticCoordinatesTest {
 
     @Test
     void eclOfFailsWithInvalidCoordinates() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            EclipticCoordinates.of(2d * PI + 1e-8, 0);
-        });
-        assertThrows(IllegalArgumentException.class, () -> {
-            EclipticCoordinates.of(-1e-8, 0);
-        });
-        assertThrows(IllegalArgumentException.class, () -> {
-            EclipticCoordinates.of(0, PI + 1e-8);
-        });
-        assertThrows(IllegalArgumentException.class, () -> {
-            EclipticCoordinates.of(0, -(PI + 1e-8));
-        });
+        assertThrows(IllegalArgumentException.class, () -> EclipticCoordinates.of(2d * PI + 1e-8, 0));
+        assertThrows(IllegalArgumentException.class, () -> EclipticCoordinates.of(-1e-8, 0));
+        assertThrows(IllegalArgumentException.class, () -> EclipticCoordinates.of(0, PI + 1e-8));
+        assertThrows(IllegalArgumentException.class, () -> EclipticCoordinates.of(0, -(PI + 1e-8)));
     }
 
     @Test
@@ -58,8 +50,6 @@ class EclipticCoordinatesTest {
 
     @Test
     void ecHashCodeThrowsUOE() {
-        assertThrows(UnsupportedOperationException.class, () -> {
-            EclipticCoordinates.of(0, 0).hashCode();
-        });
+        assertThrows(UnsupportedOperationException.class, () -> EclipticCoordinates.of(0, 0).hashCode());
     }
 }

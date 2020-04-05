@@ -29,9 +29,7 @@ public class CartesianCoordinatesTest {
 
     @Test
     void ccHashCodeThrowsUOE() {
-        assertThrows(UnsupportedOperationException.class, () -> {
-            CartesianCoordinates.of(0, 0).hashCode();
-        });
+        assertThrows(UnsupportedOperationException.class, () -> CartesianCoordinates.of(0, 0).hashCode());
     }
 
 }

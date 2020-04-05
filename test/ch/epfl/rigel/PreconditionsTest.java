@@ -15,9 +15,7 @@ class PreconditionsTest {
 
     @Test
     void checkArgumentFailsForFalse() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            Preconditions.checkArgument(false);
-        });
+        assertThrows(IllegalArgumentException.class, () -> Preconditions.checkArgument(false));
     }
 
     @Test
@@ -27,8 +25,6 @@ class PreconditionsTest {
 
     @Test
     void checkInIntervalFailsForValuesNotInInterval() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            Preconditions.checkInInterval(ClosedInterval.of(50, 100), 0);
-        });
+        assertThrows(IllegalArgumentException.class, () -> Preconditions.checkInInterval(ClosedInterval.of(50, 100), 0));
     }
 }

@@ -25,18 +25,10 @@ class HorizontalCoordinatesTest {
 
     @Test
     void horOfFailsWithInvalidCoordinates() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            HorizontalCoordinates.of(-1e-8, 0);
-        });
-        assertThrows(IllegalArgumentException.class, () -> {
-            HorizontalCoordinates.of(2d * PI + 1e-8, 0);
-        });
-        assertThrows(IllegalArgumentException.class, () -> {
-            HorizontalCoordinates.of(0, -(PI + 1e-8));
-        });
-        assertThrows(IllegalArgumentException.class, () -> {
-            HorizontalCoordinates.of(0, PI + 1e-8);
-        });
+        assertThrows(IllegalArgumentException.class, () -> HorizontalCoordinates.of(-1e-8, 0));
+        assertThrows(IllegalArgumentException.class, () -> HorizontalCoordinates.of(2d * PI + 1e-8, 0));
+        assertThrows(IllegalArgumentException.class, () -> HorizontalCoordinates.of(0, -(PI + 1e-8)));
+        assertThrows(IllegalArgumentException.class, () -> HorizontalCoordinates.of(0, PI + 1e-8));
     }
 
     @Test
@@ -53,18 +45,10 @@ class HorizontalCoordinatesTest {
 
     @Test
     void horOfDegFailsWithInvalidCoordinates() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            HorizontalCoordinates.ofDeg(-0.0001, 0);
-        });
-        assertThrows(IllegalArgumentException.class, () -> {
-            HorizontalCoordinates.ofDeg(360, 0);
-        });
-        assertThrows(IllegalArgumentException.class, () -> {
-            HorizontalCoordinates.ofDeg(0, -90.0001);
-        });
-        assertThrows(IllegalArgumentException.class, () -> {
-            HorizontalCoordinates.ofDeg(0, 90.0001);
-        });
+        assertThrows(IllegalArgumentException.class, () -> HorizontalCoordinates.ofDeg(-0.0001, 0));
+        assertThrows(IllegalArgumentException.class, () -> HorizontalCoordinates.ofDeg(360, 0));
+        assertThrows(IllegalArgumentException.class, () -> HorizontalCoordinates.ofDeg(0, -90.0001));
+        assertThrows(IllegalArgumentException.class, () -> HorizontalCoordinates.ofDeg(0, 90.0001));
     }
 
     @Test
@@ -170,8 +154,6 @@ class HorizontalCoordinatesTest {
 
     @Test
     void horHashCodeThrowsUOE() {
-        assertThrows(UnsupportedOperationException.class, () -> {
-            HorizontalCoordinates.ofDeg(0, 0).hashCode();
-        });
+        assertThrows(UnsupportedOperationException.class, () -> HorizontalCoordinates.ofDeg(0, 0).hashCode());
     }
 }
