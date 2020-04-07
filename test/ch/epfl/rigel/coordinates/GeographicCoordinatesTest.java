@@ -43,10 +43,18 @@ class GeographicCoordinatesTest {
 
     @Test
     void geoOfDegFailsWithInvalidCoordinates() {
-        assertThrows(IllegalArgumentException.class, () -> GeographicCoordinates.ofDeg(-180.0001, 0));
-        assertThrows(IllegalArgumentException.class, () -> GeographicCoordinates.ofDeg(180, 0));
-        assertThrows(IllegalArgumentException.class, () -> GeographicCoordinates.ofDeg(0, -90.0001));
-        assertThrows(IllegalArgumentException.class, () -> GeographicCoordinates.ofDeg(0, 90.0001));
+        assertThrows(IllegalArgumentException.class, () -> {
+            GeographicCoordinates.ofDeg(-180.0001, 0);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            GeographicCoordinates.ofDeg(180, 0);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            GeographicCoordinates.ofDeg(0, -90.0001);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            GeographicCoordinates.ofDeg(0, 90.0001);
+        });
     }
 
     @Test
@@ -73,6 +81,8 @@ class GeographicCoordinatesTest {
 
     @Test
     void geoHashCodeThrowsUOE() {
-        assertThrows(UnsupportedOperationException.class, () -> GeographicCoordinates.ofDeg(0, 0).hashCode());
+        assertThrows(UnsupportedOperationException.class, () -> {
+            GeographicCoordinates.ofDeg(0, 0).hashCode();
+        });
     }
 }

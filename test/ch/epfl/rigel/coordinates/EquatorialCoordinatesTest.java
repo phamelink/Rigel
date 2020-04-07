@@ -22,10 +22,18 @@ class EquatorialCoordinatesTest {
 
     @Test
     void equOfFailsWithInvalidCoordinates() {
-        assertThrows(IllegalArgumentException.class, () -> EquatorialCoordinates.of(2d * PI + 1e-8, 0));
-        assertThrows(IllegalArgumentException.class, () -> EquatorialCoordinates.of(-1e-8, 0));
-        assertThrows(IllegalArgumentException.class, () -> EquatorialCoordinates.of(0, PI + 1e-8));
-        assertThrows(IllegalArgumentException.class, () -> EquatorialCoordinates.of(0, -(PI + 1e-8)));
+        assertThrows(IllegalArgumentException.class, () -> {
+            EquatorialCoordinates.of(2d * PI + 1e-8, 0);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            EquatorialCoordinates.of(-1e-8, 0);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            EquatorialCoordinates.of(0, PI + 1e-8);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            EquatorialCoordinates.of(0, -(PI + 1e-8));
+        });
     }
 
     @Test
@@ -61,6 +69,8 @@ class EquatorialCoordinatesTest {
 
     @Test
     void equHashCodeThrowsUOE() {
-        assertThrows(UnsupportedOperationException.class, () -> EquatorialCoordinates.of(0, 0).hashCode());
+        assertThrows(UnsupportedOperationException.class, () -> {
+            EquatorialCoordinates.of(0, 0).hashCode();
+        });
     }
 }

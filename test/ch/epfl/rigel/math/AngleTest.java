@@ -55,22 +55,46 @@ public class AngleTest {
 
     @Test
     void ofDMSFailsWithInvalidMinutes() {
-        assertThrows(IllegalArgumentException.class, () -> Angle.ofDMS(3, -1, 2.4));
-        assertThrows(IllegalArgumentException.class, () -> Angle.ofDMS(1, -5, 7));
-        assertThrows(IllegalArgumentException.class, () -> Angle.ofDMS(122, -12, 4.5));
-        assertThrows(IllegalArgumentException.class, () -> Angle.ofDMS(33, 60, 0));
-        assertThrows(IllegalArgumentException.class, () -> Angle.ofDMS(9, 65, 14));
-        assertThrows(IllegalArgumentException.class, () -> Angle.ofDMS(0, 199, 0));
+        assertThrows(IllegalArgumentException.class, () -> {
+            Angle.ofDMS(3, -1, 2.4);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            Angle.ofDMS(1, -5, 7);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            Angle.ofDMS(122, -12, 4.5);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            Angle.ofDMS(33, 60, 0);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            Angle.ofDMS(9, 65, 14);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            Angle.ofDMS(0, 199, 0);
+        });
     }
 
     @Test
     void ofDMSFailsWithInvalidSeconds() {
-        assertThrows(IllegalArgumentException.class, () -> Angle.ofDMS(12, 9, -0.0001));
-        assertThrows(IllegalArgumentException.class, () -> Angle.ofDMS(22, 34, -1.4));
-        assertThrows(IllegalArgumentException.class, () -> Angle.ofDMS(1, 0, -12));
-        assertThrows(IllegalArgumentException.class, () -> Angle.ofDMS(9, 4, 60.0001));
-        assertThrows(IllegalArgumentException.class, () -> Angle.ofDMS(9, 4, 75));
-        assertThrows(IllegalArgumentException.class, () -> Angle.ofDMS(9, 4, 99));
+        assertThrows(IllegalArgumentException.class, () -> {
+            Angle.ofDMS(12, 9, -0.0001);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            Angle.ofDMS(22, 34, -1.4);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            Angle.ofDMS(1, 0, -12);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            Angle.ofDMS(9, 4, 60.0001);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            Angle.ofDMS(9, 4, 75);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            Angle.ofDMS(9, 4, 99);
+        });
     }
 
     @Test

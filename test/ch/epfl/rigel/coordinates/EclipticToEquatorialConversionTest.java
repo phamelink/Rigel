@@ -89,6 +89,8 @@ class EclipticToEquatorialConversionTest {
 
     @Test
     void e2eHashCodeThrowsUOE() {
-        assertThrows(UnsupportedOperationException.class, () -> new EclipticToEquatorialConversion(ZDT_SEMESTER_START).hashCode());
+        assertThrows(UnsupportedOperationException.class, () -> {
+            new EclipticToEquatorialConversion(ZDT_SEMESTER_START).hashCode();
+        });
     }
 }

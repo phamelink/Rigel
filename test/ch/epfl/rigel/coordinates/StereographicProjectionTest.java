@@ -177,6 +177,8 @@ class StereographicProjectionTest {
 
     @Test
     void spHashCodeThrowsUOE() {
-        assertThrows(UnsupportedOperationException.class, () -> new StereographicProjection(HorizontalCoordinates.of(0, 0)).hashCode());
+        assertThrows(UnsupportedOperationException.class, () -> {
+            new StereographicProjection(HorizontalCoordinates.of(0, 0)).hashCode();
+        });
     }
 }

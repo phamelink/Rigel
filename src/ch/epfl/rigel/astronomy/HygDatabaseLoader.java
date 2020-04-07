@@ -7,9 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * HygDatabaseLoader
@@ -35,8 +32,6 @@ public enum HygDatabaseLoader implements StarCatalogue.Loader {
             while ((s = reader.readLine()) != null) {
                 ++line;
                 String[] values = s.split(",");
-
-                //Read hipparcos ID
                 int hipID;
                 try {
                     hipID = Integer.parseInt(values[ColumnNames.HIP.ordinal()]);
@@ -45,8 +40,7 @@ public enum HygDatabaseLoader implements StarCatalogue.Loader {
                     hipID = 0;
                 }
 
-                //Read star name
-                final String name;
+                String name;
                 if (!values[ColumnNames.PROPER.ordinal()].isEmpty()) {
                     name = values[ColumnNames.PROPER.ordinal()];
                 } else {
@@ -59,12 +53,10 @@ public enum HygDatabaseLoader implements StarCatalogue.Loader {
                     name = stringBuilder.toString();
                 }
 
-                //Read star equatorial coordinates (assuming non null)
-                final EquatorialCoordinates coord = EquatorialCoordinates.of(
+                EquatorialCoordinates coord = EquatorialCoordinates.of(
                         Double.parseDouble(values[ColumnNames.RARAD.ordinal()]),
                         Double.parseDouble(values[ColumnNames.DECRAD.ordinal()]));
 
-                //Read star magnitude
                 float magnitude;
                 try {
                     magnitude = (float) Double.parseDouble(values[ColumnNames.MAG.ordinal()]);
@@ -73,12 +65,7 @@ public enum HygDatabaseLoader implements StarCatalogue.Loader {
                     magnitude = 0;
                 }
 
-<<<<<<< HEAD
-                //Read star magnitude
                 float colorIndex;
-=======
-                float colorIndex = 0;
->>>>>>> ac054f3e2cd627c2fb1cc8c2dcffdf07b8318bec
                 try {
                     colorIndex = (float) Double.parseDouble(values[ColumnNames.CI.ordinal()]);
                 } catch (NumberFormatException e) {
@@ -86,13 +73,7 @@ public enum HygDatabaseLoader implements StarCatalogue.Loader {
                     colorIndex = 0;
                 }
 
-<<<<<<< HEAD
-                //Add star to builder using read values
-=======
-                StringBuilder str = new StringBuilder();
-                str.append(hipID).append(" ").append(name).append(" ").append(coord).append(" ").append(magnitude).append(" ").append(colorIndex);
-                //System.out.println(str);
->>>>>>> ac054f3e2cd627c2fb1cc8c2dcffdf07b8318bec
+
                 builder.addStar(new Star(hipID, name, coord, magnitude, colorIndex));
             }
 
@@ -100,14 +81,10 @@ public enum HygDatabaseLoader implements StarCatalogue.Loader {
     }
 
 
-
-
-
-
     private enum ColumnNames {
         ID, HIP, HD, HR, GL, BF, PROPER, RA, DEC, DIST, PMRA, PMDEC,
         RV, MAG, ABSMAG, SPECT, CI, X, Y, Z, VX, VY, VZ,
         RARAD, DECRAD, PMRARAD, PMDECRAD, BAYER, FLAM, CON,
-        COMP, COMP_PRIMARY, BASE, LUM, VAR, VAR_MIN, VAR_MAX;
+        COMP, COMP_PRIMARY, BASE, LUM, VAR, VAR_MIN, VAR_MAX
     }
 }

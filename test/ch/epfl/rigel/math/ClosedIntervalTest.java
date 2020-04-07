@@ -28,7 +28,9 @@ public class ClosedIntervalTest {
         var rng = TestRandomizer.newRandom();
         for (int i = 0; i < TestRandomizer.RANDOM_ITERATIONS; i++) {
             var lowAndHigh = rng.nextDouble();
-            assertThrows(IllegalArgumentException.class, () -> ClosedInterval.of(lowAndHigh, lowAndHigh));
+            assertThrows(IllegalArgumentException.class, () -> {
+                ClosedInterval.of(lowAndHigh, lowAndHigh);
+            });
         }
     }
 
@@ -38,7 +40,9 @@ public class ClosedIntervalTest {
         for (int i = 0; i < TestRandomizer.RANDOM_ITERATIONS; i++) {
             var v1 = rng.nextDouble();
             var v2 = rng.nextDouble();
-            assertThrows(IllegalArgumentException.class, () -> ClosedInterval.of(max(v1, v2), min(v1, v2)));
+            assertThrows(IllegalArgumentException.class, () -> {
+                ClosedInterval.of(max(v1, v2), min(v1, v2));
+            });
         }
     }
 
@@ -59,13 +63,17 @@ public class ClosedIntervalTest {
         var rng = TestRandomizer.newRandom();
         for (int i = 0; i < TestRandomizer.RANDOM_ITERATIONS; i++) {
             var size = -rng.nextDouble(Double.MIN_VALUE,10);
-            assertThrows(IllegalArgumentException.class, () -> ClosedInterval.symmetric(size));
+            assertThrows(IllegalArgumentException.class, () -> {
+                ClosedInterval.symmetric(size);
+            });
         }
     }
 
     @Test
     void symmetricFailsOnTrivialInterval() {
-        assertThrows(IllegalArgumentException.class, () -> ClosedInterval.symmetric(0));
+        assertThrows(IllegalArgumentException.class, () -> {
+            ClosedInterval.symmetric(0);
+        });
     }
 
     @Test
@@ -121,6 +129,8 @@ public class ClosedIntervalTest {
 
     @Test
     void hashCodeThrowsUOE() {
-        assertThrows(UnsupportedOperationException.class, () -> ClosedInterval.symmetric(1).hashCode());
+        assertThrows(UnsupportedOperationException.class, () -> {
+            ClosedInterval.symmetric(1).hashCode();
+        });
     }
 }
