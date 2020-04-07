@@ -54,7 +54,7 @@ public final class StarCatalogue {
      * @return set of asterisms of the catalogue
      */
     public Set<Asterism> asterisms() {
-        return Collections.unmodifiableSet (asterismMap.keySet());
+        return Set.copyOf(asterismMap.keySet());
     }
 
     /**
@@ -65,7 +65,7 @@ public final class StarCatalogue {
      */
     public List<Integer> asterismIndices(Asterism asterism) {
         Preconditions.checkArgument(asterismMap.containsKey(asterism));
-        return Collections.unmodifiableList(asterismMap.get(asterism));
+        return asterismMap.get(asterism);
 
     }
 
@@ -191,7 +191,7 @@ public final class StarCatalogue {
      * adds them to the star catalogue being built by builder
      */
     public interface Loader {
-        void load(InputStream inputStream, Builder builder) throws IOException;
+        public abstract void load(InputStream inputStream, Builder builder) throws IOException;
     }
 
 }

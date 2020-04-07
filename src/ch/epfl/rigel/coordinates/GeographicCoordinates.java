@@ -23,11 +23,11 @@ public final class GeographicCoordinates extends SphericalCoordinates {
 
     /**
      * Construction method
-     * @param lonDeg (double):
+     * @param lonDeg
      *               longitude (angle in degrees [-180°, 180°[)
-     * @param latDeg (double):
+     * @param latDeg
      *               latitude (angle in degrees [-90°,90°])
-     * @return (GeographicCoordinates)
+     * @return GeographicCoordinates of longitude lonDeg and latitude latDeg
      */
     public static GeographicCoordinates ofDeg(double lonDeg, double latDeg){
         if(!isValidLatDeg(latDeg)|| !isValidLonDeg(lonDeg)) throw new IllegalArgumentException();
@@ -37,9 +37,9 @@ public final class GeographicCoordinates extends SphericalCoordinates {
 
     /**
      * checks if the given longitude is valid
-     * @param lonDeg (double):
+     * @param lonDeg
      *               lon in degrees
-     * @return (boolean): the longitude is valid or not
+     * @return true if the longitude is valid
      */
     public static boolean isValidLonDeg(double lonDeg){
         return LONGITUDE_INTERVAL.contains(lonDeg);
@@ -47,9 +47,9 @@ public final class GeographicCoordinates extends SphericalCoordinates {
 
     /**
      * checks if the given latitude is valid
-     * @param latDeg (double):
+     * @param latDeg
      *               lat in degrees
-     * @return (boolean): the latitude is valid or not
+     * @return true if the given latitude is valid
      */
     public static boolean isValidLatDeg(double latDeg){
         return LATITUDE_INTERVAL.contains(latDeg);
@@ -62,7 +62,7 @@ public final class GeographicCoordinates extends SphericalCoordinates {
 
     /**
      * returns longitude (in radians)
-     * @return (double) longitude
+     * @return longitude (in radians)
      */
     public double lon() {
         return super.lon();
@@ -70,7 +70,7 @@ public final class GeographicCoordinates extends SphericalCoordinates {
 
     /**
      * returns longitude (in degrees)
-     * @return (double) longitude
+     * @return longitude (in degrees)
      */
     public double lonDeg() {
         return super.lonDeg();
@@ -78,7 +78,7 @@ public final class GeographicCoordinates extends SphericalCoordinates {
 
     /**
      * returns latitude (in radians)
-     * @return (double) latitude
+     * @return latitude (in radians)
      */
     public double lat() {
         return super.lat();
@@ -86,7 +86,7 @@ public final class GeographicCoordinates extends SphericalCoordinates {
 
     /**
      * returns latitude (in degrees)
-     * @return (double) latitude
+     * @return latitude (in degrees)
      */
     public double latDeg() {
         return super.latDeg();

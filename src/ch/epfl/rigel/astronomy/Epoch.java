@@ -19,7 +19,7 @@ public enum Epoch {
     private static final int DAYS_IN_ONE_JULIAN_CENTURY = 36525;
     private static final double NANO_IN_A_DAY = 8.64e+13;
 
-    Epoch(LocalDate localDate, LocalTime localTime, ZoneOffset zoneOffset) {
+    private Epoch(LocalDate localDate, LocalTime localTime, ZoneOffset zoneOffset) {
         this.epoch = ZonedDateTime.of(localDate, localTime, zoneOffset.normalized());
     }
 

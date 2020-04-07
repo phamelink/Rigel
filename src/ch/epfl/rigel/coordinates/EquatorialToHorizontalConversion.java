@@ -51,12 +51,12 @@ public class EquatorialToHorizontalConversion implements Function<EquatorialCoor
 
 
     @Override
-    final public int hashCode() {
+    public final int hashCode() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    final public boolean equals(Object obj) {
+    public final boolean equals(Object obj) {
         throw new UnsupportedOperationException();
     }
 

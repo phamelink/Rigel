@@ -3,6 +3,9 @@ package ch.epfl.rigel;
 import ch.epfl.rigel.astronomy.*;
 import ch.epfl.rigel.coordinates.CartesianCoordinates;
 import ch.epfl.rigel.coordinates.EclipticToEquatorialConversion;
+import ch.epfl.rigel.coordinates.EquatorialToHorizontalConversion;
+import ch.epfl.rigel.coordinates.GeographicCoordinates;
+import ch.epfl.rigel.math.Angle;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,6 +13,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.time.ZonedDateTime;
+import java.util.TimerTask;
 
 public class modelTest extends JPanel {
 

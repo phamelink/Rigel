@@ -5,6 +5,7 @@ import ch.epfl.rigel.astronomy.PlanetModel;
 import ch.epfl.rigel.astronomy.Sun;
 import ch.epfl.rigel.astronomy.SunModel;
 import ch.epfl.rigel.coordinates.*;
+import ch.epfl.rigel.math.Angle;
 
 import javax.swing.*;
 import java.awt.*;

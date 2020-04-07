@@ -17,12 +17,12 @@ public class ClosedInterval extends Interval {
 
     /**
      * public method to instanciate a closed interval
-     * @param low (double):
+     * @param low
      *            lower bound
-     * @param high (double):
+     * @param high
      *             upper bound
      * @throws IllegalArgumentException if low is bigger or equal to high
-     * @return (ClosedInterval)
+     * @return a closed interval
      */
     public static ClosedInterval of(double low, double high){
         if(low >= high) throw new IllegalArgumentException();
@@ -31,10 +31,10 @@ public class ClosedInterval extends Interval {
 
     /**
      * public method to instanciate a closed interval centered at 0
-     * @param diameter (double):
+     * @param diameter
      *                 lower and upper bound
      * @throws IllegalArgumentException if diameter is smaller or equal to than 0
-     * @return (ClosedInterval) closed interval centered at 0
+     * @return  closed interval centered at 0
      */
     public static ClosedInterval symmetric(double diameter){
         if(diameter <= 0) throw new IllegalArgumentException();
@@ -49,10 +49,10 @@ public class ClosedInterval extends Interval {
 
     /**
      * clips the value to the interval
-     * @param v (double)
+     * @param v
      *          value to clip
      * @throws ArithmeticException if v is not conatined in interval
-     * @return (double) value if v is contained in interval
+     * @return value if v is contained in interval
      */
     public double clip(double v){
         if(this.contains(v)){

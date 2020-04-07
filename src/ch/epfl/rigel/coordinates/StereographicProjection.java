@@ -43,8 +43,8 @@ public final class StereographicProjection implements Function<HorizontalCoordin
 
     /**
      * returns the radius of the circle corresponding to the projection of the parallel passing through coordinates
-     * @param parallel : horizontal coordinates of parallel
-     * @return radius of the parallel
+     * @param parallel horizontal coordinates of parallel
+     * @return the radius of the circle corresponding to the projection of the parallel passing through coordinates
      */
     public double circleRadiusForParallel (HorizontalCoordinates parallel){
         return Math.cos(parallel.alt()) / (Math.sin(parallel.alt()) + sinPhi1);

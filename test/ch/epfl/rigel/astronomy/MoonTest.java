@@ -9,7 +9,9 @@ import static org.junit.jupiter.api.Assertions.*;
 public class MoonTest {
     @Test
     void moonConstructorFailsWhenEquatorialPositionIsNull() {
-        assertThrows(NullPointerException.class, () -> new Moon(null, 0, 0, 0));
+        assertThrows(NullPointerException.class, () -> {
+            new Moon(null, 0, 0, 0);
+        });
     }
 
     @Test

@@ -21,7 +21,9 @@ public class AsterismTest {
 
     @Test
     void constructorFailsWhenStarListIsEmpty() {
-        assertThrows(IllegalArgumentException.class, () -> new Asterism(List.of()));
+        assertThrows(IllegalArgumentException.class, () -> {
+            new Asterism(List.of());
+        });
     }
 
     @Test

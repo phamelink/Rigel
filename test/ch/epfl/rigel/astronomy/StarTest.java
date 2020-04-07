@@ -12,24 +12,34 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class StarTest {
     @Test
     void constructorFailsWhenHipparcosNumberIsNegative() {
-        assertThrows(IllegalArgumentException.class, () -> new Star(-1, "Rigel", EquatorialCoordinates.of(0, 0), 0, 0));
+        assertThrows(IllegalArgumentException.class, () -> {
+            new Star(-1, "Rigel", EquatorialCoordinates.of(0, 0), 0, 0);
+        });
     }
 
     @Test
     void constructorFailsWhenNameIsNull() {
-        assertThrows(NullPointerException.class, () -> new Star(1, null, EquatorialCoordinates.of(0, 0), 0, 0));
+        assertThrows(NullPointerException.class, () -> {
+            new Star(1, null, EquatorialCoordinates.of(0, 0), 0, 0);
+        });
     }
 
     @Test
     void constructorFailsWhenEquatorialPosIsNull() {
-        assertThrows(NullPointerException.class, () -> new Star(1, "Rigel", null, 0, 0));
+        assertThrows(NullPointerException.class, () -> {
+            new Star(1, "Rigel", null, 0, 0);
+        });
     }
 
     @Test
     void constructorFailsWhenColorIndexIsOutOfBounds() {
         EquatorialCoordinates eqPos = EquatorialCoordinates.of(0, 0);
-        assertThrows(IllegalArgumentException.class, () -> new Star(1, "Rigel", eqPos, 0, -0.6f));
-        assertThrows(IllegalArgumentException.class, () -> new Star(1, "Rigel", eqPos, 0, +5.6f));
+        assertThrows(IllegalArgumentException.class, () -> {
+            new Star(1, "Rigel", eqPos, 0, -0.6f);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            new Star(1, "Rigel", eqPos, 0, +5.6f);
+        });
     }
 
     private static String randomStarName(SplittableRandom rng) {
