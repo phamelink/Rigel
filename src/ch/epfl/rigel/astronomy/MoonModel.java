@@ -5,6 +5,12 @@ import ch.epfl.rigel.coordinates.EclipticToEquatorialConversion;
 import ch.epfl.rigel.coordinates.EquatorialCoordinates;
 import ch.epfl.rigel.math.Angle;
 
+/**
+ * Class which builds a Moon object at a given time
+ *
+ * @author Philip Hamelink (311769)
+ * @author Malo Ranzetti (296956)
+ */
 public enum MoonModel implements CelestialObjectModel<Moon> {
     MOON(Angle.ofDeg(91.929336), Angle.ofDeg(130.143076), Angle.ofDeg(291.682547), Angle.ofDeg(5.145396), 0.0549);
 
@@ -62,7 +68,6 @@ public enum MoonModel implements CelestialObjectModel<Moon> {
         final EclipticCoordinates eclipticPos = EclipticCoordinates.of(Angle.normalizePositive(moonEclLon), moonEclLat);
         moonEqCoord = eclipticToEquatorialConversion.apply(eclipticPos);
 
-
         //Moon phase
         moonPhase = (float) ((1- Math.cos(trueOrbitalLon-sunGeocentricEclipticLon)) / 2);
 
@@ -70,36 +75,8 @@ public enum MoonModel implements CelestialObjectModel<Moon> {
         final double rho = (1 - exc * exc) / (1 + exc * Math.cos(correctedAnomaly + centerCorrection));
         moonAngularSize = (float) (Angle.ofDeg(0.5181) / rho);
 
-        /*
-        //Testing output
-        System.out.println("D: " + daysSinceJ2010);
-        System.out.println("lamSun: " + Angle.toDeg(sunGeocentricEclipticLon));
-        System.out.println("Ms: " + Angle.toDeg(sunMeanAnomaly));
-        System.out.println("l: " + n(meanOrbitalLongitude) );
-        System.out.println("Mm: " + n(meanAnomaly));
-        System.out.println("N: " + n(meanAscNodeLon) );
-        System.out.println("Ev: " +n(evection) );
-        System.out.println("Ae: " + n(annualCorrection));
-        System.out.println("A3: " + n(correction3));
-        System.out.println("Mm': " + n(correctedAnomaly) );
-        System.out.println("Ec: " + n(centerCorrection));
-        System.out.println("A4: " + n(correction4));
-        System.out.println("l': " + n(correctedOrbitalLon));
-        System.out.println("V: " + n(variation) );
-        System.out.println("l'': " + n(trueOrbitalLon) );
-        System.out.println("N': " + n(correctedMeanAscNodeLon));
-        System.out.println("lamM: " + n(moonEclLon));
-        System.out.println("betaM: " + n(moonEclLat));
-
-         */
-        System.out.println(n(moonAngularSize));
-        System.out.println(moonPhase);
-
         return new Moon(moonEqCoord, moonAngularSize, moonMagnitude, moonPhase);
     }
 
-    private double n(double n){
-        return Angle.toDeg(Angle.normalizePositive(n));
-    }
 
 }

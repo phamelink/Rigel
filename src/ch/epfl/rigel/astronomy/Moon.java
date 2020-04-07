@@ -7,7 +7,7 @@ import ch.epfl.rigel.math.ClosedInterval;
 import java.util.Locale;
 
 /**
- * Moon
+ * Moon object
  *
  * @author Philip Hamelink (311769)
  * @author Malo Ranzetti (296956)
@@ -19,7 +19,7 @@ public final class Moon extends CelestialObject {
     private final float phase;
 
     /**
-     * constructs the moon
+     * constructs an instance of the moon
      * @param equatorialPos
      *          equatorial coordinates of moon
      * @param angularSize

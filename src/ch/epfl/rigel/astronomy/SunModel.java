@@ -13,12 +13,19 @@ import ch.epfl.rigel.math.Angle;
  */
 public enum SunModel implements CelestialObjectModel<Sun> {
     SUN(Angle.ofDeg(279.557208), Angle.ofDeg(283.112438), 0.016705, Angle.ofDeg(0.533128));
+
     private final double jLon;
     private final double perigeeLon;
     private final double exc;
     private final double theta0;
 
-
+    /**
+     * Constructor of a Sun Model (only one instance exists)
+     * @param jLon longitude at J2010
+     * @param perigeeLon longitude of perigee
+     * @param exc excentricity
+     * @param theta0 constant for angular size
+     */
     SunModel(double jLon, double perigeeLon, double exc, double theta0) {
         this.jLon = jLon;
         this.perigeeLon = perigeeLon;

@@ -88,10 +88,6 @@ public enum PlanetModel implements CelestialObjectModel<Planet>{
         final double lP = planetInfo.getHeliocentricCoordinates().lon();
         final double helioLat = planetInfo.getHeliocentricCoordinates().lat();
 
-        /*
-        A verifier si ça doit être des coordonnées écliptiques transformées en equatorial
-        pour la mettre dans new planet ou laisser comme t'as fait
-         */
         final EclipticCoordinates geocentricCoord;
 
         final double lambda;
@@ -143,12 +139,22 @@ public enum PlanetModel implements CelestialObjectModel<Planet>{
         return new DatedPlanetInfo(radius, helioLon, radiusProj, helioCoords);
     }
 
+    /**
+     * Data object which contains information about a planet at a given time.
+     */
     public static final class DatedPlanetInfo{
         private final double distanceFromSun;
         private final double helioLon;
         private final double eclipticRadius;
         private final EclipticCoordinates heliocentric;
 
+        /**
+         * Constructor for a data object containing information about a planet at a given time.
+         * @param distanceFromSun distance from the sun at time
+         * @param helioLon heliocentric ecliptic longitude at time
+         * @param eclipticRadius ecliptic radius at time
+         * @param heliocentric heliocentric ecliptic coordinates at time
+         */
         public DatedPlanetInfo(double distanceFromSun, double helioLon, double eclipticRadius, EclipticCoordinates heliocentric) {
             this.distanceFromSun = distanceFromSun;
             this.helioLon = helioLon;
@@ -156,18 +162,34 @@ public enum PlanetModel implements CelestialObjectModel<Planet>{
             this.heliocentric = heliocentric;
         }
 
+        /**
+         * Returns distance from the sun of planet at given time
+         * @return distance from sun at given time
+         */
         public double getDistanceFromSun() {
             return distanceFromSun;
         }
 
+        /**
+         * Returns the heliocentric ecliptic longitude of the planet at the given time.
+         * @return heliocentric longitude of planet at given time
+         */
         public double getHelioLon() {
             return helioLon;
         }
 
+        /**
+         * Returns the ecliptic heliocentric coordinates of the planet at a given time.
+         * @return heliocentric coordinate of planet at given time
+         */
         public EclipticCoordinates getHeliocentricCoordinates() {
             return heliocentric;
         }
 
+        /**
+         * Returns the ecliptic radius of the planet at the given time.
+         * @return ecliptic radius at given time.
+         */
         public double getEclipticRadius() {
             return eclipticRadius;
         }

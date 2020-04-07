@@ -38,7 +38,7 @@ public final class StarCatalogue {
             map.put(asterism, indices);
         }
         this.stars = List.copyOf(stars);
-        this.asterismMap = Map.copyOf(map);
+        asterismMap = Map.copyOf(map);
     }
 
     /**
@@ -58,7 +58,7 @@ public final class StarCatalogue {
     }
 
     /**
-     * retruns list of indices in the catalogue of the stars composing the given asterism
+     * Returns list of indices in the catalogue of the stars composing the given asterism
      * @param asterism asterism to use to get indices of its stars
      * @return list of indices of stars in asterism
      * @throws IllegalArgumentException if the asterism is not in the catalogue
@@ -81,11 +81,10 @@ public final class StarCatalogue {
          * Default Builder constructor
          */
         public Builder() {
-            stars = new ArrayList<>();
-            asterisms = new ArrayList<>();
-            hipparcosIdMap = new HashMap<>();
+            this.stars = new ArrayList<>();
+            this.asterisms = new ArrayList<>();
+            this.hipparcosIdMap = new HashMap<>();
         }
-
 
         /**
          * adds a star to the list of stars in future catalogue
@@ -160,7 +159,6 @@ public final class StarCatalogue {
          * @param id : (int) hipparcos id
          * @return (Star) corresponding star
          */
-
         public Star getStarById(int id) {
             if (!hipparcosIdMap.containsKey(id)) return null;
             return hipparcosIdMap.get(id);
@@ -189,7 +187,8 @@ public final class StarCatalogue {
     }
 
     /**
-     * loads stars/asterisms from inputStream and adds them to the star catalogue being built by builder
+     * Interface conceptualising an object that loads stars/asterisms from inputStream and
+     * adds them to the star catalogue being built by builder
      */
     public interface Loader {
         void load(InputStream inputStream, Builder builder) throws IOException;

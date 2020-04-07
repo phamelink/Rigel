@@ -11,26 +11,20 @@ import ch.epfl.rigel.math.ClosedInterval;
  * @author Malo Ranzetti (296956)
  */
 public final class Star extends CelestialObject {
-    private final int hipparcosId;
-    private final float colorIndex;
-
     private static final float STAR_ANGULAR_SIZE = 0f;
     private static final ClosedInterval COLOR_INDEX_INTERVAL = ClosedInterval.of(-0.5,5.5);
 
+    private final int hipparcosId;
+    private final float colorIndex;
 
     /**
      * Star constructor
      * constructs a star with the Hipparcos number, the name, the equatorial position, the magnitude and the color indice
-     * @param hipparcosId:
-     *                   Hipparcos number
-     * @param name:
-     *            name of star
-     * @param equatorialPos:
-     *                     equatorial position of star
-     * @param magnitude:
-     *                 magnitude
-     * @param colorIndex:
-     *                  color index
+     * @param hipparcosId Hipparcos number of the star
+     * @param name name of star
+     * @param equatorialPos equatorial position of star
+     * @param magnitude magnitude of the star
+     * @param colorIndex color index of the star
      * @throws IllegalArgumentException if Hipparcos is negative or the color indice
      *          is not contained in the interval [-0.5, 5.5]
      */
@@ -42,7 +36,7 @@ public final class Star extends CelestialObject {
     }
 
     /**
-     * returns Hipparcos number
+     * Returns Hipparcos number
      * @return Hipparcos number
      */
     public int hipparcosId(){
@@ -50,7 +44,7 @@ public final class Star extends CelestialObject {
     }
 
     /**
-     * returns color temperature of the star (in kelvin degrees, floored)
+     * Returns color temperature of the star (in kelvin degrees, floored)
      * @return color temperature of the star (in kelvin degrees, floored)
      */
     public int colorTemperature(){

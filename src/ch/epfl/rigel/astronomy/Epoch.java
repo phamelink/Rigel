@@ -31,8 +31,8 @@ public enum Epoch {
      */
     public double daysUntil(ZonedDateTime when) {
         /*
-        Calculating days until truncated date and adding nanoseconds until hour of day yields a more precise
-        result over extended periods of time, compared to method given.
+        Calculating days until truncated date and adding nanoseconds until hour of day yields a more accurate
+        result over extended periods of time.
          */
         when = when.withZoneSameInstant(ZoneId.of("UTC"));
         double dayDelta;

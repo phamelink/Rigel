@@ -6,7 +6,7 @@ import ch.epfl.rigel.coordinates.EquatorialCoordinates;
 import java.util.Objects;
 
 /**
- * Sun
+ * Sun object
  *
  * @author Philip Hamelink (311769)
  * @author Malo Ranzetti (296956)

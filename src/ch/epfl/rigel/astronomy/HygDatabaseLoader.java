@@ -32,6 +32,8 @@ public enum HygDatabaseLoader implements StarCatalogue.Loader {
             while ((s = reader.readLine()) != null) {
                 ++line;
                 String[] values = s.split(",");
+
+                //Read hipparcos ID
                 int hipID;
                 try {
                     hipID = Integer.parseInt(values[ColumnNames.HIP.ordinal()]);
@@ -40,7 +42,8 @@ public enum HygDatabaseLoader implements StarCatalogue.Loader {
                     hipID = 0;
                 }
 
-                String name;
+                //Read star name
+                final String name;
                 if (!values[ColumnNames.PROPER.ordinal()].isEmpty()) {
                     name = values[ColumnNames.PROPER.ordinal()];
                 } else {
@@ -53,10 +56,12 @@ public enum HygDatabaseLoader implements StarCatalogue.Loader {
                     name = stringBuilder.toString();
                 }
 
-                EquatorialCoordinates coord = EquatorialCoordinates.of(
+                //Read star equatorial coordinates (assuming non null)
+                final EquatorialCoordinates coord = EquatorialCoordinates.of(
                         Double.parseDouble(values[ColumnNames.RARAD.ordinal()]),
                         Double.parseDouble(values[ColumnNames.DECRAD.ordinal()]));
 
+                //Read star magnitude
                 float magnitude;
                 try {
                     magnitude = (float) Double.parseDouble(values[ColumnNames.MAG.ordinal()]);
@@ -65,6 +70,7 @@ public enum HygDatabaseLoader implements StarCatalogue.Loader {
                     magnitude = 0;
                 }
 
+                //Read star magnitude
                 float colorIndex;
                 try {
                     colorIndex = (float) Double.parseDouble(values[ColumnNames.CI.ordinal()]);
@@ -73,7 +79,7 @@ public enum HygDatabaseLoader implements StarCatalogue.Loader {
                     colorIndex = 0;
                 }
 
-
+                //Add star to builder using read values
                 builder.addStar(new Star(hipID, name, coord, magnitude, colorIndex));
             }
 
