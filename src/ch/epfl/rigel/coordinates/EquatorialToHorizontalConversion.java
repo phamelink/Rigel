@@ -4,8 +4,6 @@ import ch.epfl.rigel.astronomy.SiderealTime;
 import ch.epfl.rigel.math.Angle;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -53,12 +51,12 @@ public class EquatorialToHorizontalConversion implements Function<EquatorialCoor
 
 
     @Override
-    final public int hashCode() {
+    public final int hashCode() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    final public boolean equals(Object obj) {
+    public final boolean equals(Object obj) {
         throw new UnsupportedOperationException();
     }
 

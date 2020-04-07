@@ -1,6 +1,5 @@
 package ch.epfl.rigel;
 
-import ch.epfl.rigel.math.ClosedInterval;
 import ch.epfl.rigel.math.Interval;
 
 /**
@@ -25,9 +24,9 @@ public final class Preconditions {
 
     /**
      * Throws exception if "value" does not belong to the interval
-     * @param interval (Interval):
+     * @param interval
      *                 interval in which we verify the value
-     * @param value (double):
+     * @param value
      *              value to be verified
      * @return (double) value: returns the value or an IllegalArgumentException
      */

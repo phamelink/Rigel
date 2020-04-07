@@ -15,12 +15,12 @@ public final class RightOpenInterval extends Interval {
 
     /**
      * public method to instanciate a right open interval
-     * @param low (double):
+     * @param low
      *            lower bound
-     * @param high (double):
+     * @param high
      *             upper bound
      * @throws IllegalArgumentException if low is bigger or equal to high
-     * @return (RightOpenInterval)
+     * @return right open interval
      */
     public static RightOpenInterval of(double low, double high){
         if(low >= high) throw new IllegalArgumentException();
@@ -29,10 +29,10 @@ public final class RightOpenInterval extends Interval {
 
     /**
      * public method to instanciate a right open interval centered at 0
-     * @param diameter (double):
+     * @param diameter
      *                 lower and upper bound
      * @throws IllegalArgumentException if diameter is smaller or equal to than 0
-     * @return (RightOpenInterval)
+     * @return right open interval centered at 0
      */
     public static RightOpenInterval symmetric(double diameter){
         if(diameter <= 0) throw new IllegalArgumentException();
@@ -47,9 +47,9 @@ public final class RightOpenInterval extends Interval {
 
     /**
      * reduces its argument to the interval
-     * @param v (double):
+     * @param v
      *          argument to be reduced
-     * @return (double)
+     * @return the argument reduced to the interval
      */
     public double reduce(double v){
 

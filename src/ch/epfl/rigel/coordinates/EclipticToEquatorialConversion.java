@@ -5,8 +5,6 @@ import ch.epfl.rigel.math.Angle;
 import ch.epfl.rigel.math.Polynomial;
 
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.function.Function;
 
 /**
@@ -59,24 +57,23 @@ public class EclipticToEquatorialConversion implements Function<EclipticCoordina
 
     @Override
     public EquatorialCoordinates apply(EclipticCoordinates ecl) {
-        double sinLambda = Math.sin(ecl.lon());
-        double cosLambda = Math.cos(ecl.lon());
-        double sinBeta = Math.sin(ecl.lat());
-        double cosBeta = Math.cos(ecl.lat());
+        final double sinLambda = Math.sin(ecl.lon());
+        final double cosLambda = Math.cos(ecl.lon());
+        final double sinBeta = Math.sin(ecl.lat());
+        final double cosBeta = Math.cos(ecl.lat());
 
-        double ra = Math.atan2((cosObliquity * sinLambda * cosBeta - sinObliquity * sinBeta), cosBeta * cosLambda);
-        double dec = Math.asin(cosObliquity * sinBeta + sinObliquity * cosBeta * sinLambda);
-        EquatorialCoordinates eqc = EquatorialCoordinates.of(Angle.normalizePositive(ra),dec);
-        return eqc;
+        final double ra = Math.atan2((cosObliquity * sinLambda * cosBeta - sinObliquity * sinBeta), cosBeta * cosLambda);
+        final double dec = Math.asin(cosObliquity * sinBeta + sinObliquity * cosBeta * sinLambda);
+        return EquatorialCoordinates.of(Angle.normalizePositive(ra),dec);
     }
 
     @Override
-    final public int hashCode() {
+    public final int hashCode() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    final public boolean equals(Object obj) {
+    public final boolean equals(Object obj) {
         throw new UnsupportedOperationException();
     }
 }

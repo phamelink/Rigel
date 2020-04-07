@@ -23,11 +23,11 @@ public final class EclipticCoordinates extends SphericalCoordinates {
 
     /**
      * Construction method
-     * @param lon (double):
+     * @param lon
      *            longitude (angle in radians)
-     * @param lat (double):
+     * @param lat
      *            latitude (angle in radians)
-     * @return (EclipticCoordinates)
+     * @return ecliptic coordinates of latitude lat and longitude lon
      */
     public static EclipticCoordinates of(double lon, double lat){
         if(!isValidLat(lat)|| !isValidLon(lon)) throw new IllegalArgumentException();
@@ -37,11 +37,11 @@ public final class EclipticCoordinates extends SphericalCoordinates {
 
     /**
      * Construction method
-     * @param lonDeg (double):
+     * @param lonDeg
      *               longitude (angle in degrees [-180,180[)
-     * @param latDeg (double):
+     * @param latDeg
      *               latitude (angle in degrees [-90,90])
-     * @return (EclipticCoordinates)
+     * @return EclipticCoordinates with latitude and longitude in degrees
      */
     public static EclipticCoordinates ofDeg(double lonDeg, double latDeg){
         return of(Angle.ofDeg(lonDeg), Angle.ofDeg(latDeg));
@@ -49,9 +49,9 @@ public final class EclipticCoordinates extends SphericalCoordinates {
 
     /**
      * checks if the given longitude is valid
-     * @param lon (double):
+     * @param lon
      *            lon in radians
-     * @return (boolean): the longitude is valid or not
+     * @return the longitude is valid or not
      */
     private static boolean isValidLon(double lon){
         return LONGITUDE_INTERVAL.contains(lon);
@@ -59,9 +59,9 @@ public final class EclipticCoordinates extends SphericalCoordinates {
 
     /**
      * checks if the given latitude is valid
-     * @param lat (double):
+     * @param lat
      *            lat in radians
-     * @return (boolean): the latitude is valid or not
+     * @return true if the latitude is valid
      */
     private static boolean isValidLat(double lat){
         return LATITUDE_INTERVAL.contains(lat);
@@ -74,7 +74,7 @@ public final class EclipticCoordinates extends SphericalCoordinates {
 
     /**
      * returns longitude (in radians)
-     * @return (double) longitude
+     * @return longitude (in radians)
      */
     public double lon() {
         return super.lon();
@@ -82,7 +82,7 @@ public final class EclipticCoordinates extends SphericalCoordinates {
 
     /**
      * returns longitude (in degrees)
-     * @return (double) longitude
+     * @return longitude (in degrees)
      */
     public double lonDeg() {
         return super.lonDeg();
@@ -90,7 +90,7 @@ public final class EclipticCoordinates extends SphericalCoordinates {
 
     /**
      * returns latitude (in radians)
-     * @return (double) latitude
+     * @return latitude (in radians)
      */
     public double lat() {
         return super.lat();
@@ -98,7 +98,7 @@ public final class EclipticCoordinates extends SphericalCoordinates {
 
     /**
      * returns latitude (in degrees)
-     * @return (double) latitude
+     * @return latitude (in degrees)
      */
     public double latDeg() {
         return super.latDeg();

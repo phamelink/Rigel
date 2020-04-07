@@ -26,9 +26,9 @@ public final class Angle {
 
     /**
      * normalizes the angle to reduce it to the interval [0,TAU[
-     * @param rad (double):
+     * @param rad
      *            the angle in radians
-     * @return (double): the normalized angle within the interval
+     * @return the normalized angle within the interval
      */
     public static double normalizePositive(double rad){
         return STANDARD_INTERVAL.reduce(rad);
@@ -36,21 +36,21 @@ public final class Angle {
 
     /**
      * returns the angle according to the number of seconds in the given arc (negative or positive)
-     * @param sec (double):
+     * @param sec
      *            seconds in the arc
-     * @return (double): the angle in radians
+     * @return the angle in radians
      */
     public static double ofArcsec(double sec){ return sec * RAD_PER_SEC; }
 
     /**
      * returns the angle according to deg°min''sec' and throws an error if the argument is not between 0 and 60 for min and sec
-     * @param deg (double):
+     * @param deg
      *            degrees
-     * @param min (double):
+     * @param min
      *            minutes
-     * @param sec (double):
+     * @param sec
      *            seconds
-     * @return (double): angle in radians
+     * @return  angle in radians
      */
     public static double ofDMS(int deg, int min, double sec){
         return Math.toRadians(deg)
@@ -61,17 +61,17 @@ public final class Angle {
 
     /**
      * returns angle corresponding to the angle in degrees
-     * @param deg (double):
+     * @param deg
      *            given angle in degrees
-     * @return (double): angle in radians
+     * @return angle in radians
      */
     public static double ofDeg(double deg){ return Math.toRadians(deg); }
 
     /**
      * returns angles in degrees corresponding to the given angle
-     * @param rad (double):
+     * @param rad
      *            angle given
-     * @return (double): angle in degrees
+     * @return angle in degrees
      */
     public static double toDeg(double rad){
         return Math.toDegrees(rad);
@@ -79,17 +79,17 @@ public final class Angle {
 
     /**
      * returns the angle corresponding to the angle given in hours
-     * @param hr (double):
+     * @param hr
      *           angle given in hours
-     * @return (double): angle in rad
+     * @return  angle in rad
      */
     public static double ofHr(double hr){ return hr * RAD_PER_HR; }
 
     /**
      * returns angle in hours corresponding to the angle given in radians
-     * @param rad (double):
+     * @param rad
      *            angle to translate in hours
-     * @return (double): angle in hours
+     * @return  angle in hours
      */
     public static double toHr(double rad){ return rad * HR_PER_RAD; }
 

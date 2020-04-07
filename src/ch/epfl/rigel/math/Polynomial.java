@@ -1,15 +1,12 @@
 package ch.epfl.rigel.math;
 
-import java.util.List;
-import java.util.Locale;
-
 /**
  * Polynomial
  *
  * @author Philip Hamelink (311769)
  * @author Malo Ranzetti (296956)
  */
-final public class Polynomial {
+public final class Polynomial {
     private double[] coeffs;
 
     private Polynomial(double coefficientN, double... coefficients) {
@@ -21,11 +18,11 @@ final public class Polynomial {
 
     /**
      * returns a polynomial function with the given coefficients in decreasing order
-     * @param coefficientN (double):
+     * @param coefficientN
      *                     highest coefficient (cannot be 0)
-     * @param coefficients (double[]):
+     * @param coefficients
      *                     array of the remaining coefficients (can be empty)
-     * @return (Polynomial)
+     * @return a polynomial function with the given coefficients in decreasing order
      */
     public static Polynomial of(double coefficientN, double... coefficients) {
         if (coefficientN == 0) throw new IllegalArgumentException();
@@ -34,9 +31,9 @@ final public class Polynomial {
 
     /**
      * returns value of the function with given parameter as x
-     * @param x (double):
+     * @param x
      *          value given to calculate function
-     * @return (double)
+     * @return value of the function with given parameter as x
      */
     public double at(double x) {
 

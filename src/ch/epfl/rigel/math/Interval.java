@@ -6,13 +6,13 @@ package ch.epfl.rigel.math;
  * @author Philip Hamelink (311769)
  * @author Malo Ranzetti (296956)
  */
-abstract public class Interval {
+public abstract class Interval {
 
     /**
      * Constructor
-     * @param inf (double):
+     * @param inf
      *            the lower bound of the interval
-     * @param sup (double):
+     * @param sup
      *            the upper bound of the interval
      */
     public Interval(double inf, double sup) {
@@ -25,7 +25,7 @@ abstract public class Interval {
 
     /**
      * returns upper bound
-     * @return (double)
+     * @return upper bound
      */
     public double high(){
         return sup;
@@ -33,7 +33,7 @@ abstract public class Interval {
 
     /**
      * returns lower bound
-     * @return (double)
+     * @return lower bound
      */
     public double low(){
         return inf;
@@ -41,7 +41,7 @@ abstract public class Interval {
 
     /**
      * returns size of the interval
-     * @return (double)
+     * @return size of the interval
      */
     public double size(){
         return Math.abs(inf-sup);
@@ -49,21 +49,21 @@ abstract public class Interval {
 
     /**
      * Tells if the value is included in the interval or not
-     * @param v (double):
+     * @param v
      *          value to be checked
-     * @return (boolean) if the value is included in the interval or not
+     * @return  if the value is included in the interval or not
      */
-    abstract public boolean contains(double v);
+    public abstract boolean contains(double v);
 
     //redefinitions to raise exceptions
 
     @Override
-    final public int hashCode() {
+    public final int hashCode() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    final public boolean equals(Object obj) {
+    public final boolean equals(Object obj) {
         throw new UnsupportedOperationException();
     }
 

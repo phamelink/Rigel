@@ -19,11 +19,11 @@ public final class CartesianCoordinates {
 
     /**
      *
-     * @param x (double)
+     * @param x
      *          absciss coordinate
-     * @param y (double)
+     * @param y
      *          ordinate coordinate
-     * @return (CartesianCoordinates) cartesian coordinates of absciss x and ordinate y
+     * @return cartesian coordinates of absciss x and ordinate y
      */
     public static CartesianCoordinates of(double x, double y){
         return new CartesianCoordinates(x,y);
@@ -31,7 +31,7 @@ public final class CartesianCoordinates {
 
     /**
      * returns absciss coordinate x
-     * @return (double) absciss coordinate x
+     * @return  absciss coordinate x
      */
     public double x(){
         return this.x;
@@ -39,19 +39,19 @@ public final class CartesianCoordinates {
 
     /**
      * returns ordinate coordinate y
-     * @return (double) ordinate coordinate y
+     * @return ordinate coordinate y
      */
     public double y(){
         return this.y;
     }
 
     @Override
-    final public int hashCode() {
+    public final int hashCode() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    final public boolean equals(Object obj) {
+    public final boolean equals(Object obj) {
         throw new UnsupportedOperationException();
     }
 
