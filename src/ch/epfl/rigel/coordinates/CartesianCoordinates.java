@@ -45,6 +45,8 @@ public final class CartesianCoordinates {
         return this.y;
     }
 
+    public double norm(){return Math.sqrt(x*x + y*y);}
+
     @Override
     public final int hashCode() {
         throw new UnsupportedOperationException();
@@ -59,4 +61,5 @@ public final class CartesianCoordinates {
     public String toString() {
         return String.format(Locale.ROOT, "(x=%.4f, y=%.4f)", x, y);
     }
+
 }
