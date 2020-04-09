@@ -14,7 +14,7 @@ public class ObservedSky {
     private final Moon moonAtTime;
     private final CartesianCoordinates moonPosition;
     private final List<Planet> planetsAtTime;
-    private final List<Double> planetCoordinates;
+    private final List<Double> planetCoordinates; //TODO if possible switch to double primitive type to accelerate animations
     private final List<Star> starsAtTime;
     private final List<Double> starCoordinates;
 
