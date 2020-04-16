@@ -1,5 +1,6 @@
 package ch.epfl.rigel.gui;
 
+import ch.epfl.rigel.astronomy.AsterismLoader;
 import ch.epfl.rigel.astronomy.HygDatabaseLoader;
 import ch.epfl.rigel.astronomy.ObservedSky;
 import ch.epfl.rigel.astronomy.StarCatalogue;
@@ -29,9 +30,10 @@ public final class DrawSky extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        try (InputStream hs = resourceStream("/hygdata_v3.csv")){
+        try (InputStream hs = resourceStream("/hygdata_v3.csv");
+        InputStream ast = resourceStream("/asterisms.txt")){
             StarCatalogue catalogue = new StarCatalogue.Builder()
-                    .loadFrom(hs, HygDatabaseLoader.INSTANCE)
+                    .loadFrom(hs, HygDatabaseLoader.INSTANCE).loadFrom(ast, AsterismLoader.INSTANCE)
                     .build();
 
             ZonedDateTime when =

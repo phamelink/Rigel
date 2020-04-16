@@ -9,6 +9,7 @@ import ch.epfl.rigel.math.Angle;
 import ch.epfl.rigel.math.ClosedInterval;
 import javafx.application.Application;
 import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -57,13 +58,13 @@ public class SkyCanvasPainter {
             gc.fillOval(transformedPoints[2*i], transformedPoints[2*i + 1], starDiameter, starDiameter);
         }
 
-        //drawAsterisms(sky, projection, planeToCanvas);
+        drawAsterisms(sky, projection, planeToCanvas);
     }
 
     private void drawAsterisms(ObservedSky sky, StereographicProjection projection, Transform planeToCanvas) {
-        List<Star> starsInSky = List.copyOf(sky.stars());
-        //List<Double> starCoord = List.of(sky.starCoordinates());
-        Set<Asterism> asterismsInCatalogue = Set.copyOf(sky.asterisms());
+        List<Star> starsInSky = sky.stars();
+        double[] starCoord =sky.starCoordinates();
+        Set<Asterism> asterismsInCatalogue =sky.asterisms();
         Set<Asterism> asterismsInSky = new HashSet<>();
 
         //Takes in account only asterisms that contain at least one star in our observed sky
@@ -73,22 +74,25 @@ public class SkyCanvasPainter {
         }
 
         for (Asterism asterism : asterismsInSky) {
-            List<Integer> asterismIndex = List.copyOf(sky.asterismIndex(asterism));
+            List<Integer> asterismIndex = sky.asterismIndex(asterism);
             List<CartesianCoordinates> coord = new ArrayList<>();
+            System.out.println(asterism);
             for (Integer i : asterismIndex)
-               // coord.add(CartesianCoordinates.of(starCoord.get(2 * i), starCoord.get(2 * i + 1)));
-            drawLinesForAsterism(coord);
+               coord.add(CartesianCoordinates.of(starCoord[2 * i], starCoord[2 * i + 1]));
+            drawLinesForAsterism(coord, planeToCanvas);
         }
     }
 
-    private void drawLinesForAsterism (List<CartesianCoordinates> coord) {
+    private void drawLinesForAsterism (List<CartesianCoordinates> coord, Transform planeToCanvas) {
         Bounds b = canvas.getBoundsInLocal();
         gc.setStroke(Color.BLUE);
+        gc.setLineWidth(1);
         gc.beginPath();
         boolean previousInBound = true;
         for (CartesianCoordinates c : coord) {
-            double x = c.x();
-            double y = c.y();
+            Point2D point = planeToCanvas.transform(c.x(), c.y());
+            double x = point.getX();
+            double y = point.getY();
             //draws only a line if two consecutive stars not out of bound
             if (previousInBound) {
                 gc.lineTo(x, y);
