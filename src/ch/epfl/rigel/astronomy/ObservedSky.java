@@ -18,13 +18,10 @@ public class ObservedSky {
     private final List<Star> starsAtTime;
     private final List<Double> starCoordinates;
 
-    private final TreeMap<Double, CelestialObject> xMap;
-    private final TreeMap<Double, CelestialObject> yMap;
     private final HashMap<CelestialObject, CartesianCoordinates> positionMap;
     private final TreeMap<Double, CelestialObject> distanceMap;
 
     private final StarCatalogue catalogue;
-
 
     public ObservedSky(ZonedDateTime when, GeographicCoordinates where,
                        StereographicProjection projection, StarCatalogue catalogue) {
@@ -36,8 +33,6 @@ public class ObservedSky {
         EquatorialToHorizontalConversion eqConv = new EquatorialToHorizontalConversion(when, where);
         Function<EquatorialCoordinates, CartesianCoordinates> toCartesian = eqConv.andThen(projection);
 
-        this.xMap = new TreeMap<>();
-        this.yMap = new TreeMap<>();
         this.positionMap = new HashMap<>();
         this.distanceMap = new TreeMap<>();
 
@@ -69,8 +64,6 @@ public class ObservedSky {
             starCoordinates.add(coordinates.y());
             registerObject(star, coordinates);
         }
-
-
 
 
     }
