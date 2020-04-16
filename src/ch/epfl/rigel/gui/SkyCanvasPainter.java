@@ -109,6 +109,6 @@ public class SkyCanvasPainter {
         final double mag = MAGNITUDE_INTERVAL.clip(star.magnitude());
         final double factor = (99-17*mag) / (140);
         System.out.println(2 * factor * Math.tan(Angle.ofDeg(0.5) / 4)*1300);
-        return 20 * factor * Math.tan(Angle.ofDeg(0.5) / 4);
+        return 2 * factor * Math.tan(Angle.ofDeg(0.5) / 4);
     }
 }
