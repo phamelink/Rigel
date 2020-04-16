@@ -7,6 +7,12 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.Function;
 
+/**
+ * Observed Sky
+ *
+ * @author Philip Hamelink (311769)
+ * @author Malo Ranzetti (296956)
+ */
 public class ObservedSky {
 
     private final Sun sunAtTime;
@@ -25,7 +31,13 @@ public class ObservedSky {
 
     private final StarCatalogue catalogue;
 
-
+    /**
+     * Observed sky constructor
+     * @param when the time of observation
+     * @param where the position of observation
+     * @param projection the projection to use
+     * @param catalogue the catalogue of stars and asterisms
+     */
     public ObservedSky(ZonedDateTime when, GeographicCoordinates where,
                        StereographicProjection projection, StarCatalogue catalogue) {
 
@@ -84,26 +96,73 @@ public class ObservedSky {
 
     //Public functions
 
+    /**
+     * returns sun at time
+     * @return sun at time
+     */
     public Sun sun(){return sunAtTime;}
 
+    /**
+     * returns the sun's position in cartesian coordinates
+     * @return the sun's position in cartesian coordinates
+     */
     public CartesianCoordinates sunPosition(){return sunPosition;}
 
+    /**
+     * returns moon at time
+     * @return moon at time
+     */
     public Moon moon(){return moonAtTime;}
 
+    /**
+     * returns the moon's position in cartesian coordinates
+     * @return the moon's position in cartesian coordinates
+     */
     public CartesianCoordinates moonPosition(){return moonPosition;}
 
+    /**
+     * returns a list of all the planets at time
+     * @return a list of all the planets at time
+     */
     public List<Planet> planets(){return Collections.unmodifiableList(planetsAtTime);}
 
+    /**
+     * returns a list of the planets' coordinates (position 0 and 1 represent the cartesian coordinates x and y of first planet, 2 and 3 the x and y of second planet, etc...)
+     * @return a list of the planets' coordinates
+     */
     public List<Double> planetCoordinates(){return Collections.unmodifiableList(planetCoordinates);}
 
+    /**
+     * returns a list of all the stars at time
+     * @return a list of all the stars at time
+     */
     public List<Star> stars(){return Collections.unmodifiableList(starsAtTime);}
 
+    /**
+     * returns a list of the stars' coordinates (position 0 and 1 represent the cartesian coordinates x and y of first star, 2 and 3 the x and y of second star, etc...)
+     * @return a list of the stars' coordinates
+     */
     public List<Double> starCoordinates(){return Collections.unmodifiableList(starCoordinates);}
 
+    /**
+     * returns a set of all asterisms
+     * @return a set of all asterisms
+     */
     public Set<Asterism> asterisms(){return catalogue.asterisms();}
 
+    /**
+     * returns list of indices of the stars composing the given asterism
+     * @param asterism asterism to use to get indices of its stars
+     * @return list of indices of the stars composing the given asterism
+     */
     public List<Integer> asterismIndex(Asterism asterism){return catalogue.asterismIndices(asterism);}
 
+    /**
+     * returns optional which is either empty or containing nearest celestial object from given point in a given radius
+     * @param point point in cartesian coordinates to obtain nearest object from
+     * @param distance maximal distance from point in which to search for nearest object
+     * @return empty Optional if no objects within radius or an optional containing nearest object from point
+     */
     public Optional<CelestialObject> objectClosestTo(CartesianCoordinates point, double distance){
 
         /*Filter out any celestial object which could not be near the point by creating submap from all object coordinates
