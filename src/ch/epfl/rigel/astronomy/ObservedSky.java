@@ -22,7 +22,7 @@ public class ObservedSky {
     private final List<Planet> planetsAtTime;
     private final List<Double> planetCoordinates; //TODO if possible switch to double primitive type to accelerate animations
     private final List<Star> starsAtTime;
-    private final List<Double> starCoordinates;
+    private final double[] starCoordinates;
 
     private final TreeMap<Double, CelestialObject> xMap;
     private final TreeMap<Double, CelestialObject> yMap;
@@ -73,12 +73,14 @@ public class ObservedSky {
         }
 
         this.starsAtTime = new ArrayList<>();
-        this.starCoordinates = new ArrayList<>();
+        this.starCoordinates = new double[catalogue.stars().size() * 2];
+        int index = 0;
         for(Star star : catalogue.stars()){
             starsAtTime.add(star);
             CartesianCoordinates coordinates = toCartesian.apply(star.equatorialPos());
-            starCoordinates.add(coordinates.x());
-            starCoordinates.add(coordinates.y());
+            starCoordinates[index] = coordinates.x();
+            starCoordinates[index + 1] = coordinates.y();
+            index = index + 2;
             registerObject(star, coordinates);
         }
 
@@ -142,7 +144,10 @@ public class ObservedSky {
      * returns a list of the stars' coordinates (position 0 and 1 represent the cartesian coordinates x and y of first star, 2 and 3 the x and y of second star, etc...)
      * @return a list of the stars' coordinates
      */
-    public List<Double> starCoordinates(){return Collections.unmodifiableList(starCoordinates);}
+
+    //TODO copy or not copy?
+    public double[] starCoordinates(){
+        return starCoordinates;}
 
     /**
      * returns a set of all asterisms

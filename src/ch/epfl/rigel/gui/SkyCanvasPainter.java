@@ -5,41 +5,64 @@ import ch.epfl.rigel.astronomy.ObservedSky;
 import ch.epfl.rigel.astronomy.Star;
 import ch.epfl.rigel.coordinates.CartesianCoordinates;
 import ch.epfl.rigel.coordinates.StereographicProjection;
+import ch.epfl.rigel.math.Angle;
+import ch.epfl.rigel.math.ClosedInterval;
 import javafx.application.Application;
 import javafx.geometry.Bounds;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.transform.Affine;
+import javafx.scene.transform.Scale;
+import javafx.scene.transform.Transform;
 import javafx.stage.Stage;
 
-import javax.xml.crypto.dsig.Transform;
 import java.util.*;
 
-public class SkyCanvasPainter extends Application {
+public class SkyCanvasPainter {
     private Canvas canvas;
     private GraphicsContext gc;
+
+    private static ClosedInterval MAGNITUDE_INTERVAL = ClosedInterval.of(-2, 5);
 
     public SkyCanvasPainter(Canvas canvas) {
         this.canvas = canvas;
         gc = canvas.getGraphicsContext2D();
 
+
+
     }
 
-    @Override
-    public void start(Stage primaryStage) throws Exception {
-    }
 
     public void clear() {
+
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        gc.setFill(Color.BLACK);
+        gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
     }
 
     public void drawStars (ObservedSky sky, StereographicProjection projection, Transform planeToCanvas) {
-        drawAsterisms(sky);
+        //Transform t = Transform.scale(1300, -1300);
+        //t.createConcatenation(Transform.translate(canvas.getWidth()/2, canvas.getHeight()/2));
+
+
+        int starCount = sky.starCoordinates().length /2;
+        double[] transformedPoints = new double[starCount * 2];
+        planeToCanvas.transform2DPoints(sky.starCoordinates(),0,transformedPoints,0, starCount );
+
+        for (int i = 0; i < starCount; i++) {
+            Star toDraw = sky.stars().get(i);
+            double starDiameter = getStarDiameter(toDraw)*1300;
+            gc.setFill(BlackBodyColor.colorForTemperature(toDraw.colorTemperature()));
+            gc.fillOval(transformedPoints[2*i], transformedPoints[2*i + 1], starDiameter, starDiameter);
+        }
+
+        //drawAsterisms(sky, projection, planeToCanvas);
     }
 
-    private void drawAsterisms(ObservedSky sky) {
+    private void drawAsterisms(ObservedSky sky, StereographicProjection projection, Transform planeToCanvas) {
         List<Star> starsInSky = List.copyOf(sky.stars());
-        List<Double> starCoord = List.copyOf(sky.starCoordinates());
+        //List<Double> starCoord = List.of(sky.starCoordinates());
         Set<Asterism> asterismsInCatalogue = Set.copyOf(sky.asterisms());
         Set<Asterism> asterismsInSky = new HashSet<>();
 
@@ -53,7 +76,7 @@ public class SkyCanvasPainter extends Application {
             List<Integer> asterismIndex = List.copyOf(sky.asterismIndex(asterism));
             List<CartesianCoordinates> coord = new ArrayList<>();
             for (Integer i : asterismIndex)
-                coord.add(CartesianCoordinates.of(starCoord.get(2 * i), starCoord.get(2 * i + 1)));
+               // coord.add(CartesianCoordinates.of(starCoord.get(2 * i), starCoord.get(2 * i + 1)));
             drawLinesForAsterism(coord);
         }
     }
@@ -79,5 +102,13 @@ public class SkyCanvasPainter extends Application {
             previousInBound = b.contains(x, y);
         }
         gc.stroke();
+    }
+
+    private double getStarDiameter(Star star){
+
+        final double mag = MAGNITUDE_INTERVAL.clip(star.magnitude());
+        final double factor = (99-17*mag) / (140);
+        System.out.println(2 * factor * Math.tan(Angle.ofDeg(0.5) / 4)*1300);
+        return 20 * factor * Math.tan(Angle.ofDeg(0.5) / 4);
     }
 }
