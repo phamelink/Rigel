@@ -1,6 +1,7 @@
 package ch.epfl.rigel.gui;
 
 
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.geometry.VPos;
 import javafx.scene.Scene;
@@ -48,6 +49,7 @@ public class EpflLogo extends Application {
         ctx.lineTo(50,50);
         ctx.lineTo(100,150);
         ctx.stroke();
+
 
         primaryStage.setScene(new Scene(new BorderPane(canvas)));
         primaryStage.show();

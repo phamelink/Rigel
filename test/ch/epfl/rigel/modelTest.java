@@ -31,7 +31,7 @@ public class modelTest extends JPanel {
 
 
     public static void main(String[] args){
-        initialTime = System.nanoTime();
+
         JFrame frame = new JFrame("planetModel Test");
         JPanel canvas = new modelTest();
         canvas.setSize(xsize, ysize);
@@ -45,7 +45,7 @@ public class modelTest extends JPanel {
         frame.setVisible(true);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-
+        initialTime = System.nanoTime();
         int delay = (int) refreshRate; //milliseconds
 
         ActionListener taskPerformer = new ActionListener() {
