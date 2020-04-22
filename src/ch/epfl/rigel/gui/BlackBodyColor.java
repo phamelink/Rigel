@@ -48,12 +48,12 @@ public class BlackBodyColor {
                 Color color = Color.web(lineContent.substring(80,87));
                 mapToReturn.put(kelvin, color);
             }
-            System.out.println(mapToReturn);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
         temperatureDomain = ClosedInterval.of(Collections.min(mapToReturn.keySet()),Collections.max(mapToReturn.keySet()));
-        System.out.println(temperatureDomain);
+
         return mapToReturn;
     }
 
@@ -73,9 +73,7 @@ public class BlackBodyColor {
 
     public static Color colorForTemperature(int temperature){
         Preconditions.checkInInterval(temperatureDomain, temperature);
-        System.out.println( temperature);
         int temperatureApproximation = Math.round((float) temperature / 100 ) * 100;
-        System.out.println(temperatureApproximation);
         return COLOR_MAP.get(temperatureApproximation);
     }
 

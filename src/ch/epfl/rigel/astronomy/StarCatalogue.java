@@ -38,7 +38,6 @@ public final class StarCatalogue {
             map.put(asterism, indices);
         }
         this.stars = List.copyOf(stars);
-        System.out.println(map.keySet());
         asterismMap = Map.copyOf(map);
     }
 

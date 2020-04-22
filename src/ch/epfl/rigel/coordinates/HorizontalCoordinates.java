@@ -56,7 +56,10 @@ public final class HorizontalCoordinates extends SphericalCoordinates {
                 if (oc.octantInterval.contains(mod)) return oc;
             }
             throw new NoSuchElementException(Double.toString(mod));
+
         }
+
+
 
         /**
          * Return octant corresponding to rad.
@@ -67,6 +70,11 @@ public final class HorizontalCoordinates extends SphericalCoordinates {
         public OCTANT octantOf(double rad){
             return octantOfDeg(Angle.toDeg(rad));
         }
+
+        public double getOctantAngle(){
+            return this.octantInterval.low();
+        }
+
     }
 
     public enum CARDINAL {
@@ -222,6 +230,10 @@ public final class HorizontalCoordinates extends SphericalCoordinates {
      */
     public GeographicCoordinates getRefPoint(){
         return this.refPoint;
+    }
+
+    public HorizontalCoordinates delta(double deltaAz, double deltaAlt){
+        return HorizontalCoordinates.of(Angle.normalizePositive(this.az() + deltaAz),  ALTITUDE_INTERVAL.clip(this.alt() + deltaAlt));
     }
 
     @Override
