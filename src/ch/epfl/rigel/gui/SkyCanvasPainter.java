@@ -42,23 +42,28 @@ public class SkyCanvasPainter {
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
     }
 
+    /*
+    DRAW STARS
+     */
+
     public void drawStars (ObservedSky sky, StereographicProjection projection, Transform planeToCanvas) {
         //Transform t = Transform.scale(1300, -1300);
         //t.createConcatenation(Transform.translate(canvas.getWidth()/2, canvas.getHeight()/2));
 
-
+        drawAsterisms(sky, projection, planeToCanvas);
         int starCount = sky.starCoordinates().length /2;
         double[] transformedPoints = new double[starCount * 2];
         planeToCanvas.transform2DPoints(sky.starCoordinates(),0,transformedPoints,0, starCount );
 
         for (int i = 0; i < starCount; i++) {
             Star toDraw = sky.stars().get(i);
-            double starDiameter = getStarDiameter(toDraw)*1300;
+            double starDiameter = planeToCanvas.deltaTransform(getStarDiameter(toDraw), 0).getX();
             gc.setFill(BlackBodyColor.colorForTemperature(toDraw.colorTemperature()));
-            gc.fillOval(transformedPoints[2*i], transformedPoints[2*i + 1], starDiameter, starDiameter);
+            double starRadius = starDiameter / 2;
+            gc.fillOval(transformedPoints[2*i] - starRadius, transformedPoints[2*i + 1] - starRadius, starDiameter, starDiameter);
         }
 
-        drawAsterisms(sky, projection, planeToCanvas);
+
     }
 
     private void drawAsterisms(ObservedSky sky, StereographicProjection projection, Transform planeToCanvas) {
@@ -115,4 +120,52 @@ public class SkyCanvasPainter {
         System.out.println(2 * factor * Math.tan(Angle.ofDeg(0.5) / 4)*1300);
         return 2 * factor * Math.tan(Angle.ofDeg(0.5) / 4);
     }
+
+    /*
+    DRAW PLANETS
+     */
+
+    public void drawPlanets(ObservedSky sky, StereographicProjection projection, Transform planeToCanvas){
+
+    }
+
+    /*
+    DRAW SUN
+     */
+
+    public void drawSun(ObservedSky sky, StereographicProjection projection, Transform planeToCanvas){
+
+        final double sunDiameter = effectiveSize(sky.sun().angularSize());
+        CartesianCoordinates sunPosition = sky.sunPosition();
+        Point2D sunPositionOnCanvas = planeToCanvas.transform(sunPosition.x(), sunPosition.y());
+        //planeToCanvas.
+
+
+    }
+
+    /*
+    DRAW MOON
+     */
+
+    public void drawMoon(ObservedSky sky, StereographicProjection projection, Transform planeToCanvas){
+
+    }
+
+    /*
+    DRAW HORIZON
+     */
+
+    public void drawHorizon(ObservedSky sky, StereographicProjection projection, Transform planeToCanvas){
+
+    }
+
+    /*
+    PRIVATE UTILITY CLASSES
+     */
+
+    private double effectiveSize(double angularSize){
+        return 2*Math.atan(angularSize/4);
+    }
+
+
 }
