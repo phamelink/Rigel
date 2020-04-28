@@ -76,7 +76,7 @@ public final class DrawSky extends Application {
                             new ObservedSky(current, where[0], projection, catalogue);
 
                     painter.clear();
-                    painter.drawAll(sky, projection, planeToCanvas, projCenter[0]);
+                    painter.drawAll(sky, projection, planeToCanvas);
                     ++time[0];
                 }
             }));

@@ -1,8 +1,6 @@
 package ch.epfl.rigel.gui;
 
-import ch.epfl.rigel.astronomy.Asterism;
-import ch.epfl.rigel.astronomy.ObservedSky;
-import ch.epfl.rigel.astronomy.Star;
+import ch.epfl.rigel.astronomy.*;
 import ch.epfl.rigel.coordinates.CartesianCoordinates;
 import ch.epfl.rigel.coordinates.HorizontalCoordinates;
 import ch.epfl.rigel.coordinates.StereographicProjection;
@@ -21,55 +19,55 @@ import javafx.stage.Stage;
 
 import java.util.*;
 
+/**
+ * SkyCanvasPainter
+ *
+ * @author Philip Hamelink (311769)
+ * @author Malo Ranzetti (296956)
+ */
 public class SkyCanvasPainter {
     private Canvas canvas;
     private GraphicsContext gc;
 
     private static final ClosedInterval MAGNITUDE_INTERVAL = ClosedInterval.of(-2, 5);
-    private static final double HORIZON_DISTANC_STEPS = 10;
+    private static final double HORIZON_DISTANCE_STEPS = 10;
 
+    /**
+     * SkyCanvasPainterConstructor
+     * @param canvas canvas on which the sky will be painted
+     */
     public SkyCanvasPainter(Canvas canvas) {
         this.canvas = canvas;
         gc = canvas.getGraphicsContext2D();
-
-
-
     }
 
-
+    /**
+     * clears the canvas to a black canvas
+     */
     public void clear() {
-
         gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
         gc.setFill(Color.BLACK);
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
     }
 
     /*
-    DRAW STARS
+    DRAW STARS & ASTERISMS
      */
 
+    /**
+     * draws all stars and asterisms
+     * @param sky observed sky
+     * @param projection stereographic projection used
+     * @param planeToCanvas Transform used
+     */
     public void drawStars (ObservedSky sky, StereographicProjection projection, Transform planeToCanvas) {
-        //Transform t = Transform.scale(1300, -1300);
-        //t.createConcatenation(Transform.translate(canvas.getWidth()/2, canvas.getHeight()/2));
-
-        drawAsterisms(sky, projection, planeToCanvas);
-        int starCount = sky.starCoordinates().length /2;
-        double[] transformedPoints = new double[starCount * 2];
-        planeToCanvas.transform2DPoints(sky.starCoordinates(),0,transformedPoints,0, starCount );
-
-        for (int i = 0; i < starCount; i++) {
-            Star toDraw = sky.stars().get(i);
-            double starDiameter = planeToCanvas.deltaTransform(getStarDiameter(toDraw), 0).getX();
-            gc.setFill(BlackBodyColor.colorForTemperature(toDraw.colorTemperature()));
-            double starRadius = starDiameter / 2;
-            gc.fillOval(transformedPoints[2*i] - starRadius, transformedPoints[2*i + 1] - starRadius, starDiameter, starDiameter);
-        }
-
-
+        drawAsterisms(sky, planeToCanvas);
+        List<CelestialObject> stars = List.copyOf(sky.stars());
+        drawCelestialObject(sky.starCoordinates(), stars, projection, planeToCanvas);
     }
 
-    private void drawAsterisms(ObservedSky sky, StereographicProjection projection, Transform planeToCanvas) {
-        double[] starCoord =sky.starCoordinates();
+    private void drawAsterisms(ObservedSky sky, Transform planeToCanvas) {
+        double[] starCoord = sky.starCoordinates();
         for (Asterism asterism : sky.asterisms()) {
             List<Integer> asterismIndex = sky.asterismIndex(asterism);
             List<CartesianCoordinates> coord = new ArrayList<>();
@@ -104,93 +102,136 @@ public class SkyCanvasPainter {
         gc.stroke();
     }
 
-    private double getStarDiameter(Star star){
-
-        final double mag = MAGNITUDE_INTERVAL.clip(star.magnitude());
-        final double factor = (99-17*mag) / (140);
-        return 2 * factor * Math.tan(Angle.ofDeg(0.5) / 4);
-    }
-
     /*
     DRAW PLANETS
      */
 
+    /**
+     * draws all planets
+     * @param sky observed sky
+     * @param projection stereographic projection used
+     * @param planeToCanvas Transform used
+     */
     public void drawPlanets(ObservedSky sky, StereographicProjection projection, Transform planeToCanvas){
-
+        List<CelestialObject> planets = List.copyOf(sky.planets());
+        double[] planetCoordinates = new double[sky.planetCoordinates().size()];
+        for (int i = 0; i < planetCoordinates.length; i++)  planetCoordinates[i] = sky.planetCoordinates().get(i);
+        drawCelestialObject(planetCoordinates, planets, projection, planeToCanvas);
     }
 
     /*
     DRAW SUN
      */
 
+    /**
+     * draws sun
+     * @param sky observed sky
+     * @param projection stereographic projection used
+     * @param planeToCanvas Transform used
+     */
     public void drawSun(ObservedSky sky, StereographicProjection projection, Transform planeToCanvas){
-
-        final double sunDiameter = planeToCanvas.deltaTransform (effectiveSize(Angle.ofDeg(0.5)), 0).getX();
+        final double sunDiameter = planeToCanvas.deltaTransform(projection.applyToAngle(Angle.ofDeg(0.5)), 0).getX();
         CartesianCoordinates sunPosition = sky.sunPosition();
         Point2D sunPositionOnCanvas = planeToCanvas.transform(sunPosition.x(), sunPosition.y());
+
         gc.setFill(Color.YELLOW.deriveColor(1, 1, 1, 0.25));
-        drawCenteredCiruclarBody(sunPositionOnCanvas, sunDiameter + 2.2);
+        drawCenteredCiruclarBody(sunPositionOnCanvas, sunDiameter*2.2);
+
         gc.setFill(Color.YELLOW);
         drawCenteredCiruclarBody(sunPositionOnCanvas, sunDiameter + 2);
+
         gc.setFill(Color.WHITE);
         drawCenteredCiruclarBody(sunPositionOnCanvas, sunDiameter);
-
-
-
-
-
     }
 
     /*
     DRAW MOON
      */
 
+    /**
+     * draws moon
+     * @param sky observed sky
+     * @param projection stereographic projection used
+     * @param planeToCanvas Transform used
+     */
     public void drawMoon(ObservedSky sky, StereographicProjection projection, Transform planeToCanvas){
-
+        List<CelestialObject> moon = List.of(sky.moon());
+        double[] moonCoordinates = {sky.moonPosition().x(), sky.moonPosition().y()};
+        System.out.println("moon ang size: " + sky.moon().angularSize() + "sun ang size: " + sky.sun().angularSize());
+        drawCelestialObject(moonCoordinates, moon, projection, planeToCanvas);
     }
 
     /*
     DRAW HORIZON
      */
 
-    public void drawHorizon(ObservedSky sky, StereographicProjection projection, Transform planeToCanvas, HorizontalCoordinates projCenter){
+    /**
+     * draws horizon in red
+     * @param projection stereographic projection used
+     * @param planeToCanvas Transform used
+     */
+    public void drawHorizon(StereographicProjection projection, Transform planeToCanvas){
         gc.setStroke(Color.RED);
+        gc.setLineWidth(2);
         CartesianCoordinates fromProjection = projection.circleCenterForParallel(HorizontalCoordinates.ofDeg(0,0));
         double projRadius = Math.abs(projection.circleRadiusForParallel(HorizontalCoordinates.ofDeg(0,0)));
         Point2D horizonCenter = planeToCanvas.transform(fromProjection.x() , fromProjection.y());
         double radius = planeToCanvas.deltaTransform(projRadius, 0).getX();
-        System.out.println(radius);
-        System.out.println(horizonCenter);
         gc.strokeOval(horizonCenter.getX() - radius, horizonCenter.getY() - radius ,radius * 2, radius * 2);
 
         gc.setFill(Color.RED);
         for (HorizontalCoordinates.OCTANT octant: HorizontalCoordinates.OCTANT.values()) {
             CartesianCoordinates octantCartesian = projection.apply(HorizontalCoordinates.ofDeg(octant.getOctantAngle(),-0.5));
-           Point2D octantCoord = planeToCanvas.transform(octantCartesian.x(), octantCartesian.y());
-           gc.fillText(octant.name(), octantCoord.getX(), octantCoord.getY());
-
+            Point2D octantCoord = planeToCanvas.transform(octantCartesian.x(), octantCartesian.y());
+            gc.fillText(octant.name(), octantCoord.getX(), octantCoord.getY());
         }
-
     }
 
-    public void drawAll(ObservedSky sky, StereographicProjection projection, Transform planeToCanvas, HorizontalCoordinates projCenter){
+    /**
+     * draws all celestial objects in sky and the horizon
+     * @param sky observed sky
+     * @param projection stereographic projection used
+     * @param planeToCanvas Transform used
+     */
+    public void drawAll(ObservedSky sky, StereographicProjection projection, Transform planeToCanvas){
         drawStars(sky, projection, planeToCanvas);
         drawPlanets(sky, projection, planeToCanvas);
         drawSun(sky, projection, planeToCanvas);
         drawMoon(sky, projection, planeToCanvas);
-        drawHorizon(sky, projection, planeToCanvas, projCenter);
+        drawHorizon(projection, planeToCanvas);
     }
 
     /*
     PRIVATE UTILITY CLASSES
      */
 
-    private double effectiveSize(double angularSize){
-        return 2*Math.atan(angularSize/4);
-    }
-
     private void drawCenteredCiruclarBody(Point2D center, double diameter){
         gc.fillOval(center.getX()-diameter/2, center.getY()-diameter/2, diameter, diameter);
+    }
+
+    private double getCelestialObjectDiameter(CelestialObject celestialObject, StereographicProjection projection){
+        final double mag = MAGNITUDE_INTERVAL.clip(celestialObject.magnitude());
+        final double factor = (99-17*mag) / (140);
+        return factor * projection.applyToAngle(Angle.ofDeg(0.5));
+    }
+
+    private void drawCelestialObject(double[] objectCoordinates, List<CelestialObject> objects,
+                                    StereographicProjection projection, Transform planeToCanvas) {
+        int objectCount = objects.size();
+        double[] transformedPoints = new double[objectCoordinates.length];
+        planeToCanvas.transform2DPoints(objectCoordinates, 0, transformedPoints, 0, objectCount);
+
+        for (int i = 0; i < objectCount; i++) {
+            CelestialObject toDraw = objects.get(i);
+            double diameter = planeToCanvas.deltaTransform(getCelestialObjectDiameter(toDraw, projection), 0).getX();
+
+            if (toDraw instanceof Star) gc.setFill(BlackBodyColor.colorForTemperature(((Star) toDraw).colorTemperature()));
+            else if (toDraw instanceof Planet) gc.setFill(Color.LIGHTGRAY);
+            else if (toDraw instanceof Moon) gc.setFill(Color.WHITE);
+
+            Point2D position = new Point2D(transformedPoints[2*i], transformedPoints[2*i + 1]);
+            drawCenteredCiruclarBody(position, diameter);
+        }
     }
 
 
