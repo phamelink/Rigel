@@ -12,7 +12,7 @@ import java.util.function.Function;
  * @author Philip Hamelink (311769)
  * @author Malo Ranzetti (296956)
  */
-public class EquatorialToHorizontalConversion implements Function<EquatorialCoordinates, HorizontalCoordinates> {
+public final class EquatorialToHorizontalConversion implements Function<EquatorialCoordinates, HorizontalCoordinates> {
 
     private final double localSiderealTime;
     private final double sinLat;
@@ -42,11 +42,9 @@ public class EquatorialToHorizontalConversion implements Function<EquatorialCoor
 
         double sinAlt = sinDelta * sinLat + cosDelta * cosLat * Math.cos(hourAngle);
         double alt = Math.asin(sinAlt);
-        double azimuth = Math.acos((sinDelta - sinLat * sinAlt) / (cosLat * Math.cos(alt)));
+        double azimuth = Math.atan2(-cosDelta * cosLat * Math.sin(hourAngle), sinDelta-sinAlt*sinLat);
 
-        if(Math.sin(hourAngle) > 0) azimuth = Angle.TAU - azimuth; //find correct quadrant
-
-        return HorizontalCoordinates.of(azimuth, alt);
+        return HorizontalCoordinates.of(Angle.normalizePositive(azimuth), alt);
     }
 
 

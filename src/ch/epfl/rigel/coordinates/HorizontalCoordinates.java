@@ -15,72 +15,8 @@ import java.util.NoSuchElementException;
  */
 public final class HorizontalCoordinates extends SphericalCoordinates {
 
-    public static final RightOpenInterval AZIMUTH_INTERVAL = RightOpenInterval.of(0, Angle.TAU);
-    public static final ClosedInterval ALTITUDE_INTERVAL = ClosedInterval.symmetric(Math.PI);
-
-    private GeographicCoordinates refPoint;
-
-    public enum OCTANT {
-        N(0,0, 45, "N", new CARDINAL[]{CARDINAL.N}),
-        NE(1,45, 90, "NE", new CARDINAL[]{CARDINAL.N, CARDINAL.E}),
-        E(2,90,135, "E", new CARDINAL[]{CARDINAL.E}),
-        SE(3,135, 180, "SE", new CARDINAL[]{CARDINAL.S, CARDINAL.E}),
-        S(4,180, 225, "S", new CARDINAL[]{CARDINAL.S}),
-        SO(5,225, 270, "SW", new CARDINAL[]{CARDINAL.S, CARDINAL.W}),
-        O(6,270, 315, "W", new CARDINAL[]{CARDINAL.W}),
-        NO(7,315, 360, "NW", new CARDINAL[]{CARDINAL.N, CARDINAL.W});
-
-        final int key;
-        final RightOpenInterval octantInterval;
-        final String name;
-        final CARDINAL[] placeholder;
-        static final double size = 45.0/2.0; //Rotation offset size to normalize in right interval
-
-        OCTANT(int key, int beginDeg, int endDeg, String name, CARDINAL[] placeholder){
-
-            octantInterval = RightOpenInterval.of(beginDeg, endDeg);
-            this.key = key;
-            this.name = name;
-            this.placeholder = placeholder;
-        }
-
-        /**
-         * Return octant corresponding to deg.
-         * @param deg (double)
-         *            azimuth in degrees
-         * @return (OCTANT) corresponding octant
-         */
-        public static OCTANT octantOfDeg(double deg){
-            double mod = (deg+size) % 360.0;
-            for(OCTANT oc : OCTANT.values()){
-                if (oc.octantInterval.contains(mod)) return oc;
-            }
-            throw new NoSuchElementException(Double.toString(mod));
-
-        }
-
-
-
-        /**
-         * Return octant corresponding to rad.
-         * @param rad
-         *            azimuth angle in rad
-         * @return octant corresponding to rad
-         */
-        public OCTANT octantOf(double rad){
-            return octantOfDeg(Angle.toDeg(rad));
-        }
-
-        public double getOctantAngle(){
-            return this.octantInterval.low();
-        }
-
-    }
-
-    public enum CARDINAL {
-        N,S,E,W
-    }
-
+    private static final RightOpenInterval AZIMUTH_INTERVAL = RightOpenInterval.of(0, Angle.TAU);
+    private static final ClosedInterval ALTITUDE_INTERVAL = ClosedInterval.symmetric(Math.PI);
 
     private HorizontalCoordinates(double azimuth, double altitude) {
         super(azimuth, altitude);
@@ -204,6 +140,53 @@ public final class HorizontalCoordinates extends SphericalCoordinates {
 
     }
 
+    public enum OCTANT {
+        N(0, 45, "N", new CARDINAL[]{CARDINAL.N}),
+        NE(45, 90, "NE", new CARDINAL[]{CARDINAL.N, CARDINAL.E}),
+        E(90,135, "E", new CARDINAL[]{CARDINAL.E}),
+        SE(135, 180, "SE", new CARDINAL[]{CARDINAL.S, CARDINAL.E}),
+        S(180, 225, "S", new CARDINAL[]{CARDINAL.S}),
+        SO(225, 270, "SW", new CARDINAL[]{CARDINAL.S, CARDINAL.W}),
+        O(270, 315, "W", new CARDINAL[]{CARDINAL.W}),
+        NO(315, 360, "NW", new CARDINAL[]{CARDINAL.N, CARDINAL.W});
+
+        final RightOpenInterval octantInterval;
+        final String name;
+        final CARDINAL[] placeholder;
+        static final double size = 45.0/2.0; //Rotation offset size to normalize in right interval
+
+        OCTANT(int beginDeg, int endDeg, String name, CARDINAL[] placeholder){
+
+            octantInterval = RightOpenInterval.of(beginDeg, endDeg);
+            this.name = name;
+            this.placeholder = placeholder;
+        }
+
+        /**
+         * Return octant corresponding to deg.
+         * @param deg (double)
+         *            azimuth in degrees
+         * @return (OCTANT) corresponding octant
+         */
+        public static OCTANT octantOfDeg(double deg){
+            double mod = (deg+size) % 360.0;
+            for(OCTANT oc : OCTANT.values()){
+                if (oc.octantInterval.contains(mod)) return oc;
+            }
+            throw new NoSuchElementException(Double.toString(mod));
+
+        }
+
+        public double getOctantAngle(){
+            return this.octantInterval.low();
+        }
+
+    }
+
+    public enum CARDINAL {
+        N,S,E,W
+    }
+
     /**
      * Calculates the angular distance between the coordinates of this object and another object (that)
      * @param that
@@ -215,23 +198,7 @@ public final class HorizontalCoordinates extends SphericalCoordinates {
                 Math.cos(this.lon() - that.lon()));
     }
 
-    /**
-     * sets reference point
-     * @param refPoint
-     *          reference point to set
-     */
-    public void setRefPoint(GeographicCoordinates refPoint){
-        this.refPoint = refPoint;
-    }
-
-    /**
-     * returns reference point
-     * @return reference point
-     */
-    public GeographicCoordinates getRefPoint(){
-        return this.refPoint;
-    }
-
+    //todo
     public HorizontalCoordinates delta(double deltaAz, double deltaAlt){
         return HorizontalCoordinates.of(Angle.normalizePositive(this.az() + deltaAz),  ALTITUDE_INTERVAL.clip(this.alt() + deltaAlt));
     }

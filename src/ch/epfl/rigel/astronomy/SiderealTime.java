@@ -20,7 +20,6 @@ import java.time.temporal.TemporalUnit;
  */
 public final class SiderealTime {
     private static final Polynomial SIDEREAL_TIME_0 = Polynomial.of(0.000025862,2400.051336, 6.697374558);
-    private static final Polynomial SIDEREAL_TIME_1 = Polynomial.of(1.002737909, 0);
 
     private SiderealTime() {}
 
@@ -39,8 +38,7 @@ public final class SiderealTime {
         double julianCenturiesDifference = Epoch.J2000.julianCenturiesUntil(truncatedDate);
 
         double hoursSinceBeginningOfDay = correctedOffset.getLong(ChronoField.NANO_OF_DAY) / NANO_PER_HOUR;
-        double t = julianCenturiesDifference;
-        double siderealTimeGreenwichHr =  SIDEREAL_TIME_0.at(julianCenturiesDifference) + SIDEREAL_TIME_1.at(hoursSinceBeginningOfDay);
+        double siderealTimeGreenwichHr =  SIDEREAL_TIME_0.at(julianCenturiesDifference) + 1.002737909 * hoursSinceBeginningOfDay;
         return Angle.normalizePositive(Angle.ofHr(siderealTimeGreenwichHr));
     }
 

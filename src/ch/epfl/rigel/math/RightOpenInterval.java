@@ -1,5 +1,7 @@
 package ch.epfl.rigel.math;
 
+import ch.epfl.rigel.Preconditions;
+
 import java.util.Locale;
 
 /**
@@ -23,7 +25,7 @@ public final class RightOpenInterval extends Interval {
      * @return right open interval
      */
     public static RightOpenInterval of(double low, double high){
-        if(low >= high) throw new IllegalArgumentException();
+        Preconditions.checkArgument(low < high);
         return new RightOpenInterval(low, high);
     }
 
@@ -35,7 +37,7 @@ public final class RightOpenInterval extends Interval {
      * @return right open interval centered at 0
      */
     public static RightOpenInterval symmetric(double diameter){
-        if(diameter <= 0) throw new IllegalArgumentException();
+        Preconditions.checkArgument(diameter > 0);
         return new RightOpenInterval(-diameter/2.0,diameter/2.0);
     }
 
@@ -53,7 +55,7 @@ public final class RightOpenInterval extends Interval {
      */
     public double reduce(double v){
 
-        return this.low() + floorMod(v-this.low(), this.high()-this.low());
+        return this.low() + floorMod(v-this.low(), size());
     }
 
     @Override

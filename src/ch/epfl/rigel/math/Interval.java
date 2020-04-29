@@ -15,7 +15,7 @@ public abstract class Interval {
      * @param sup
      *            the upper bound of the interval
      */
-    public Interval(double inf, double sup) {
+    Interval(double inf, double sup) {
         this.inf = inf;
         this.sup = sup;
     }

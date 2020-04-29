@@ -157,7 +157,6 @@ public class SkyCanvasPainter {
     public void drawMoon(ObservedSky sky, StereographicProjection projection, Transform planeToCanvas){
         List<CelestialObject> moon = List.of(sky.moon());
         double[] moonCoordinates = {sky.moonPosition().x(), sky.moonPosition().y()};
-        System.out.println("moon ang size: " + sky.moon().angularSize() + "sun ang size: " + sky.sun().angularSize());
         drawCelestialObject(moonCoordinates, moon, projection, planeToCanvas);
     }
 
@@ -215,6 +214,7 @@ public class SkyCanvasPainter {
         return factor * projection.applyToAngle(Angle.ofDeg(0.5));
     }
 
+    //TODO color should be set by parent class before method call
     private void drawCelestialObject(double[] objectCoordinates, List<CelestialObject> objects,
                                     StereographicProjection projection, Transform planeToCanvas) {
         int objectCount = objects.size();
@@ -224,13 +224,15 @@ public class SkyCanvasPainter {
         for (int i = 0; i < objectCount; i++) {
             CelestialObject toDraw = objects.get(i);
             double diameter = planeToCanvas.deltaTransform(getCelestialObjectDiameter(toDraw, projection), 0).getX();
-
+            /*
             if (toDraw instanceof Star) gc.setFill(BlackBodyColor.colorForTemperature(((Star) toDraw).colorTemperature()));
             else if (toDraw instanceof Planet) gc.setFill(Color.LIGHTGRAY);
-            else if (toDraw instanceof Moon) gc.setFill(Color.WHITE);
+            else if (toDraw instanceof Moon) gc.setFill(Color.WHITE); //TODO bad practice
 
+
+             */
             Point2D position = new Point2D(transformedPoints[2*i], transformedPoints[2*i + 1]);
-            drawCenteredCiruclarBody(position, diameter);
+            drawCenteredCiruclarBody(position, diameter); //TODO rewrite this method here internally, never used elsewhere
         }
     }
 
