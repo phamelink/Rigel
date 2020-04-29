@@ -8,16 +8,12 @@ import ch.epfl.rigel.coordinates.HorizontalCoordinates;
 import ch.epfl.rigel.coordinates.StereographicProjection;
 import ch.epfl.rigel.math.Angle;
 import ch.epfl.rigel.math.ClosedInterval;
-import javafx.application.Application;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import javafx.scene.transform.Affine;
-import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
-import javafx.stage.Stage;
 
 import java.util.*;
 
@@ -129,11 +125,11 @@ public class SkyCanvasPainter {
         CartesianCoordinates sunPosition = sky.sunPosition();
         Point2D sunPositionOnCanvas = planeToCanvas.transform(sunPosition.x(), sunPosition.y());
         gc.setFill(Color.YELLOW.deriveColor(1, 1, 1, 0.25));
-        drawCenteredCiruclarBody(sunPositionOnCanvas, sunDiameter + 2.2);
+        drawCenteredCircularBody(sunPositionOnCanvas, sunDiameter + 2.2);
         gc.setFill(Color.YELLOW);
-        drawCenteredCiruclarBody(sunPositionOnCanvas, sunDiameter + 2);
+        drawCenteredCircularBody(sunPositionOnCanvas, sunDiameter + 2);
         gc.setFill(Color.WHITE);
-        drawCenteredCiruclarBody(sunPositionOnCanvas, sunDiameter);
+        drawCenteredCircularBody(sunPositionOnCanvas, sunDiameter);
 
 
 
@@ -189,7 +185,7 @@ public class SkyCanvasPainter {
         return 2*Math.atan(angularSize/4);
     }
 
-    private void drawCenteredCiruclarBody(Point2D center, double diameter){
+    private void drawCenteredCircularBody(Point2D center, double diameter){
         gc.fillOval(center.getX()-diameter/2, center.getY()-diameter/2, diameter, diameter);
     }
 

@@ -10,21 +10,23 @@ import java.time.temporal.ChronoUnit;
  * @author Malo Ranzetti (296956)
  */
 public enum Epoch {
+    //Epoch from 01/01/2000 UTC
+    J2000(LocalDate.of(2000,Month.JANUARY,1), LocalTime.NOON, ZoneOffset.UTC),
 
-    J2000(LocalDate.of(2000,Month.JANUARY,1), LocalTime.of(12,0), ZoneOffset.UTC),
-    J2010(LocalDate.of(2010,Month.JANUARY,1).minusDays(1), LocalTime.of(0,0), ZoneOffset.UTC);
-
-    public final ZonedDateTime epoch;
+    //Epoch from 01/01/2010 UTC
+    J2010(LocalDate.of(2010,Month.JANUARY,1).minusDays(1), LocalTime.MIDNIGHT, ZoneOffset.UTC);
 
     private static final int DAYS_IN_ONE_JULIAN_CENTURY = 36525;
-    private static final double NANO_IN_A_DAY = 8.64e+13;
+    private static final double MILLIS_IN_A_DAY = 1000*60*60*24;
 
-    private Epoch(LocalDate localDate, LocalTime localTime, ZoneOffset zoneOffset) {
-        this.epoch = ZonedDateTime.of(localDate, localTime, zoneOffset.normalized());
+    private final ZonedDateTime epoch;
+
+    Epoch(LocalDate localDate, LocalTime localTime, ZoneOffset zoneOffset) {
+        this.epoch = ZonedDateTime.of(localDate, localTime, zoneOffset);
     }
 
     /**
-     * returns number of days from the chosen reference date (J200 or J2010) to the date given in parameters
+     * returns number of days from the chosen reference date (J2000 or J2010) to the date given in parameters
      * @param when
      *          date and time to calculate number of days from
      * @return number of days
@@ -35,21 +37,12 @@ public enum Epoch {
         result over extended periods of time.
          */
         when = when.withZoneSameInstant(ZoneId.of("UTC"));
-        double dayDelta;
-        long intraDayDelta;
-        ZonedDateTime truncatedDate = when.truncatedTo(ChronoUnit.DAYS);
-        ZonedDateTime truncatedEpoch = epoch.truncatedTo(ChronoUnit.DAYS);
-        dayDelta = truncatedEpoch.until(truncatedDate, ChronoUnit.DAYS);
-        long nanoOfDay = when.getLong(ChronoField.NANO_OF_DAY);
-        long nanoOfEpoch = epoch.getLong(ChronoField.NANO_OF_DAY);
-        intraDayDelta = nanoOfDay - nanoOfEpoch;
-
-        return dayDelta + intraDayDelta / NANO_IN_A_DAY ;
+        return epoch.until(when, ChronoUnit.MILLIS) / MILLIS_IN_A_DAY ;
 
     }
 
     /**
-     * returns number of julian centuries from the chosen reference date (J200 or J2010) to the date given in parameters
+     * returns number of julian centuries from the chosen reference date (J2000 or J2010) to the date given in parameters
      * @param when
      *          date and time to calculate number of julian centuries from
      * @return number of julian centuries

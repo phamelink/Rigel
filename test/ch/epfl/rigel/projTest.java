@@ -64,8 +64,8 @@ public class projTest extends JPanel {
     public void paint(Graphics g) {
 
         super.paint(g);
-
-        EclipticToEquatorialConversion ecl = new EclipticToEquatorialConversion(Epoch.J2000.epoch.plusDays((long) days));
+/*
+       EclipticToEquatorialConversion ecl = new EclipticToEquatorialConversion(Epoch.J2000.epoch.plusDays((long) days));
         EquatorialToHorizontalConversion conv = new EquatorialToHorizontalConversion(Epoch.J2000.epoch.plusDays((long) days),GeographicCoordinates.ofDeg(0,0));
         StereographicProjection sp = new StereographicProjection(HorizontalCoordinates.ofDeg(0,0));
 
@@ -101,6 +101,8 @@ public class projTest extends JPanel {
         }
 
 
+
+ */
 
     }
 

@@ -1,5 +1,6 @@
 package ch.epfl.rigel.coordinates;
 
+import ch.epfl.rigel.Preconditions;
 import ch.epfl.rigel.math.Angle;
 import ch.epfl.rigel.math.ClosedInterval;
 import ch.epfl.rigel.math.RightOpenInterval;
@@ -30,7 +31,7 @@ public final class GeographicCoordinates extends SphericalCoordinates {
      * @return GeographicCoordinates of longitude lonDeg and latitude latDeg
      */
     public static GeographicCoordinates ofDeg(double lonDeg, double latDeg){
-        if(!isValidLatDeg(latDeg)|| !isValidLonDeg(lonDeg)) throw new IllegalArgumentException();
+        Preconditions.checkArgument(isValidLatDeg(latDeg)|| isValidLonDeg(lonDeg));
 
         return new GeographicCoordinates(Angle.ofDeg(lonDeg),Angle.ofDeg(latDeg));
     }
@@ -64,6 +65,7 @@ public final class GeographicCoordinates extends SphericalCoordinates {
      * returns longitude (in radians)
      * @return longitude (in radians)
      */
+    @Override
     public double lon() {
         return super.lon();
     }
@@ -72,6 +74,7 @@ public final class GeographicCoordinates extends SphericalCoordinates {
      * returns longitude (in degrees)
      * @return longitude (in degrees)
      */
+    @Override
     public double lonDeg() {
         return super.lonDeg();
     }
@@ -80,6 +83,7 @@ public final class GeographicCoordinates extends SphericalCoordinates {
      * returns latitude (in radians)
      * @return latitude (in radians)
      */
+    @Override
     public double lat() {
         return super.lat();
     }
@@ -88,6 +92,7 @@ public final class GeographicCoordinates extends SphericalCoordinates {
      * returns latitude (in degrees)
      * @return latitude (in degrees)
      */
+    @Override
     public double latDeg() {
         return super.latDeg();
     }

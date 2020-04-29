@@ -117,5 +117,10 @@ public final class StereographicProjection implements Function<HorizontalCoordin
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public String toString() {
+        return "StereographicProjection at " + center.toString();
+    }
+
 
 }

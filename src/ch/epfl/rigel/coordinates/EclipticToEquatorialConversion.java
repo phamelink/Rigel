@@ -13,10 +13,13 @@ import java.util.function.Function;
  * @author Philip Hamelink (311769)
  * @author Malo Ranzetti (296956)
  */
-public class EclipticToEquatorialConversion implements Function<EclipticCoordinates, EquatorialCoordinates> {
+public final class EclipticToEquatorialConversion implements Function<EclipticCoordinates, EquatorialCoordinates> {
 
     public static final double OBLIQUITY_REF = Angle.ofDMS(23, 26, 21.45);
-    private final double eclipticObliquity;
+    private static final double OBLIQUITY_A = -0.00181;
+    private static final double OBLIQUITY_B = 0.0006;
+    private static final double OBLIQUITY_C = 46.815;
+    private static final Polynomial OBLIQUITY_EXPRESSION = Polynomial.of( OBLIQUITY_A, OBLIQUITY_B, OBLIQUITY_C, 0);
 
     private final double sinObliquity;
     private final double cosObliquity;
@@ -29,30 +32,16 @@ public class EclipticToEquatorialConversion implements Function<EclipticCoordina
      *          date/time to convert
      */
     public EclipticToEquatorialConversion(ZonedDateTime when) {
-        this.eclipticObliquity = obliquityAt(Epoch.J2000.julianCenturiesUntil(when));
+        double eclipticObliquity = OBLIQUITY_At(Epoch.J2000.julianCenturiesUntil(when));
         this.sinObliquity = Math.sin(eclipticObliquity);
         this.cosObliquity = Math.cos(eclipticObliquity);
 
     }
 
-    private static final double obliquityA = -0.00181;
-    private static final double obliquityB = 0.0006;
-    private static final double obliquityC = 46.815;
-    private static final Polynomial obliquityExpression = Polynomial.of( obliquityA, obliquityB, obliquityC, 0);
-
-    private static double obliquityAt(double julianCenturiesFromJ2000) {
-        double DE = obliquityExpression.at(julianCenturiesFromJ2000);
+    private static double OBLIQUITY_At(double julianCenturiesFromJ2000) {
+        double DE = OBLIQUITY_EXPRESSION.at(julianCenturiesFromJ2000);
         double obl = Angle.ofArcsec(DE);
         return OBLIQUITY_REF - obl;
-    }
-
-
-    /**
-     * returns ecliptic obliquity
-     * @return ecliptic obliquity
-     */
-    public double getObliquity(){
-        return this.eclipticObliquity;
     }
 
     @Override

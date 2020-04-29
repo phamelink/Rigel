@@ -1,5 +1,7 @@
 package ch.epfl.rigel.math;
 
+import ch.epfl.rigel.Preconditions;
+
 /**
  * Polynomial
  *
@@ -7,7 +9,7 @@ package ch.epfl.rigel.math;
  * @author Malo Ranzetti (296956)
  */
 public final class Polynomial {
-    private double[] coeffs;
+    private final double[] coeffs;
 
     private Polynomial(double coefficientN, double... coefficients) {
         this.coeffs = new double[coefficients.length + 1];
@@ -25,7 +27,7 @@ public final class Polynomial {
      * @return a polynomial function with the given coefficients in decreasing order
      */
     public static Polynomial of(double coefficientN, double... coefficients) {
-        if (coefficientN == 0) throw new IllegalArgumentException();
+        Preconditions.checkArgument(coefficientN != 0);
         return new Polynomial (coefficientN, coefficients);
     }
 
@@ -39,13 +41,12 @@ public final class Polynomial {
 
         final int maxDeg = coeffs.length - 1;
         int k = maxDeg;
-        double[] b = new double[k + 1];
-        b[k] = coeffs[0];
+        double b = coeffs[0];
         while (k > 0) {
-            b[k-1] = coeffs[maxDeg - k + 1]+ b[k] * x;
+            b = coeffs[maxDeg - k + 1]+ b * x;
             --k;
         }
-        return b[0];
+        return b;
             
     }
 
@@ -53,22 +54,22 @@ public final class Polynomial {
     public String toString() {
         StringBuilder str = new StringBuilder();
 
-        for (int n = coeffs.length -1, i = 0; n >= 0 ; --n, ++i) {
+        for (int i = 0; i <= coeffs.length - 1 ;++i) {
 
             if (coeffs[i] != 0) {
                 if(coeffs[i] == -1.0){
                     str.append("-");
                 } else if (coeffs[i] != 1.0) str.append(coeffs[i]);
 
-                if (n >= 2) {
-                    str.append("x^").append(n);
-                } else if (n == 1) {
+                if (coeffs.length - 1 - i >= 2) {
+                    str.append("x^").append(coeffs.length - 1 - i);
+                } else if (coeffs.length - 1 - i == 1) {
                     str.append("x");
                 }
 
 
             }
-            if (n != 0 && coeffs[i + 1] > 0) str.append("+");
+            if (coeffs.length - 1 - i != 0 && coeffs[i + 1] > 0) str.append("+");
         }
 
         return str.toString();
