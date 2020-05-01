@@ -86,7 +86,7 @@ public enum PlanetModel implements CelestialObjectModel<Planet>{
         final double lP = this.getHelioCoordsAt(daysSinceJ2010).lon();
         final double helioLat = this.getHelioCoordsAt(daysSinceJ2010).lat();
         final double rP = r * Math.cos(helioLat);
-
+        System.out.println(r + " ¦ " +l + " ¦ " +rP + " ¦ " +lP + " ¦ " +helioLat + " ¦ " +R + " ¦ " +L + " ¦ " );
         final EclipticCoordinates geocentricCoord;
 
         final double lambda;
@@ -138,6 +138,7 @@ public enum PlanetModel implements CelestialObjectModel<Planet>{
     private double getTrueAnomalyAt(double daysSinceJ2010){
         double meanAnom = revTimeCorrected * daysSinceJ2010 + jLon - periLon;
         meanAnom = Angle.normalizePositive(meanAnom);
+        System.out.println( meanAnom);
         double trueAnom = meanAnom + 2 * exc * Math.sin(meanAnom);
         return Angle.normalizePositive(trueAnom);
     }
