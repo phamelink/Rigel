@@ -15,24 +15,23 @@ import java.util.List;
  */
 public enum PlanetModel implements CelestialObjectModel<Planet>{
     MERCURY("Mercure", 0.24085, 75.5671, 77.612, 0.205627,
-            0.387098, 7.0051, 48.449, 6.74, -0.42, false),
+            0.387098, 7.0051, 48.449, 6.74, -0.42),
     VENUS("Vénus", 0.615207, 272.30044, 131.54, 0.006812,
-            0.723329, 3.3947, 76.769, 16.92, -4.40, false),
+            0.723329, 3.3947, 76.769, 16.92, -4.40),
     EARTH("Terre", 0.999996, 99.556772, 103.2055, 0.016671,
-            0.999985, 0, 0, 0, 0, false),
+            0.999985, 0, 0, 0, 0),
     MARS("Mars", 1.880765, 109.09646, 336.217, 0.093348,
-            1.523689, 1.8497, 49.632, 9.36, -1.52, true),
+            1.523689, 1.8497, 49.632, 9.36, -1.52),
     JUPITER("Jupiter", 11.857911, 337.917132, 14.6633, 0.048907,
-            5.20278, 1.3035, 100.595, 196.74, -9.40, true),
+            5.20278, 1.3035, 100.595, 196.74, -9.40),
     SATURN("Saturne", 29.310579, 172.398316, 89.567, 0.053853,
-            9.51134, 2.4873, 113.752, 165.60, -8.88, true),
+            9.51134, 2.4873, 113.752, 165.60, -8.88),
     URANUS("Uranus", 84.039492, 356.135400, 172.884833, 0.046321,
-            19.21814, 0.773059, 73.926961, 65.80, -7.19, true),
+            19.21814, 0.773059, 73.926961, 65.80, -7.19),
     NEPTUNE("Neptune", 165.84539, 326.895127, 23.07, 0.010483,
-            30.1985, 1.7673, 131.879, 62.20, -6.87, true);
+            30.1985, 1.7673, 131.879, 62.20, -6.87);
 
     private final String name;
-    private final double revTime;
     private final double jLon;
     private final double periLon;
     private final double exc;
@@ -41,7 +40,9 @@ public enum PlanetModel implements CelestialObjectModel<Planet>{
     private final double ascNodeLon;
     private final double theta0;
     private final double magnitude;
-    private final boolean isOuterPlanet;
+    private final double revTimeCorrected;
+    private final double sinIncl;
+    private final double cosIncl;
 
     public static final List<PlanetModel> ALL = List.of(PlanetModel.values());
 
@@ -57,13 +58,11 @@ public enum PlanetModel implements CelestialObjectModel<Planet>{
      * @param ascNodeLon longitude of the ascending node
      * @param theta0 angular size in AU
      * @param magnitude magnitude
-     * @param isOuterPlanet true if the planet oribits further away around the sun than the earth,
-     *                      false if it orbits at same distance as or less than the earth around the sun
+     *
      */
     PlanetModel(String name, double revTime, double jLon, double periLon, double exc, double axis, double incl, double ascNodeLon,
-                double theta0, double magnitude, boolean isOuterPlanet) {
+                double theta0, double magnitude) {
         this.name = name;
-        this.revTime = revTime;
         this.jLon = Angle.ofDeg(jLon);
         this.periLon = Angle.ofDeg(periLon);
         this.exc = exc;
@@ -72,27 +71,27 @@ public enum PlanetModel implements CelestialObjectModel<Planet>{
         this.ascNodeLon = Angle.ofDeg(ascNodeLon);
         this.theta0 = theta0;
         this.magnitude = magnitude;
-        this.isOuterPlanet = isOuterPlanet;
+        this.revTimeCorrected = Angle.TAU / (365.242191 * revTime);
+        this.sinIncl = Math.sin(incl);
+        this.cosIncl = Math.cos(incl);
     }
 
     @Override
     public Planet at(double daysSinceJ2010, EclipticToEquatorialConversion eclipticToEquatorialConversion) {
-        DatedPlanetInfo planetInfo = this.getDatedPlanetInfo(daysSinceJ2010);
-        DatedPlanetInfo earthInfo = EARTH.getDatedPlanetInfo(daysSinceJ2010);
-        final double R = earthInfo.getDistanceFromSun();
-        final double L = earthInfo.getHelioLon();
+        final double R = EARTH.getRadiusFromSunAt(daysSinceJ2010);
+        final double L = EARTH.getHelioLonAt(daysSinceJ2010);
 
-        final double r = planetInfo.getDistanceFromSun();
-        final double l = planetInfo.getHelioLon();
-        final double rP = planetInfo.getEclipticRadius();
-        final double lP = planetInfo.getHeliocentricCoordinates().lon();
-        final double helioLat = planetInfo.getHeliocentricCoordinates().lat();
+        final double r = this.getRadiusFromSunAt(daysSinceJ2010);
+        final double l = this.getHelioLonAt(daysSinceJ2010);
+        final double lP = this.getHelioCoordsAt(daysSinceJ2010).lon();
+        final double helioLat = this.getHelioCoordsAt(daysSinceJ2010).lat();
+        final double rP = r * Math.cos(helioLat);
 
         final EclipticCoordinates geocentricCoord;
 
         final double lambda;
         final double expression1 = R * Math.sin(lP - L);
-        if(isOuterPlanet){
+        if(axis >= 1){
             //Outer Planets
             lambda = lP + Math.atan2(expression1 , (rP - R * Math.cos(lP - L)));
         }else{
@@ -113,6 +112,36 @@ public enum PlanetModel implements CelestialObjectModel<Planet>{
         return new Planet(name, eclipticToEquatorialConversion.apply(geocentricCoord), (float) Angle.ofArcsec(angularSize), (float) apparentMagnitude);
     }
 
+    /**
+     * Get the radius from the sun to body at time
+     * @param daysSinceJ2010 time since J2010
+     * @return the radius
+     */
+    private double getRadiusFromSunAt(double daysSinceJ2010){
+        return axis * (1-exc*exc) / (1 + exc * Math.cos(getTrueAnomalyAt(daysSinceJ2010)));
+    }
+
+    /**
+     * Get the heliocentric longitude from the sun to body at time
+     * @param daysSinceJ2010 time since J2010
+     * @return heliocentric longitude
+     */
+    private double getHelioLonAt(double daysSinceJ2010){
+        return Angle.normalizePositive(getTrueAnomalyAt(daysSinceJ2010) + periLon);
+    }
+
+    /**
+     * Get the true anomaly of the body at time
+     * @param daysSinceJ2010 time since J2010
+     * @return true anomaly
+     */
+    private double getTrueAnomalyAt(double daysSinceJ2010){
+        double meanAnom = revTimeCorrected * daysSinceJ2010 + jLon - periLon;
+        meanAnom = Angle.normalizePositive(meanAnom);
+        double trueAnom = meanAnom + 2 * exc * Math.sin(meanAnom);
+        return Angle.normalizePositive(trueAnom);
+    }
+
 
     /**
      * A method used to generate useful information about a planet and its heliocentric position in the solar system
@@ -120,79 +149,17 @@ public enum PlanetModel implements CelestialObjectModel<Planet>{
      * @param  daysSinceJ2010 : (double) amount of days elapsed since J2010 epoch
      * @return : (DatedPlanetInfo) Data package containing useful planet information for a given time.
      */
-    public DatedPlanetInfo getDatedPlanetInfo(double daysSinceJ2010){
+    private EclipticCoordinates getHelioCoordsAt(double daysSinceJ2010){
 
-        double meanAnom = (Angle.TAU * daysSinceJ2010) / (365.242191 * revTime) + jLon - periLon;
-        meanAnom = Angle.normalizePositive(meanAnom);
-        double trueAnom = meanAnom + 2 * exc * Math.sin(meanAnom);
-        trueAnom = Angle.normalizePositive(trueAnom);
-        final double radius = axis * (1-exc*exc) / (1 + exc * Math.cos(trueAnom));
-        double helioLon = trueAnom + periLon;
-        helioLon = Angle.normalizePositive(helioLon);
+        double helioLon = getHelioLonAt(daysSinceJ2010);
 
-        final double helioLat = Math.asin(Math.sin(helioLon - ascNodeLon) * Math.sin(incl));
+        final double helioLat = Math.asin(Math.sin(helioLon - ascNodeLon) * sinIncl);
 
-        final double radiusProj = radius * Math.cos(helioLat);
-        final double lonProj = Math.atan2(Math.sin(helioLon - ascNodeLon) * Math.cos(incl), Math.cos(helioLon-ascNodeLon)) + ascNodeLon;
+        final double lonProj = Math.atan2(Math.sin(helioLon - ascNodeLon) * cosIncl, Math.cos(helioLon-ascNodeLon)) + ascNodeLon;
 
-        final EclipticCoordinates helioCoords = EclipticCoordinates.of(Angle.normalizePositive(lonProj), helioLat);
-        return new DatedPlanetInfo(radius, helioLon, radiusProj, helioCoords);
+        return EclipticCoordinates.of(Angle.normalizePositive(lonProj), helioLat);
     }
 
-    /**
-     * Data object which contains information about a planet at a given time.
-     */
-    public static final class DatedPlanetInfo{
-        private final double distanceFromSun;
-        private final double helioLon;
-        private final double eclipticRadius;
-        private final EclipticCoordinates heliocentric;
 
-        /**
-         * Constructor for a data object containing information about a planet at a given time.
-         * @param distanceFromSun distance from the sun at time
-         * @param helioLon heliocentric ecliptic longitude at time
-         * @param eclipticRadius ecliptic radius at time
-         * @param heliocentric heliocentric ecliptic coordinates at time
-         */
-        public DatedPlanetInfo(double distanceFromSun, double helioLon, double eclipticRadius, EclipticCoordinates heliocentric) {
-            this.distanceFromSun = distanceFromSun;
-            this.helioLon = helioLon;
-            this.eclipticRadius = eclipticRadius;
-            this.heliocentric = heliocentric;
-        }
-
-        /**
-         * Returns distance from the sun of planet at given time
-         * @return distance from sun at given time
-         */
-        public double getDistanceFromSun() {
-            return distanceFromSun;
-        }
-
-        /**
-         * Returns the heliocentric ecliptic longitude of the planet at the given time.
-         * @return heliocentric longitude of planet at given time
-         */
-        public double getHelioLon() {
-            return helioLon;
-        }
-
-        /**
-         * Returns the ecliptic heliocentric coordinates of the planet at a given time.
-         * @return heliocentric coordinate of planet at given time
-         */
-        public EclipticCoordinates getHeliocentricCoordinates() {
-            return heliocentric;
-        }
-
-        /**
-         * Returns the ecliptic radius of the planet at the given time.
-         * @return ecliptic radius at given time.
-         */
-        public double getEclipticRadius() {
-            return eclipticRadius;
-        }
-    }
 
 }
