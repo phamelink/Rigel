@@ -72,25 +72,24 @@ public enum PlanetModel implements CelestialObjectModel<Planet>{
         this.theta0 = theta0;
         this.magnitude = magnitude;
         this.revTimeCorrected = Angle.TAU / (365.242191 * revTime);
-        this.sinIncl = Math.sin(incl);
-        this.cosIncl = Math.cos(incl);
+        this.sinIncl = Math.sin(this.incl);
+        this.cosIncl = Math.cos(this.incl);
     }
 
     @Override
     public Planet at(double daysSinceJ2010, EclipticToEquatorialConversion eclipticToEquatorialConversion) {
-        final double R = EARTH.getRadiusFromSunAt(daysSinceJ2010);
-        final double L = EARTH.getHelioLonAt(daysSinceJ2010);
+        double R = EARTH.getRadiusFromSunAt(daysSinceJ2010);
+        double L = EARTH.getHelioLonAt(daysSinceJ2010);
 
-        final double r = this.getRadiusFromSunAt(daysSinceJ2010);
-        final double l = this.getHelioLonAt(daysSinceJ2010);
-        final double lP = this.getHelioCoordsAt(daysSinceJ2010).lon();
-        final double helioLat = this.getHelioCoordsAt(daysSinceJ2010).lat();
-        final double rP = r * Math.cos(helioLat);
-        System.out.println(r + " ¦ " +l + " ¦ " +rP + " ¦ " +lP + " ¦ " +helioLat + " ¦ " +R + " ¦ " +L + " ¦ " );
-        final EclipticCoordinates geocentricCoord;
+        double r = this.getRadiusFromSunAt(daysSinceJ2010);
+        double l = this.getHelioLonAt(daysSinceJ2010);
+        double lP = this.getHelioCoordsAt(daysSinceJ2010).lon();
+        double helioLat = this.getHelioCoordsAt(daysSinceJ2010).lat();
+        double rP = r * Math.cos(helioLat);
 
-        final double lambda;
-        final double expression1 = R * Math.sin(lP - L);
+        double lambda;
+        double expression1 = R * Math.sin(lP - L);
+
         if(axis >= 1){
             //Outer Planets
             lambda = lP + Math.atan2(expression1 , (rP - R * Math.cos(lP - L)));
@@ -99,16 +98,16 @@ public enum PlanetModel implements CelestialObjectModel<Planet>{
             lambda = Math.PI + L + Math.atan2(rP * Math.sin(L - lP) , (R - rP * Math.cos(L - lP)));
         }
 
-        final double beta = Math.atan(rP * Math.tan(helioLat) * Math.sin(lambda - lP) / expression1);
+        double beta = Math.atan(rP * Math.tan(helioLat) * Math.sin(lambda - lP) / expression1);
 
-        geocentricCoord = EclipticCoordinates.of(Angle.normalizePositive(lambda), beta);
+        EclipticCoordinates geocentricCoord = EclipticCoordinates.of(Angle.normalizePositive(lambda), beta);
 
-        final double rho = Math.sqrt(Math.abs(R*R + r*r - 2 * R * r * Math.cos(l - L) * Math.cos(helioLat)));
+        double rho = Math.sqrt(Math.abs(R*R + r*r - 2 * R * r * Math.cos(l - L) * Math.cos(helioLat)));
 
-        final double angularSize = theta0 / rho;
+        double angularSize = theta0 / rho;
 
-        final double phase = ((1 + Math.cos(Angle.normalizePositive(lambda) - l)) / 2);
-        final double apparentMagnitude = magnitude + 5 * Math.log10(r*rho / Math.sqrt(phase));
+        double phase = ((1 + Math.cos(Angle.normalizePositive(lambda) - l)) / 2);
+        double apparentMagnitude = magnitude + 5 * Math.log10(r*rho / Math.sqrt(phase));
         return new Planet(name, eclipticToEquatorialConversion.apply(geocentricCoord), (float) Angle.ofArcsec(angularSize), (float) apparentMagnitude);
     }
 
@@ -138,7 +137,6 @@ public enum PlanetModel implements CelestialObjectModel<Planet>{
     private double getTrueAnomalyAt(double daysSinceJ2010){
         double meanAnom = revTimeCorrected * daysSinceJ2010 + jLon - periLon;
         meanAnom = Angle.normalizePositive(meanAnom);
-        System.out.println( meanAnom);
         double trueAnom = meanAnom + 2 * exc * Math.sin(meanAnom);
         return Angle.normalizePositive(trueAnom);
     }
@@ -153,14 +151,10 @@ public enum PlanetModel implements CelestialObjectModel<Planet>{
     private EclipticCoordinates getHelioCoordsAt(double daysSinceJ2010){
 
         double helioLon = getHelioLonAt(daysSinceJ2010);
-
-        final double helioLat = Math.asin(Math.sin(helioLon - ascNodeLon) * sinIncl);
-
-        final double lonProj = Math.atan2(Math.sin(helioLon - ascNodeLon) * cosIncl, Math.cos(helioLon-ascNodeLon)) + ascNodeLon;
+        double helioLat = Math.asin(Math.sin(helioLon - ascNodeLon) * sinIncl);
+        double lonProj = Math.atan2(Math.sin(helioLon - ascNodeLon) * cosIncl, Math.cos(helioLon-ascNodeLon)) + ascNodeLon;
 
         return EclipticCoordinates.of(Angle.normalizePositive(lonProj), helioLat);
     }
-
-
 
 }
