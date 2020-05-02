@@ -19,6 +19,7 @@ public final class StarCatalogue {
     // key->Asterism
     // value->List of integer that represent the indices of the stars composing them.
     private final Map<Asterism, List<Integer>> asterismMap;
+    private final Map<Star, Integer> starId;
 
 
     /**
@@ -29,13 +30,18 @@ public final class StarCatalogue {
      */
     public StarCatalogue(List<Star> stars, List<Asterism> asterisms) throws IllegalArgumentException{
         Map<Asterism, List<Integer>> map = new HashMap<>();
+        starId = new HashMap<>();
+        for (int i = 0; i < stars.size(); i++) {
+            starId.put(stars.get(i), i);
+        }
+
         for (Asterism asterism : asterisms) {
             List<Integer> indices = new ArrayList<>();
-            for (Star star : asterism.stars()) {
-                Preconditions.checkArgument(stars.contains(star));
-                indices.add(stars.indexOf(star));
+            for(Star star : asterism.stars()){
+                Preconditions.checkArgument(starId.containsKey(star));
+                indices.add(starId.get(star));
             }
-            map.put(asterism, indices);
+            map.put(asterism, Collections.unmodifiableList(indices));
         }
         this.stars = List.copyOf(stars);
         asterismMap = Map.copyOf(map);
@@ -46,7 +52,7 @@ public final class StarCatalogue {
      * @return list of stars of the catalogue
      */
     public List<Star> stars() {
-        return Collections.unmodifiableList(stars);
+        return stars;
     }
 
     /**
@@ -54,7 +60,7 @@ public final class StarCatalogue {
      * @return set of asterisms of the catalogue
      */
     public Set<Asterism> asterisms() {
-        return Set.copyOf(asterismMap.keySet());
+        return asterismMap.keySet();
     }
 
     /**
@@ -69,13 +75,17 @@ public final class StarCatalogue {
 
     }
 
+
+
+
+
+
     /**
      * StarCatalogue.Builder
      */
     public final static class Builder {
-        List<Star> stars;
-        List<Asterism> asterisms;
-        Map<Integer, Star> hipparcosIdMap;
+        final List<Star> stars;
+        final List<Asterism> asterisms;
 
         /**
          * Default Builder constructor
@@ -83,7 +93,6 @@ public final class StarCatalogue {
         public Builder() {
             this.stars = new ArrayList<>();
             this.asterisms = new ArrayList<>();
-            this.hipparcosIdMap = new HashMap<>();
         }
 
         /**
@@ -95,7 +104,6 @@ public final class StarCatalogue {
          */
         public Builder addStar(Star star) {
             stars.add(star);
-            if (star.hipparcosId() != 0) hipparcosIdMap.put(star.hipparcosId(), star);
             return this;
         }
 
@@ -139,7 +147,7 @@ public final class StarCatalogue {
          */
         public Builder loadFrom(InputStream inputStream, Loader loader) throws IOException {
             try (InputStream input = inputStream) {
-                loader.load(inputStream, this);
+                loader.load(input, this);
                 return this;
             }
         }
@@ -153,37 +161,6 @@ public final class StarCatalogue {
             return new StarCatalogue(stars, asterisms);
         }
 
-        /**
-         * Get a Star from the catalog build by its hipparcos id
-         *
-         * @param id : (int) hipparcos id
-         * @return (Star) corresponding star
-         */
-        public Star getStarById(int id) {
-            if (!hipparcosIdMap.containsKey(id)) return null;
-            return hipparcosIdMap.get(id);
-
-        }
-
-        /**
-         * Builds a StarCatalogue given 2 filepaths for stars and asterisms.
-         * @param starsFile : (String) Path of CSV star information
-         * @param asterismsFile : (String) Path of asterism text file
-         * @return (StarCatalogue) Catlogue build from the given files
-         */
-        public StarCatalogue buildFromFiles(String starsFile, String asterismsFile) {
-            try (InputStream starStream = getClass().getResourceAsStream(starsFile);
-                 InputStream asterismStream = getClass().getResourceAsStream(asterismsFile)) {
-
-                return this.loadFrom(starStream, HygDatabaseLoader.INSTANCE)
-                        .loadFrom(asterismStream, AsterismLoader.INSTANCE).build();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            }
-
-        }
     }
 
     /**
@@ -191,7 +168,7 @@ public final class StarCatalogue {
      * adds them to the star catalogue being built by builder
      */
     public interface Loader {
-        public abstract void load(InputStream inputStream, Builder builder) throws IOException;
+        void load(InputStream inputStream, Builder builder) throws IOException;
     }
 
 }

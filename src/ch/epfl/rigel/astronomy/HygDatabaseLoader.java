@@ -28,17 +28,8 @@ public enum HygDatabaseLoader implements StarCatalogue.Loader {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.US_ASCII))) {
             reader.readLine();
             String s;
-            int line = 0;
             while ((s = reader.readLine()) != null) {
-                ++line;
                 String[] values = s.split(",");
-                int hipID;
-                try {
-                    hipID = Integer.parseInt(values[ColumnNames.HIP.ordinal()]);
-                } catch (NumberFormatException e) {
-                    System.err.println("Defaulting to 0 for HPC ID on line " + line);
-                    hipID = 0;
-                }
 
                 String name;
                 if (!values[ColumnNames.PROPER.ordinal()].isEmpty()) {
@@ -56,27 +47,32 @@ public enum HygDatabaseLoader implements StarCatalogue.Loader {
                 EquatorialCoordinates coord = EquatorialCoordinates.of(
                         Double.parseDouble(values[ColumnNames.RARAD.ordinal()]),
                         Double.parseDouble(values[ColumnNames.DECRAD.ordinal()]));
-
-                float magnitude;
-                try {
-                    magnitude = (float) Double.parseDouble(values[ColumnNames.MAG.ordinal()]);
-                } catch (NumberFormatException e) {
-                    System.err.println("Defaulting to 0 for MAGNITUDE on line " + line);
-                    magnitude = 0;
-                }
-
-                float colorIndex;
-                try {
-                    colorIndex = (float) Double.parseDouble(values[ColumnNames.CI.ordinal()]);
-                } catch (NumberFormatException e) {
-                    System.err.println("Defaulting to 0 for COLOR INDEX on line " + line);
-                    colorIndex = 0;
-                }
+                int hipID = parseIntColumn(ColumnNames.HIP, values);
+                float magnitude = parseFloatColumn(ColumnNames.MAG, values);
+                float colorIndex = parseFloatColumn(ColumnNames.CI, values);
 
 
                 builder.addStar(new Star(hipID, name, coord, magnitude, colorIndex));
             }
 
+        }
+    }
+
+    private int parseIntColumn(ColumnNames column, String[] values){
+        String value = values[column.ordinal()];
+        if(value.equals("")){
+            return 0;
+        }else{
+            return Integer.parseInt(value);
+        }
+    }
+
+    private float parseFloatColumn(ColumnNames column, String[] values){
+        String value = values[column.ordinal()];
+        if(value.equals("")){
+             return 0f;
+        }else{
+            return Float.parseFloat(value);
         }
     }
 
