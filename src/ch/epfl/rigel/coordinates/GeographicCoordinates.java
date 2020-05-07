@@ -31,7 +31,7 @@ public final class GeographicCoordinates extends SphericalCoordinates {
      * @return GeographicCoordinates of longitude lonDeg and latitude latDeg
      */
     public static GeographicCoordinates ofDeg(double lonDeg, double latDeg){
-        Preconditions.checkArgument(isValidLatDeg(latDeg)|| isValidLonDeg(lonDeg));
+        Preconditions.checkArgument(isValidLatDeg(latDeg) && isValidLonDeg(lonDeg));
 
         return new GeographicCoordinates(Angle.ofDeg(lonDeg),Angle.ofDeg(latDeg));
     }

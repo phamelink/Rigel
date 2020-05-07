@@ -33,7 +33,8 @@ public final class Star extends CelestialObject {
         super(name, equatorialPos, STAR_ANGULAR_SIZE, magnitude);
         Preconditions.checkArgument(hipparcosId >= 0);
         this.hipparcosId = hipparcosId;
-        this.temperature = (int) Math.floor(4600d * (1 / (0.92 * (float) Preconditions.checkInInterval(COLOR_INDEX_INTERVAL, colorIndex) + 1.7) + 1 / (0.92 * colorIndex + 0.62)));;
+        double colorCorrected = 0.92 * (float) Preconditions.checkInInterval(COLOR_INDEX_INTERVAL, colorIndex);
+        this.temperature = (int) (4600d * (1 / (colorCorrected + 1.7) + 1 / (colorCorrected + 0.62)));
     }
 
     /**
