@@ -18,7 +18,7 @@ public final class TimeAnimator extends AnimationTimer {
         this.bean = bean;
         initialDateTime = bean.getZonedDateTime();
         running = new SimpleBooleanProperty();
-        initialTime = 0;
+        accelerator = null;
     }
 
 
@@ -32,18 +32,14 @@ public final class TimeAnimator extends AnimationTimer {
      */
     @Override
     public void handle(long now) {
-        if (initialTime == 0) {
-            initialTime = now;
-        } else {
-            ZonedDateTime newTime = accelerator.adjust(initialDateTime, Math.abs(now - initialTime));
-            bean.setZonedDateTime(newTime);
-            System.out.println(newTime);
-        }
+        ZonedDateTime newTime = accelerator.adjust(initialDateTime, now - initialTime);
+        bean.setZonedDateTime(newTime);
     }
 
     @Override
     public void start() {
         super.start();
+        initialTime = System.nanoTime();
         setRunning(true);
     }
 

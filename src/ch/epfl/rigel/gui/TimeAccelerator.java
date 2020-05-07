@@ -38,6 +38,7 @@ public interface TimeAccelerator {
                 initialSimulatedTime.plusNanos(acceleration * realTimeElapsed);
     }
 
+    //TODO: find better way to accelerate with a frequency in s^-1 and realTimeElapsed in ns
     /**
      * returns a discrete time acceleration according to the advancement frequency and the discrete step of simulated time
      * @param v advancement frequency of simulated time
@@ -46,6 +47,6 @@ public interface TimeAccelerator {
      */
     static TimeAccelerator discrete(int v, Duration step) {
         return (initialSimulatedTime, realTimeElapsed) ->
-                initialSimulatedTime.plus(step.multipliedBy(Math.round(v * realTimeElapsed)));
+            initialSimulatedTime.plus(step.multipliedBy((long)Math.floor(v * 0.000000001 * realTimeElapsed)));
     }
 }

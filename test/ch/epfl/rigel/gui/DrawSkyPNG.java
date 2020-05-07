@@ -54,6 +54,7 @@ public class DrawSkyPNG extends Application {
 
             painter.clear();
             painter.drawStars(sky, projection, planeToCanvas);
+            painter.drawHorizon(projection, planeToCanvas);
 
             WritableImage fxImage =
                     canvas.snapshot(null, null);
