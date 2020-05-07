@@ -173,8 +173,10 @@ public class SkyCanvasPainter {
         gc.setStroke(Color.RED);
         gc.setLineWidth(2);
         CartesianCoordinates fromProjection = projection.circleCenterForParallel(HorizontalCoordinates.ofDeg(0,0));
+        System.out.println("from projection: " + fromProjection.toString());
         double projRadius = Math.abs(projection.circleRadiusForParallel(HorizontalCoordinates.ofDeg(0,0)));
         Point2D horizonCenter = planeToCanvas.transform(fromProjection.x() , fromProjection.y());
+        System.out.println("from projection transformed: " + horizonCenter.toString());
         double radius = planeToCanvas.deltaTransform(projRadius, 0).getX();
         gc.strokeOval(horizonCenter.getX() - radius, horizonCenter.getY() - radius ,radius * 2, radius * 2);
 
@@ -224,13 +226,13 @@ public class SkyCanvasPainter {
         for (int i = 0; i < objectCount; i++) {
             CelestialObject toDraw = objects.get(i);
             double diameter = planeToCanvas.deltaTransform(getCelestialObjectDiameter(toDraw, projection), 0).getX();
-            /*
+
             if (toDraw instanceof Star) gc.setFill(BlackBodyColor.colorForTemperature(((Star) toDraw).colorTemperature()));
             else if (toDraw instanceof Planet) gc.setFill(Color.LIGHTGRAY);
             else if (toDraw instanceof Moon) gc.setFill(Color.WHITE); //TODO bad practice
 
 
-             */
+
             Point2D position = new Point2D(transformedPoints[2*i], transformedPoints[2*i + 1]);
             drawCenteredCiruclarBody(position, diameter); //TODO rewrite this method here internally, never used elsewhere
         }

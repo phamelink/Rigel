@@ -24,8 +24,11 @@ public final class DateTimeBean {
      */
     public DateTimeBean () {
         this.date = new SimpleObjectProperty<>();
+        date.set(null);
         this.time = new SimpleObjectProperty<>();
+        time.set(null);
         this.zoneId = new SimpleObjectProperty<>();
+        zoneId.set(null);
     }
 
     /**
