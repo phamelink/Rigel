@@ -5,6 +5,8 @@ import ch.epfl.rigel.coordinates.CartesianCoordinates;
 import ch.epfl.rigel.coordinates.HorizontalCoordinates;
 import ch.epfl.rigel.coordinates.StereographicProjection;
 import ch.epfl.rigel.math.Angle;
+import ch.epfl.rigel.math.ClosedInterval;
+import javafx.beans.binding.Binding;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.DoubleProperty;
@@ -12,6 +14,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableDoubleValue;
 import javafx.beans.value.ObservableObjectValue;
+import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.transform.Transform;
@@ -22,9 +25,12 @@ import java.util.Optional;
 
 public class SkyCanvasManager {
 
-    private static final double CANVAS_WIDTH = 1900;
-    private static final double CANVAS_HEIGHT = 1000;
+    private static final double CANVAS_WIDTH = 800;
+    private static final double CANVAS_HEIGHT = 600;
     private static final TimeAccelerator DEFAULT_ACCELERATOR = NamedTimeAccelerator.TIMES_1.getAccelerator();
+    private static final float ZOOM_FACTOR = 0.1f;
+    private static final ClosedInterval FOV_BOUND = ClosedInterval.of(0, 180);
+
 
 
     private DateTimeBean dateTimeBean;
@@ -56,6 +62,8 @@ public class SkyCanvasManager {
     public ObservableDoubleValue mouseAzDeg;
     public ObservableDoubleValue mouseAltDeg;
 
+    private CartesianCoordinates mouseCoordinates;
+
 
 
     public SkyCanvasManager(StarCatalogue starCatalogue, DateTimeBean dateTimeBean, ObserverLocationBean observerLocation, ViewingParametersBean viewingParameters) {
@@ -70,9 +78,8 @@ public class SkyCanvasManager {
         //Create bindings
         projection = Bindings.createObjectBinding(() -> new StereographicProjection(viewingParameters.getCenter()), viewingParameters.centerProperty());
 
-        observedSky = Bindings.createObjectBinding(() -> new ObservedSky(this.dateTimeBean.getZonedDateTime(),
-                        this.observerLocation.getCoordinates(), this.projection.get(), starCatalogue),
-                        this.dateTimeBean.dateProperty(), this.dateTimeBean.timeProperty(),
+        observedSky = Bindings.createObjectBinding(() ->new ObservedSky(this.dateTimeBean.getZonedDateTime(),
+                        this.observerLocation.getCoordinates(), this.projection.get(), starCatalogue),this.dateTimeBean.dateProperty(), this.dateTimeBean.timeProperty(),
                         this.dateTimeBean.zoneIdProperty(), this.observerLocation.coordinatesProperty(),
                         this.projection);
 
@@ -81,11 +88,12 @@ public class SkyCanvasManager {
                 viewingParameters.fieldOfViewDegProperty());
 
         planeToCanvas = Bindings.createObjectBinding(() -> Transform.affine(dilationFactor.get(), 0, 0, - dilationFactor.get(),
-                canvas.get().getWidth() / 2,canvas.get().getHeight() / 2) ,canvas, dilationFactor );
+                canvas.get().getWidth() / 2,canvas.get().getHeight() / 2), canvas.get().widthProperty(), canvas.get().heightProperty(), dilationFactor );
 
         //Mouse listeners
-        mousePosition = new SimpleObjectProperty<>(CartesianCoordinates.of(0,0));
-        canvas.get().setOnMouseMoved((e) -> mousePosition = new SimpleObjectProperty<>(CartesianCoordinates.of(e.getX(), e.getY())));
+        mouseCoordinates = CartesianCoordinates.of(0,0);
+        mousePosition = Bindings.createObjectBinding(() -> mouseCoordinates, mou)
+        canvas.get().setOnMouseMoved((e) -> {System.out.println("Mouse moved"); mouseCoordinates = CartesianCoordinates.of(e.getX(), e.getY());});
         canvas.get().setOnMousePressed((e) -> { if(e.isPrimaryButtonDown()) canvas.get().requestFocus(); });
 
         //Continue bindings
@@ -108,16 +116,22 @@ public class SkyCanvasManager {
         this.skyCanvasPainter = new SimpleObjectProperty<>(new SkyCanvasPainter(this.canvas.get()));
         this.timeAnimator = new SimpleObjectProperty<>(new TimeAnimator(this.dateTimeBean));
         this.timeAnimator.get().setAccelerator(DEFAULT_ACCELERATOR);
-        this.dateTimeBean.dateProperty().addListener((p, o, n ) -> this.skyCanvasPainter.get().drawAll(observedSky.get(), projection.get(), planeToCanvas.get()));
+        observedSky.addListener((p,o,n) -> refreshCanvas());
+        planeToCanvas.addListener((p,o,n) -> refreshCanvas());
 
 
         canvas.get().setOnScroll((e) -> {
             if(Math.abs(e.getDeltaX()) >= Math.abs(e.getDeltaY())){
-                viewingParameters.setFieldOfViewDeg( viewingParameters.getFieldOfViewDeg() + e.getDeltaX());
+                viewingParameters.setFieldOfViewDeg(FOV_BOUND.clip(viewingParameters.getFieldOfViewDeg() + ZOOM_FACTOR * e.getDeltaX()));
             }else{
-                viewingParameters.setFieldOfViewDeg( viewingParameters.getFieldOfViewDeg() + e.getDeltaY());
+                viewingParameters.setFieldOfViewDeg(FOV_BOUND.clip(viewingParameters.getFieldOfViewDeg() + ZOOM_FACTOR * e.getDeltaY()));
             }
         });
+
+    }
+
+    public void refreshCanvas(){
+        skyCanvasPainter.get().drawAll(observedSky.get(), projection.get(), planeToCanvas.get());
     }
 
     public Canvas canvas() {

@@ -195,12 +195,14 @@ public class SkyCanvasPainter {
      * @param planeToCanvas Transform used
      */
     public void drawAll(ObservedSky sky, StereographicProjection projection, Transform planeToCanvas){
+        System.out.println("painting");
         clear();
         drawStars(sky, projection, planeToCanvas);
         drawPlanets(sky, projection, planeToCanvas);
         drawSun(sky, projection, planeToCanvas);
         drawMoon(sky, projection, planeToCanvas);
         drawHorizon(projection, planeToCanvas);
+
     }
 
     /*
