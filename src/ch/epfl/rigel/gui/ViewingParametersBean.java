@@ -16,6 +16,10 @@ public class ViewingParametersBean {
         this.center = new SimpleObjectProperty<>(hc);
     }
 
+    public ViewingParametersBean() {
+        this(68.4, HorizontalCoordinates.ofDeg(0,0));
+    }
+
     public void setFieldOfViewDeg(double fieldOfViewDeg) {
         this.fieldOfViewDeg.set(fieldOfViewDeg);
     }
@@ -24,11 +28,11 @@ public class ViewingParametersBean {
         this.center.set(center);
     }
 
-    public double getFieldOfViewDegProperty() {
+    public double getFieldOfViewDeg() {
         return fieldOfViewDeg.get();
     }
 
-    public DoubleProperty fieldOfViewDegPropertyProperty() {
+    public DoubleProperty fieldOfViewDegProperty() {
         return fieldOfViewDeg;
     }
 

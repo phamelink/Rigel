@@ -33,5 +33,5 @@ public class Main extends Application {
         primaryStage.setMinWidth(800);
     }
 
-    private HBox controlBar
+    //private HBox controlBar
 }
