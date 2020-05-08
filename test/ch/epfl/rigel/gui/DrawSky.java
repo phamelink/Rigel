@@ -66,19 +66,16 @@ public final class DrawSky extends Application {
 
             final long[] time = {0};
             final Point2D[] lastPoint = {Point2D.ZERO};
-            Timeline refresh = new Timeline(new KeyFrame(Duration.millis(REFRESH_RATE), new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent actionEvent) {
-                    StereographicProjection projection =
-                            new StereographicProjection(projCenter[0]);
-                    ZonedDateTime current = when.plusMinutes((time[0]));
-                    ObservedSky sky =
-                            new ObservedSky(current, where[0], projection, catalogue);
+            Timeline refresh = new Timeline(new KeyFrame(Duration.millis(REFRESH_RATE), actionEvent -> {
+                StereographicProjection projection =
+                        new StereographicProjection(projCenter[0]);
+                ZonedDateTime current = when.plusMinutes((time[0]));
+                ObservedSky sky =
+                        new ObservedSky(current, where[0], projection, catalogue);
 
-                    painter.clear();
-                    painter.drawAll(sky, projection, planeToCanvas);
-                    ++time[0];
-                }
+                painter.clear();
+                painter.drawAll(sky, projection, planeToCanvas);
+                ++time[0];
             }));
 
 
