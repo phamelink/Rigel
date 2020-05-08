@@ -22,7 +22,7 @@ public final class UseSkyCanvasManager extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) throws IOException {
+    public void start(Stage primaryStage) throws IOException, InterruptedException {
         try (InputStream hs = resourceStream("/hygdata_v3.csv")) {
             StarCatalogue catalogue = new StarCatalogue.Builder()
                     .loadFrom(hs, HygDatabaseLoader.INSTANCE)
@@ -53,7 +53,7 @@ public final class UseSkyCanvasManager extends Application {
             canvasManager.objectUnderMouseProperty().addListener(
                     (p, o, n) -> {if (n != null){ System.out.println(n); }else{
                         System.out.println("none");} });
-           // canvasManager.mousePositionProperty().addListener((p, o, n) -> System.out.println(p.getValue()));
+            canvasManager.mousePositionInPlaneProperty().addListener((p, o, n) -> System.out.println(p.getValue()));
             //canvasManager.getTimeAnimator().setAccelerator(NamedTimeAccelerator.TIMES_3000.getAccelerator());
             //canvasManager.getTimeAnimator().start();
             //System.out.println(canvasManager.observedSkyProperty().get().stars());
@@ -71,6 +71,7 @@ public final class UseSkyCanvasManager extends Application {
             primaryStage.show();
 
             sky.requestFocus();
+
         }
     }
 }
