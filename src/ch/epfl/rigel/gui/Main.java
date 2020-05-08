@@ -2,18 +2,28 @@ package ch.epfl.rigel.gui;
 
 import ch.epfl.rigel.coordinates.GeographicCoordinates;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import javafx.util.converter.LocalTimeStringConverter;
 import javafx.util.converter.NumberStringConverter;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.SecurityPermission;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.UnaryOperator;
 
 public class Main extends Application {
@@ -36,7 +46,7 @@ public class Main extends Application {
      * @throws Exception if something goes wrong
      */
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage primaryStage) throws IOException {
         BorderPane bp = new BorderPane();
 
         primaryStage.setTitle("Rigel");
@@ -52,15 +62,17 @@ public class Main extends Application {
         primaryStage.show();
     }
 
-    private HBox controlBar() {
+    private HBox controlBar() throws IOException {
         HBox controlBar = new HBox();
         Separator separator = new Separator(Orientation.VERTICAL);
         HBox obsPosBox = obsPosBox();
+        HBox obsInstBox = obsInstBox();
+        HBox accBox = accBox();
 
 
 
 
-        controlBar.getChildren().addAll(obsPosBox, separator);
+        controlBar.getChildren().addAll(obsPosBox, new Separator(Orientation.VERTICAL), obsInstBox, new Separator(Orientation.VERTICAL), accBox);
         controlBar.setStyle("-fx-spacing: 4; -fx-padding: 4;");
         return controlBar;
     }
@@ -71,20 +83,21 @@ public class Main extends Application {
         Label lonLabel = new Label("Longitude (°) :");
         Label latLabel = new Label("Latitude (°) :");
 
-        TextField textFieldLon = new TextField("6,57");
-        textFieldLon.setStyle("-fx-pref-width: 60; -fx-alignment: baseline-right;");
-        TextFormatter<Number> textFormatterLon = textFormatter("lon");
-        textFieldLon.setTextFormatter(textFormatterLon);
+        TextField lonTextField = new TextField();
+        lonTextField.setStyle("-fx-pref-width: 60; -fx-alignment: baseline-right;");
+        TextFormatter<Number> lonTextFormatter = textFormatter("lon");
+        lonTextField.setTextFormatter(lonTextFormatter);
+        lonTextField.setText("6,57");
 
-        TextField textFieldLat = new TextField();
-        textFieldLat.setStyle("-fx-pref-width: 60; -fx-alignment: baseline-right;");
-        TextFormatter<Number> textFormatterLat = textFormatter("lat");
-        textFieldLat.setTextFormatter(textFormatterLat);
-        textFieldLat.setText("46,52");
+        TextField latTextField = new TextField();
+        latTextField.setStyle("-fx-pref-width: 60; -fx-alignment: baseline-right;");
+        TextFormatter<Number> latTextFormatter = textFormatter("lat");
+        latTextField.setTextFormatter(latTextFormatter);
+        latTextField.setText("46,52");
 
-        //To obtain value: textFormatterLat.getValue()
+        //To obtain value: latTextFormatter.getValue()
 
-        observationPosBox.getChildren().addAll(lonLabel, textFieldLon, latLabel, textFieldLat);
+        observationPosBox.getChildren().addAll(lonLabel, lonTextField, latLabel, latTextField);
         observationPosBox.setStyle("-fx-spacing: inherit; -fx-alignment: baseline-left;");
 
         return observationPosBox;
@@ -118,8 +131,79 @@ public class Main extends Application {
 
         Label dateLabel = new Label("Date :");
 
+        DatePicker datePicker = new DatePicker(LocalDate.now());
+        datePicker.setStyle("-fx-pref-width: 120;");
+
+        Label timeLabel = new Label("Heure :");
+
+        TextField timeTextField = new TextField();
+        timeTextField.setStyle("-fx-pref-width: 75; -fx-alignment: baseline-right;");
+
+        //time formatter
+        DateTimeFormatter hmsFormatter =
+                DateTimeFormatter.ofPattern("HH:mm:ss");
+        LocalTimeStringConverter stringConverter =
+                new LocalTimeStringConverter(hmsFormatter, hmsFormatter);
+        TextFormatter<LocalTime> timeFormatter =
+                new TextFormatter<>(stringConverter);
+
+        timeTextField.setTextFormatter(timeFormatter);
+        //to get local time update: timeFormatter.getValue()
+
+        ComboBox<ZoneId> zoneIdComboBox = new ComboBox<>();
+
+        zoneIdComboBox.setItems(allSortedZoneIds());
+        zoneIdComboBox.setId(ZoneId.systemDefault().getId());
+        zoneIdComboBox.setStyle("-fx-pref-width: 180;");
+
+        obsIntBox.getChildren().addAll(dateLabel, datePicker, timeLabel, timeTextField, zoneIdComboBox);
         obsIntBox.setStyle("-fx-spacing: inherit; -fx-alignment: baseline-left;");
 
         return obsIntBox;
+    }
+
+    private ObservableList<ZoneId> allSortedZoneIds() {
+        ObservableList<ZoneId> zoneIds = FXCollections.observableArrayList();
+        List<String> zoneIdsString = new ArrayList<>(ZoneId.getAvailableZoneIds());
+        zoneIdsString.sort(String::compareTo);
+        for (String s : zoneIdsString) {
+            zoneIds.add(ZoneId.of(s));
+        }
+        return zoneIds;
+    }
+
+    private HBox accBox() throws IOException {
+        HBox accBox = new HBox();
+
+        ChoiceBox<NamedTimeAccelerator> acceleratorChoiceBox = new ChoiceBox<>();
+        ObservableList<NamedTimeAccelerator> accObsList = FXCollections.observableArrayList(NamedTimeAccelerator.values());
+        acceleratorChoiceBox.setItems(accObsList);
+
+        String resetFont = "\uf0e2";
+        String playFont = "\uf04b";
+        String pauseFont = "\uf04c";
+
+        Button resetButton = new Button(resetFont);
+        Button pausePlayButton = new Button(playFont);
+
+        try (InputStream fontStream = getClass()
+                .getResourceAsStream("/Font Awesome 5 Free-Solid-900.otf")) {
+            Font fontAwesome = Font.loadFont(fontStream, 15);
+
+
+            resetButton.setFont(fontAwesome);
+            pausePlayButton.setFont(fontAwesome);
+
+            fontStream.close();
+        } catch  (IOException e) {
+            resetButton.setFont(Font.getDefault());
+            pausePlayButton.setFont(Font.getDefault());
+        }
+
+
+        accBox.getChildren().addAll(acceleratorChoiceBox, resetButton, pausePlayButton);
+        accBox.setStyle("-fx-spacing: inherit;");
+        return accBox;
+
     }
 }

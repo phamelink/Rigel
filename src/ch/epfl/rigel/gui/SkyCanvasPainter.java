@@ -195,6 +195,7 @@ public class SkyCanvasPainter {
      * @param planeToCanvas Transform used
      */
     public void drawAll(ObservedSky sky, StereographicProjection projection, Transform planeToCanvas){
+        clear();
         drawStars(sky, projection, planeToCanvas);
         drawPlanets(sky, projection, planeToCanvas);
         drawSun(sky, projection, planeToCanvas);
