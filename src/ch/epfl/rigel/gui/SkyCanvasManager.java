@@ -26,7 +26,7 @@ public class SkyCanvasManager {
 
     private static final double CANVAS_WIDTH = 800;
     private static final double CANVAS_HEIGHT = 600;
-    private static final TimeAccelerator DEFAULT_ACCELERATOR = NamedTimeAccelerator.TIMES_1.getAccelerator();
+    private static final TimeAccelerator DEFAULT_ACCELERATOR = NamedTimeAccelerator.TIMES_300.getAccelerator();
     private static final float ZOOM_FACTOR = 0.1f;
     private static final ClosedInterval FOV_BOUND = ClosedInterval.of(0, 180);
 

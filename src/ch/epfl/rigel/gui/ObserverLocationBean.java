@@ -14,7 +14,7 @@ public class ObserverLocationBean {
     public ObserverLocationBean(double lonDeg, double latDeg) {
         this.lonDeg = new SimpleDoubleProperty(lonDeg);
         this.latDeg = new SimpleDoubleProperty(latDeg);
-        this.coordinates = Bindings.createObjectBinding(() -> GeographicCoordinates.ofDeg(lonDeg, latDeg), this.lonDeg, this.latDeg);
+        this.coordinates = Bindings.createObjectBinding(() -> GeographicCoordinates.ofDeg(this.lonDeg.get(), this.latDeg.get()), this.lonDeg, this.latDeg);
     }
 
     public ObserverLocationBean() {
@@ -22,6 +22,7 @@ public class ObserverLocationBean {
     }
 
     public void setLonDeg(double lonDeg) {
+        System.out.println(lonDeg);
         this.lonDeg.set(lonDeg);
     }
 
