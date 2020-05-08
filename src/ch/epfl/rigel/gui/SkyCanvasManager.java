@@ -9,10 +9,9 @@ import ch.epfl.rigel.math.ClosedInterval;
 import javafx.beans.binding.Binding;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.ObservableDoubleValue;
+import javafx.beans.value.ObservableIntegerValue;
 import javafx.beans.value.ObservableObjectValue;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
@@ -46,7 +45,7 @@ public class SkyCanvasManager {
     private ObservableObjectValue<StereographicProjection> projection;
     private ObservableObjectValue<Transform> planeToCanvas;
     private ObservableObjectValue<HorizontalCoordinates> mouseHorizontalPosition;
-    private ObservableObjectValue<CartesianCoordinates> mousePosition;
+    private ObservableObjectValue<Point2D> mousePosition;
     private ObservableObjectValue<Point2D> mousePositionInPlane;
 
 
@@ -62,7 +61,9 @@ public class SkyCanvasManager {
     public ObservableDoubleValue mouseAzDeg;
     public ObservableDoubleValue mouseAltDeg;
 
-    private CartesianCoordinates mouseCoordinates;
+    private IntegerProperty mouseX;
+    private IntegerProperty mouseY;
+
 
 
 
@@ -91,14 +92,15 @@ public class SkyCanvasManager {
                 canvas.get().getWidth() / 2,canvas.get().getHeight() / 2), canvas.get().widthProperty(), canvas.get().heightProperty(), dilationFactor );
 
         //Mouse listeners
-        mouseCoordinates = CartesianCoordinates.of(0,0);
-        mousePosition = Bindings.createObjectBinding(() -> mouseCoordinates, mou)
-        canvas.get().setOnMouseMoved((e) -> {System.out.println("Mouse moved"); mouseCoordinates = CartesianCoordinates.of(e.getX(), e.getY());});
+        mouseX = new SimpleIntegerProperty(0);
+        mouseY = new SimpleIntegerProperty(0);
+        mousePosition = Bindings.createObjectBinding(() -> new Point2D(mouseX.get(), mouseY.get()), mouseX, mouseY);
+        canvas.get().setOnMouseMoved((e) -> {mouseX.set((int) e.getX()); mouseY.set((int) e.getY());});
         canvas.get().setOnMousePressed((e) -> { if(e.isPrimaryButtonDown()) canvas.get().requestFocus(); });
 
         //Continue bindings
         mousePositionInPlane = Bindings.createObjectBinding(() ->
-                planeToCanvas.get().inverseTransform(mousePosition.get().x(),mousePosition.get().y()), mousePosition);
+                planeToCanvas.get().inverseTransform(mousePosition.get().getX(),mousePosition.get().getY()), mousePosition);
 
         mouseHorizontalPosition = Bindings.createObjectBinding(() ->
                projection.get().inverseApply(CartesianCoordinates.of(mousePositionInPlane.get().getX(),
@@ -182,11 +184,11 @@ public class SkyCanvasManager {
         return mouseHorizontalPosition;
     }
 
-    public CartesianCoordinates getMousePosition() {
+    public Point2D getMousePosition() {
         return mousePosition.get();
     }
 
-    public ObservableObjectValue<CartesianCoordinates> mousePositionProperty() {
+    public ObservableObjectValue<Point2D> mousePositionProperty() {
         return mousePosition;
     }
 

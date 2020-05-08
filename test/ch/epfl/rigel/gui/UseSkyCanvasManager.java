@@ -53,7 +53,7 @@ public final class UseSkyCanvasManager extends Application {
             canvasManager.objectUnderMouseProperty().addListener(
                     (p, o, n) -> {if (n != null){ System.out.println(n); }else{
                         System.out.println("none");} });
-            canvasManager.mousePositionProperty().addListener((p, o, n) -> System.out.println(p.getValue()));
+           // canvasManager.mousePositionProperty().addListener((p, o, n) -> System.out.println(p.getValue()));
             //canvasManager.getTimeAnimator().setAccelerator(NamedTimeAccelerator.TIMES_3000.getAccelerator());
             //canvasManager.getTimeAnimator().start();
             //System.out.println(canvasManager.observedSkyProperty().get().stars());
