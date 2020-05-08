@@ -1,6 +1,9 @@
 package ch.epfl.rigel.gui;
 
+import ch.epfl.rigel.astronomy.HygDatabaseLoader;
+import ch.epfl.rigel.astronomy.StarCatalogue;
 import ch.epfl.rigel.coordinates.GeographicCoordinates;
+import ch.epfl.rigel.coordinates.HorizontalCoordinates;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -20,6 +23,7 @@ import java.security.SecurityPermission;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,6 +31,8 @@ import java.util.List;
 import java.util.function.UnaryOperator;
 
 public class Main extends Application {
+    private static final double OBSERVATION_AZIMUTH = 180.000000000001;
+    private static final double OBSERVATION_HEIGHT = 15.0;
     public static void main(String[] args) { launch(args); }
 
 
@@ -47,6 +53,32 @@ public class Main extends Application {
      */
     @Override
     public void start(Stage primaryStage) throws IOException {
+        try (InputStream hs = getClass().getResourceAsStream(("/hygdata_v3.csv"))) {
+            StarCatalogue catalogue = new StarCatalogue.Builder()
+                    .loadFrom(hs, HygDatabaseLoader.INSTANCE)
+                    .build();
+
+            DateTimeBean dateTimeBean = new DateTimeBean();
+            dateTimeBean.setZonedDateTime(ZonedDateTime.now());
+
+            ObserverLocationBean observerLocationBean =
+                    new ObserverLocationBean();
+            observerLocationBean.setCoordinates(
+                    GeographicCoordinates.ofDeg(6.57, 46.52));
+
+            ViewingParametersBean viewingParametersBean =
+                    new ViewingParametersBean();
+            viewingParametersBean.setCenter(
+                    HorizontalCoordinates.ofDeg(180, 42));
+            viewingParametersBean.setFieldOfViewDeg(70);
+
+            SkyCanvasManager canvasManager = new SkyCanvasManager(
+                    catalogue,
+                    dateTimeBean,
+                    observerLocationBean,
+                    viewingParametersBean);
+
+        }
         BorderPane bp = new BorderPane();
 
         primaryStage.setTitle("Rigel");
@@ -54,6 +86,7 @@ public class Main extends Application {
         primaryStage.setMinWidth(800);
 
         HBox primaryBox = controlBar();
+
 
 
         bp.setTop(primaryBox);
@@ -64,13 +97,9 @@ public class Main extends Application {
 
     private HBox controlBar() throws IOException {
         HBox controlBar = new HBox();
-        Separator separator = new Separator(Orientation.VERTICAL);
         HBox obsPosBox = obsPosBox();
         HBox obsInstBox = obsInstBox();
         HBox accBox = accBox();
-
-
-
 
         controlBar.getChildren().addAll(obsPosBox, new Separator(Orientation.VERTICAL), obsInstBox, new Separator(Orientation.VERTICAL), accBox);
         controlBar.setStyle("-fx-spacing: 4; -fx-padding: 4;");
@@ -148,12 +177,13 @@ public class Main extends Application {
                 new TextFormatter<>(stringConverter);
 
         timeTextField.setTextFormatter(timeFormatter);
+        timeTextField.setText(LocalTime.now().format(hmsFormatter));
         //to get local time update: timeFormatter.getValue()
 
         ComboBox<ZoneId> zoneIdComboBox = new ComboBox<>();
 
         zoneIdComboBox.setItems(allSortedZoneIds());
-        zoneIdComboBox.setId(ZoneId.systemDefault().getId());
+        zoneIdComboBox.setValue(ZoneId.systemDefault());
         zoneIdComboBox.setStyle("-fx-pref-width: 180;");
 
         obsIntBox.getChildren().addAll(dateLabel, datePicker, timeLabel, timeTextField, zoneIdComboBox);
@@ -178,6 +208,7 @@ public class Main extends Application {
         ChoiceBox<NamedTimeAccelerator> acceleratorChoiceBox = new ChoiceBox<>();
         ObservableList<NamedTimeAccelerator> accObsList = FXCollections.observableArrayList(NamedTimeAccelerator.values());
         acceleratorChoiceBox.setItems(accObsList);
+        acceleratorChoiceBox.setValue(NamedTimeAccelerator.TIMES_1);
 
         String resetFont = "\uf0e2";
         String playFont = "\uf04b";
@@ -199,6 +230,8 @@ public class Main extends Application {
             resetButton.setFont(Font.getDefault());
             pausePlayButton.setFont(Font.getDefault());
         }
+
+        pausePlayButton.setOnAction((e) -> pausePlayButton.setText(pausePlayButton.getText() == playFont ? pauseFont : playFont));
 
 
         accBox.getChildren().addAll(acceleratorChoiceBox, resetButton, pausePlayButton);
