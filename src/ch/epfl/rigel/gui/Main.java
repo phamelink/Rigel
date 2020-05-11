@@ -1,5 +1,6 @@
 package ch.epfl.rigel.gui;
 
+import ch.epfl.rigel.astronomy.AsterismLoader;
 import ch.epfl.rigel.astronomy.HygDatabaseLoader;
 import ch.epfl.rigel.astronomy.StarCatalogue;
 import ch.epfl.rigel.coordinates.GeographicCoordinates;
@@ -70,9 +71,11 @@ public class Main extends Application {
      */
     @Override
     public void start(Stage primaryStage) throws IOException {
-        try (InputStream hs = getClass().getResourceAsStream(("/hygdata_v3.csv"))) {
+        try (InputStream hs = getClass().getResourceAsStream(("/hygdata_v3.csv"));
+             InputStream ast = getClass().getResourceAsStream("/asterisms.txt")) {
             StarCatalogue catalogue = new StarCatalogue.Builder()
                     .loadFrom(hs, HygDatabaseLoader.INSTANCE)
+                    .loadFrom(ast, AsterismLoader.INSTANCE)
                     .build();
 
             DateTimeBean dateTimeBean = new DateTimeBean();
@@ -101,6 +104,7 @@ public class Main extends Application {
             sky.widthProperty().bind(root.widthProperty());
             sky.heightProperty().bind(root.heightProperty());
 
+
             HBox primaryBox = controlBar(dateTimeBean, observerLocationBean, canvasManager);
             Pane skyPane = new Pane(sky);
             BorderPane infoBar = infoBar(viewingParametersBean, canvasManager);
@@ -112,6 +116,7 @@ public class Main extends Application {
             root.setBottom(infoBar);
 
             primaryStage.setTitle("Rigel");
+            //TODO: min width and height not respected
             primaryStage.setMinHeight(600);
             primaryStage.setMinWidth(800);
             primaryStage.setScene(new Scene(root));
@@ -252,7 +257,8 @@ public class Main extends Application {
         acceleratorChoiceBox.setValue(NamedTimeAccelerator.TIMES_1);
         //TODO: bind timeAccelerator ?
         acceleratorChoiceBox.setOnAction(event ->
-                canvasManager.getTimeAnimator().setAccelerator(acceleratorChoiceBox.getValue().getAccelerator()));
+                canvasManager.getTimeAnimator().setAccelerator(acceleratorChoiceBox.getValue().getAccelerator())
+        );
 
 
         String resetFont = "\uf0e2";
