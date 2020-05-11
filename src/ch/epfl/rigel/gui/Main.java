@@ -51,7 +51,7 @@ public class Main extends Application {
     private Font fontAwesome;
     public static void main(String[] args) { launch(args); }
 
-
+//TODO: Why are there no asterisms painted ?
 
     /**
      * The main entry point for all JavaFX applications.
