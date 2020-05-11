@@ -5,8 +5,14 @@ import ch.epfl.rigel.astronomy.StarCatalogue;
 import ch.epfl.rigel.coordinates.GeographicCoordinates;
 import ch.epfl.rigel.coordinates.HorizontalCoordinates;
 import javafx.application.Application;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.binding.StringBinding;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.value.ObservableDoubleValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Orientation;
@@ -17,6 +23,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.converter.LocalTimeStringConverter;
 import javafx.util.converter.NumberStringConverter;
@@ -32,13 +39,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.UnaryOperator;
 
+import static javafx.beans.binding.Bindings.format;
+import static javafx.beans.binding.Bindings.when;
+
 public class Main extends Application {
     private static final double DEFAULT_OBSERVATION_AZIMUTH = 180.000000000001;
     private static final double DEFAULT_OBSERVATION_ALTITUDE = 15.0;
     private static final double DEFAULT_FIELD_OF_VIEW = 100.0;
     private static final double DEFAULT_LONGITUDE = 6.57;
     private static final double DEFAULT_LATITUDE = 46.52;
-    private Font AWESOME_FONT;
+    private Font fontAwesome;
     public static void main(String[] args) { launch(args); }
 
 
@@ -73,8 +83,6 @@ public class Main extends Application {
             observerLocationBean.setCoordinates(
                     GeographicCoordinates.ofDeg(DEFAULT_LONGITUDE, DEFAULT_LATITUDE));
 
-
-
             ViewingParametersBean viewingParametersBean =
                     new ViewingParametersBean();
             viewingParametersBean.setCenter(
@@ -93,20 +101,15 @@ public class Main extends Application {
             sky.widthProperty().bind(root.widthProperty());
             sky.heightProperty().bind(root.heightProperty());
 
-            HBox primaryBox = controlBar(dateTimeBean, observerLocationBean, canvasManager.getTimeAnimator());
+            HBox primaryBox = controlBar(dateTimeBean, observerLocationBean, canvasManager);
             Pane skyPane = new Pane(sky);
-            HBox box = new HBox();
-            Button test = new Button("random coord");
-            test.setOnAction((e) -> {
-                observerLocationBean.setLonDeg(Math.random()*90);
-                observerLocationBean.setLatDeg(Math.random()*90);
-            });
-            box.getChildren().addAll(test);
+            BorderPane infoBar = infoBar(viewingParametersBean, canvasManager);
+
 
 
             root.setTop(primaryBox);
             root.setCenter(skyPane);
-            root.setBottom(box);
+            root.setBottom(infoBar);
 
             primaryStage.setTitle("Rigel");
             primaryStage.setMinHeight(600);
@@ -120,11 +123,11 @@ public class Main extends Application {
 
     }
 
-    private HBox controlBar(DateTimeBean dateTimeBean, ObserverLocationBean observerLocationBean, TimeAnimator timeAnimator) throws IOException {
+    private HBox controlBar(DateTimeBean dateTimeBean, ObserverLocationBean observerLocationBean, SkyCanvasManager canvasManager) throws IOException {
         HBox controlBar = new HBox();
         HBox obsPosBox = obsPosBox(observerLocationBean);
-        HBox obsInstBox = obsInstBox(dateTimeBean, timeAnimator);
-        HBox accBox = accBox(dateTimeBean, timeAnimator);
+        HBox obsInstBox = obsInstBox(dateTimeBean, canvasManager);
+        HBox accBox = accBox(dateTimeBean, canvasManager);
 
         controlBar.getChildren().addAll(obsPosBox, new Separator(Orientation.VERTICAL), obsInstBox, new Separator(Orientation.VERTICAL), accBox);
         controlBar.setStyle("-fx-spacing: 4; -fx-padding: 4;");
@@ -180,7 +183,7 @@ public class Main extends Application {
         return new TextFormatter<>(stringConverter, 0, degFilter);
     }
 
-    private HBox obsInstBox(DateTimeBean dateTimeBean, TimeAnimator timeAnimator) {
+    private HBox obsInstBox(DateTimeBean dateTimeBean, SkyCanvasManager canvasManager) {
         HBox obsIntBox = new HBox();
 
         Label dateLabel = new Label("Date :");
@@ -214,7 +217,7 @@ public class Main extends Application {
         zoneIdComboBox.valueProperty().bindBidirectional(dateTimeBean.zoneIdProperty());
 
         obsIntBox.getChildren().addAll(dateLabel, datePicker, timeLabel, timeTextField, zoneIdComboBox);
-        obsIntBox.disableProperty().bind(timeAnimator.getRunningProperty());
+        obsIntBox.disableProperty().bind(canvasManager.getTimeAnimator().getRunningProperty());
         obsIntBox.setStyle("-fx-spacing: inherit; -fx-alignment: baseline-left;");
 
         return obsIntBox;
@@ -230,8 +233,9 @@ public class Main extends Application {
         return zoneIds;
     }
 
-    private HBox accBox(DateTimeBean dateTimeBean, TimeAnimator timeAnimator) throws IOException {
-        Font fontAwesome;
+    //TODO: check try/catch and if we need to throw exception
+    private HBox accBox(DateTimeBean dateTimeBean, SkyCanvasManager canvasManager) throws IOException {
+
 
         try (InputStream fontStream = getClass()
                 .getResourceAsStream("/Font Awesome 5 Free-Solid-900.otf")) {
@@ -245,10 +249,11 @@ public class Main extends Application {
         ChoiceBox<NamedTimeAccelerator> acceleratorChoiceBox = new ChoiceBox<>();
         ObservableList<NamedTimeAccelerator> accObsList = FXCollections.observableArrayList(NamedTimeAccelerator.values());
         acceleratorChoiceBox.setItems(accObsList);
-        acceleratorChoiceBox.setValue(NamedTimeAccelerator.TIMES_300);
-        acceleratorChoiceBox.setOnAction(event -> {
-            timeAnimator.setAccelerator(acceleratorChoiceBox.getValue().getAccelerator());
-        });
+        acceleratorChoiceBox.setValue(NamedTimeAccelerator.TIMES_1);
+        //TODO: bind timeAccelerator ?
+        acceleratorChoiceBox.setOnAction(event ->
+                canvasManager.getTimeAnimator().setAccelerator(acceleratorChoiceBox.getValue().getAccelerator()));
+
 
         String resetFont = "\uf0e2";
         String playFont = "\uf04b";
@@ -258,15 +263,22 @@ public class Main extends Application {
         Button pausePlayButton = new Button(playFont);
 
         BooleanProperty isPlaying = new SimpleBooleanProperty(false);
-        isPlaying.bind(timeAnimator.getRunningProperty());
-        timeAnimator.setAccelerator(NamedTimeAccelerator.TIMES_300.getAccelerator());
+        isPlaying.bind(canvasManager.getTimeAnimator().getRunningProperty());
+        //timeAnimator.setAccelerator(NamedTimeAccelerator.TIMES_300.getAccelerator());
+        pausePlayButton.textProperty().bind(
+                when(isPlaying)
+                .then(pauseFont)
+                .otherwise(playFont));
+
+
+
         pausePlayButton.setOnAction(event -> {
             if (isPlaying.get()) {
-                timeAnimator.stop();
-                pausePlayButton.setText(playFont);
+                canvasManager.getTimeAnimator().stop();
+                //pausePlayButton.setText(playFont);
             } else {
-                timeAnimator.start();
-                pausePlayButton.setText(pauseFont);
+                canvasManager.getTimeAnimator().start();
+                //pausePlayButton.setText(pauseFont);
             }
         });
 
@@ -286,5 +298,35 @@ public class Main extends Application {
         accBox.setStyle("-fx-spacing: inherit;");
         return accBox;
 
+    }
+
+    private BorderPane infoBar(ViewingParametersBean viewingParametersBean, SkyCanvasManager canvasManager) {
+        BorderPane infoPane = new BorderPane();
+
+        Text fov = new Text();
+        fov.textProperty().bind(format("Champ de vue : %.1f°", viewingParametersBean.fieldOfViewDegProperty()));
+
+        BooleanBinding isObjectPresent;
+        isObjectPresent = Bindings.createBooleanBinding(() -> canvasManager.objectUnderMouse.get().isPresent(), canvasManager.objectUnderMouse);
+
+        StringBinding objectName;
+        objectName = Bindings.createStringBinding(() -> canvasManager.getObjectUnderMouse().get().info(), canvasManager.objectUnderMouseProperty());
+
+        Text objectUnderMouse = new Text();
+        objectUnderMouse.textProperty().bind(
+               when(isObjectPresent)
+                .then(objectName)
+                .otherwise("")
+        );
+
+        Text mousePosCoord = new Text();
+        mousePosCoord.textProperty().bind(format("Azimut : %.2f°, hauteur : %.2f°", canvasManager.mouseAzDegProperty(), canvasManager.mouseAltDegProperty()));
+
+        infoPane.setLeft(fov);
+        infoPane.setCenter(objectUnderMouse);
+        infoPane.setRight(mousePosCoord);
+
+        infoPane.setStyle("-fx-padding: 4; -fx-background-color: white;");
+        return infoPane;
     }
 }
