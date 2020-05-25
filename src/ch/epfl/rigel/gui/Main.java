@@ -5,6 +5,8 @@ import ch.epfl.rigel.astronomy.HygDatabaseLoader;
 import ch.epfl.rigel.astronomy.StarCatalogue;
 import ch.epfl.rigel.coordinates.GeographicCoordinates;
 import ch.epfl.rigel.coordinates.HorizontalCoordinates;
+import ch.epfl.rigel.math.ClosedInterval;
+import ch.epfl.rigel.math.Interval;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -143,14 +145,14 @@ public class Main extends Application {
 
         TextField lonTextField = new TextField();
         lonTextField.setStyle("-fx-pref-width: 60; -fx-alignment: baseline-right;");
-        TextFormatter<Number> lonTextFormatter = textFormatter("lon");
+        TextFormatter<Number> lonTextFormatter = textFormatter(GeographicCoordinates.LONGITUDE_INTERVAL);
         lonTextField.setTextFormatter(lonTextFormatter);
         lonTextFormatter.valueProperty().bindBidirectional(observerLocationBean.lonDegProperty());
 
 
         TextField latTextField = new TextField();
         latTextField.setStyle("-fx-pref-width: 60; -fx-alignment: baseline-right;");
-        TextFormatter<Number> latTextFormatter = textFormatter("lat");
+        TextFormatter<Number> latTextFormatter = textFormatter(GeographicCoordinates.LATITUDE_INTERVAL);
         latTextField.setTextFormatter(latTextFormatter);
         latTextFormatter.valueProperty().bindBidirectional(observerLocationBean.latDegProperty());
 
@@ -162,7 +164,7 @@ public class Main extends Application {
 
     }
 
-    private TextFormatter<Number> textFormatter(String lonOrLat) {
+    private TextFormatter<Number> textFormatter(Interval domain) {
         NumberStringConverter stringConverter =
                 new NumberStringConverter("#0.00");
 
@@ -173,8 +175,7 @@ public class Main extends Application {
                 double newDeg =
                         stringConverter.fromString(newText).doubleValue();
 
-                    return (GeographicCoordinates.isValidLonDeg(newDeg) && lonOrLat == "lon") ||
-                            (GeographicCoordinates.isValidLatDeg(newDeg) && lonOrLat == "lat")
+                    return domain.contains(newDeg)
                                 ? change
                                 : null;
             } catch (Exception e) {
@@ -234,8 +235,7 @@ public class Main extends Application {
         return zoneIds;
     }
 
-    //TODO: check try/catch and if we need to throw exception
-    private HBox accBox(DateTimeBean dateTimeBean, SkyCanvasManager canvasManager) throws IOException {
+    private HBox accBox(DateTimeBean dateTimeBean, SkyCanvasManager canvasManager) {
 
 
         try (InputStream fontStream = getClass()
@@ -255,7 +255,7 @@ public class Main extends Application {
         acceleratorChoiceBox.setOnAction(event ->
                 canvasManager.getTimeAnimator().setAccelerator(acceleratorChoiceBox.getValue().getAccelerator())
         );
-
+        //acceleratorChoiceBox.valueProperty().bindBidirectional(canvasManager.);
 
         String resetFont = "\uf0e2";
         String playFont = "\uf04b";
@@ -277,10 +277,8 @@ public class Main extends Application {
         pausePlayButton.setOnAction(event -> {
             if (isPlaying.get()) {
                 canvasManager.getTimeAnimator().stop();
-                //pausePlayButton.setText(playFont);
             } else {
                 canvasManager.getTimeAnimator().start();
-                //pausePlayButton.setText(pauseFont);
             }
         });
 
@@ -309,7 +307,7 @@ public class Main extends Application {
         fov.textProperty().bind(format("Champ de vue : %.1f°", viewingParametersBean.fieldOfViewDegProperty()));
 
         BooleanBinding isObjectPresent;
-        isObjectPresent = Bindings.createBooleanBinding(() -> canvasManager.objectUnderMouse.get().isPresent(), canvasManager.objectUnderMouse);
+        isObjectPresent = Bindings.createBooleanBinding(() -> canvasManager.objectUnderMouse.get().isPresent(), canvasManager.objectUnderMouseProperty());
 
         StringBinding objectName;
         objectName = Bindings.createStringBinding(() -> canvasManager.getObjectUnderMouse().get().info(), canvasManager.objectUnderMouseProperty());
