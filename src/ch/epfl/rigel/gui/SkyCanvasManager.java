@@ -1,32 +1,28 @@
 package ch.epfl.rigel.gui;
 
-import ch.epfl.rigel.astronomy.*;
+import ch.epfl.rigel.astronomy.CelestialObject;
+import ch.epfl.rigel.astronomy.ObservedSky;
+import ch.epfl.rigel.astronomy.StarCatalogue;
 import ch.epfl.rigel.coordinates.CartesianCoordinates;
 import ch.epfl.rigel.coordinates.EquatorialToHorizontalConversion;
 import ch.epfl.rigel.coordinates.HorizontalCoordinates;
 import ch.epfl.rigel.coordinates.StereographicProjection;
 import ch.epfl.rigel.math.Angle;
 import ch.epfl.rigel.math.ClosedInterval;
-import ch.epfl.rigel.math.RightOpenInterval;
-import javafx.beans.binding.Binding;
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.ObjectBinding;
-import javafx.beans.property.*;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableDoubleValue;
-import javafx.beans.value.ObservableIntegerValue;
 import javafx.beans.value.ObservableObjectValue;
-import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.transform.NonInvertibleTransformException;
 import javafx.scene.transform.Transform;
-import java.io.InputStream;
-import java.time.ZonedDateTime;
-import java.util.Collections;
+
 import java.util.Optional;
 
 public class SkyCanvasManager {
@@ -144,19 +140,19 @@ public class SkyCanvasManager {
         canvas.get().addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             switch (event.getCode()){
                 case UP:
-                    viewingParameters.setCenter(clipHCInAltBounds(HorizontalCoordinates.of(viewingParameters.getCenter().az(),viewingParameters.getCenter().alt() + MOVEMENT_DELTA)));
+                    viewingParameters.setCenter(HorizontalCoordinates.of(Angle.normalizePositive(viewingParameters.getCenter().az()), ALT_BOUND.clip(viewingParameters.getCenter().alt() + MOVEMENT_DELTA)));
                     event.consume();
                     break;
                 case DOWN:
-                    viewingParameters.setCenter(clipHCInAltBounds(HorizontalCoordinates.of(viewingParameters.getCenter().az(),viewingParameters.getCenter().alt() - MOVEMENT_DELTA)));
+                    viewingParameters.setCenter(HorizontalCoordinates.of(Angle.normalizePositive(viewingParameters.getCenter().az()), ALT_BOUND.clip(viewingParameters.getCenter().alt() - MOVEMENT_DELTA)));
                     event.consume();
                     break;
                 case LEFT:
-                    viewingParameters.setCenter(clipHCInAltBounds(HorizontalCoordinates.of(viewingParameters.getCenter().az() - MOVEMENT_DELTA ,viewingParameters.getCenter().alt())));
+                    viewingParameters.setCenter(HorizontalCoordinates.of(Angle.normalizePositive(viewingParameters.getCenter().az() - MOVEMENT_DELTA) , ALT_BOUND.clip(viewingParameters.getCenter().alt())));
                     event.consume();
                     break;
                 case RIGHT:
-                    viewingParameters.setCenter(clipHCInAltBounds(HorizontalCoordinates.of(viewingParameters.getCenter().az() + MOVEMENT_DELTA ,viewingParameters.getCenter().alt())));
+                    viewingParameters.setCenter(HorizontalCoordinates.of(Angle.normalizePositive(viewingParameters.getCenter().az() + MOVEMENT_DELTA), ALT_BOUND.clip(viewingParameters.getCenter().alt())));
                     event.consume();
                     break;
                 default:
@@ -194,8 +190,8 @@ public class SkyCanvasManager {
 
                 double deltaPlaneX = 4 * Math.atan(deltaX / (2* dilationFactor.get())) * CONTROL_FACTOR_X;
                 double deltaPlaneY = -4 * Math.atan(deltaY / (2* dilationFactorY.get())) * CONTROL_FACTOR_Y;
-
-                viewingParameters.setCenter(clipHCInAltBounds(viewingParameters.getCenter().delta(deltaPlaneX, deltaPlaneY)));
+                HorizontalCoordinates newCoords = viewingParameters.getCenter().delta(deltaPlaneX, deltaPlaneY);
+                viewingParameters.setCenter(HorizontalCoordinates.of(newCoords.az(), ALT_BOUND.clip(newCoords.alt())));
 
                 lastMouseDragPosition = nextPoint;
             }
@@ -213,10 +209,6 @@ public class SkyCanvasManager {
 
     public void refreshCanvas(){
         skyCanvasPainter.get().drawAll(observedSky.get(), projection.get(), planeToCanvas.get());
-    }
-
-    private HorizontalCoordinates clipHCInAltBounds(HorizontalCoordinates toClip){
-        return HorizontalCoordinates.of(Angle.normalizePositive(toClip.az()), ALT_BOUND.clip(toClip.alt()));
     }
 
     public Canvas canvas() {

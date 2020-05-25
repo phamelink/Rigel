@@ -31,7 +31,6 @@ public final class HorizontalCoordinates extends SphericalCoordinates {
      * @return a HorizontalCoordinates object of azimuth az and altitude alt (in rad).
      */
     public static HorizontalCoordinates of(double az, double alt){
-
         if(!isValidAz(az) || !isValidAlt(alt)) throw new IllegalArgumentException();
         return new HorizontalCoordinates(az, alt);
 
