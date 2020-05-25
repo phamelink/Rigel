@@ -9,14 +9,13 @@ import java.time.ZonedDateTime;
 
 public final class TimeAnimator extends AnimationTimer {
     private final DateTimeBean bean;
-    private final ZonedDateTime initialDateTime;
+    private ZonedDateTime initialDateTime;
     private TimeAccelerator accelerator;
     private final SimpleBooleanProperty running;
     private long initialTime;
 
     public TimeAnimator(DateTimeBean bean) {
         this.bean = bean;
-        initialDateTime = bean.getZonedDateTime();
         running = new SimpleBooleanProperty();
         accelerator = null;
     }
@@ -39,6 +38,7 @@ public final class TimeAnimator extends AnimationTimer {
     @Override
     public void start() {
         super.start();
+        initialDateTime = bean.getZonedDateTime();
         initialTime = System.nanoTime();
         setRunning(true);
     }
