@@ -11,6 +11,7 @@ import ch.epfl.rigel.math.Angle;
 import ch.epfl.rigel.math.ClosedInterval;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableDoubleValue;
@@ -29,9 +30,8 @@ public class SkyCanvasManager {
 
     private static final double CANVAS_WIDTH = 800;
     private static final double CANVAS_HEIGHT = 600;
-    private static final TimeAccelerator DEFAULT_ACCELERATOR = NamedTimeAccelerator.TIMES_1.getAccelerator();
     private static final float ZOOM_FACTOR = 0.05f;
-    private static final ClosedInterval FOV_BOUND = ClosedInterval.of(5, 180);
+    private static final ClosedInterval FOV_BOUND = ClosedInterval.of(30, 150);
     private static final double MOVEMENT_DELTA = Angle.ofDeg(1.0);
     private static final ClosedInterval ALT_BOUND = ClosedInterval.of(Angle.ofDeg(5.0), Angle.ofDeg(90.0));
     private static final double CONTROL_FACTOR_X = 1.32;
@@ -57,7 +57,7 @@ public class SkyCanvasManager {
 
     //Additional
     private ObservableObjectValue<TimeAnimator> timeAnimator;
-    private ObservableObjectValue<TimeAccelerator> timeAcc;
+    private ObjectProperty<TimeAccelerator> timeAcc;
     private ObservableDoubleValue dilationFactor;
     private ObservableDoubleValue dilationFactorY;
 
@@ -131,9 +131,10 @@ public class SkyCanvasManager {
         //Bind sky painter
         this.skyCanvasPainter = new SimpleObjectProperty<>(new SkyCanvasPainter(this.canvas.get()));
         this.timeAnimator = new SimpleObjectProperty<>(new TimeAnimator(this.dateTimeBean));
-        this.timeAnimator.get().setAccelerator(DEFAULT_ACCELERATOR);
         observedSky.addListener((p,o,n) -> refreshCanvas());
         planeToCanvas.addListener((p,o,n) -> refreshCanvas());
+        timeAcc = new SimpleObjectProperty<>();
+        timeAcc.addListener((p,o,n) -> this.timeAnimator.get().setAccelerator(n));
 
 
         //Bind controls
@@ -288,7 +289,7 @@ public class SkyCanvasManager {
         return timeAcc.get();
     }
 
-    public ObservableObjectValue<TimeAccelerator> timeAccProperty() {
+    public ObjectProperty<TimeAccelerator> timeAccProperty() {
         return timeAcc;
     }
 

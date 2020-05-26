@@ -11,7 +11,10 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableObjectValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Orientation;
@@ -36,18 +39,21 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
 import static javafx.beans.binding.Bindings.format;
 import static javafx.beans.binding.Bindings.when;
 
 public class Main extends Application {
+    private static final NamedTimeAccelerator DEFAULT_ACCELERATOR = NamedTimeAccelerator.TIMES_300;
     private static final double DEFAULT_OBSERVATION_AZIMUTH = 180.000000000001;
     private static final double DEFAULT_OBSERVATION_ALTITUDE = 15.0;
     private static final double DEFAULT_FIELD_OF_VIEW = 100.0;
     private static final double DEFAULT_LONGITUDE = 6.57;
     private static final double DEFAULT_LATITUDE = 46.52;
-    private Font fontAwesome;
+
     public static void main(String[] args) { launch(args); }
 
 
@@ -84,10 +90,7 @@ public class Main extends Application {
                     GeographicCoordinates.ofDeg(DEFAULT_LONGITUDE, DEFAULT_LATITUDE));
 
             ViewingParametersBean viewingParametersBean =
-                    new ViewingParametersBean();
-            viewingParametersBean.setCenter(
-                    HorizontalCoordinates.ofDeg(DEFAULT_OBSERVATION_AZIMUTH, DEFAULT_OBSERVATION_ALTITUDE));
-            viewingParametersBean.setFieldOfViewDeg(DEFAULT_FIELD_OF_VIEW);
+                    new ViewingParametersBean(DEFAULT_FIELD_OF_VIEW, HorizontalCoordinates.ofDeg(DEFAULT_OBSERVATION_AZIMUTH, DEFAULT_OBSERVATION_ALTITUDE));
 
             SkyCanvasManager canvasManager = new SkyCanvasManager(
                     catalogue,
@@ -106,8 +109,6 @@ public class Main extends Application {
             Pane skyPane = new Pane(sky);
             BorderPane infoBar = infoBar(viewingParametersBean, canvasManager);
 
-
-
             root.setTop(primaryBox);
             root.setCenter(skyPane);
             root.setBottom(infoBar);
@@ -120,19 +121,17 @@ public class Main extends Application {
             primaryStage.getIcons().add(new Image("file:icon.png"));
 
             sky.requestFocus();
-
-
         }
-
     }
 
-    private HBox controlBar(DateTimeBean dateTimeBean, ObserverLocationBean observerLocationBean, SkyCanvasManager canvasManager) throws IOException {
+    private HBox controlBar(DateTimeBean dateTimeBean, ObserverLocationBean observerLocationBean, SkyCanvasManager canvasManager) {
         HBox controlBar = new HBox();
         HBox obsPosBox = obsPosBox(observerLocationBean);
         HBox obsInstBox = obsInstBox(dateTimeBean, canvasManager);
         HBox accBox = accBox(dateTimeBean, canvasManager);
 
-        controlBar.getChildren().addAll(obsPosBox, new Separator(Orientation.VERTICAL), obsInstBox, new Separator(Orientation.VERTICAL), accBox);
+        controlBar.getChildren().addAll(obsPosBox, new Separator(Orientation.VERTICAL), obsInstBox,
+                new Separator(Orientation.VERTICAL), accBox);
         controlBar.setStyle("-fx-spacing: 4; -fx-padding: 4;");
         return controlBar;
     }
@@ -145,26 +144,23 @@ public class Main extends Application {
 
         TextField lonTextField = new TextField();
         lonTextField.setStyle("-fx-pref-width: 60; -fx-alignment: baseline-right;");
-        TextFormatter<Number> lonTextFormatter = textFormatter(GeographicCoordinates.LONGITUDE_INTERVAL);
+        TextFormatter<Number> lonTextFormatter = textFormatter(GeographicCoordinates::isValidLonDeg);
         lonTextField.setTextFormatter(lonTextFormatter);
         lonTextFormatter.valueProperty().bindBidirectional(observerLocationBean.lonDegProperty());
 
-
         TextField latTextField = new TextField();
         latTextField.setStyle("-fx-pref-width: 60; -fx-alignment: baseline-right;");
-        TextFormatter<Number> latTextFormatter = textFormatter(GeographicCoordinates.LATITUDE_INTERVAL);
+        TextFormatter<Number> latTextFormatter = textFormatter(GeographicCoordinates::isValidLatDeg);
         latTextField.setTextFormatter(latTextFormatter);
         latTextFormatter.valueProperty().bindBidirectional(observerLocationBean.latDegProperty());
-
 
         observationPosBox.getChildren().addAll(lonLabel, lonTextField, latLabel, latTextField);
         observationPosBox.setStyle("-fx-spacing: inherit; -fx-alignment: baseline-left;");
 
         return observationPosBox;
-
     }
 
-    private TextFormatter<Number> textFormatter(Interval domain) {
+    private TextFormatter<Number> textFormatter(Predicate<Double> predicate) {
         NumberStringConverter stringConverter =
                 new NumberStringConverter("#0.00");
 
@@ -175,7 +171,7 @@ public class Main extends Application {
                 double newDeg =
                         stringConverter.fromString(newText).doubleValue();
 
-                    return domain.contains(newDeg)
+                    return predicate.test(newDeg)
                                 ? change
                                 : null;
             } catch (Exception e) {
@@ -210,7 +206,6 @@ public class Main extends Application {
         timeTextField.setTextFormatter(timeFormatter);
         timeFormatter.valueProperty().bindBidirectional(dateTimeBean.timeProperty());
 
-
         ComboBox<ZoneId> zoneIdComboBox = new ComboBox<>();
 
         zoneIdComboBox.setItems(allSortedZoneIds());
@@ -236,8 +231,7 @@ public class Main extends Application {
     }
 
     private HBox accBox(DateTimeBean dateTimeBean, SkyCanvasManager canvasManager) {
-
-
+        Font fontAwesome;
         try (InputStream fontStream = getClass()
                 .getResourceAsStream("/Font Awesome 5 Free-Solid-900.otf")) {
             fontAwesome = Font.loadFont(fontStream, 15);
@@ -245,17 +239,18 @@ public class Main extends Application {
             fontAwesome = Font.getDefault();
         }
 
+
         HBox accBox = new HBox();
 
         ChoiceBox<NamedTimeAccelerator> acceleratorChoiceBox = new ChoiceBox<>();
         ObservableList<NamedTimeAccelerator> accObsList = FXCollections.observableArrayList(NamedTimeAccelerator.values());
         acceleratorChoiceBox.setItems(accObsList);
-        acceleratorChoiceBox.setValue(NamedTimeAccelerator.TIMES_1);
-        //TODO: bind timeAccelerator ?
-        acceleratorChoiceBox.setOnAction(event ->
-                canvasManager.getTimeAnimator().setAccelerator(acceleratorChoiceBox.getValue().getAccelerator())
-        );
-        //acceleratorChoiceBox.valueProperty().bindBidirectional(canvasManager.);
+
+        ObjectProperty<TimeAccelerator> accelerator = new SimpleObjectProperty<>();
+        canvasManager.timeAccProperty().bindBidirectional(accelerator);
+        acceleratorChoiceBox.setValue(DEFAULT_ACCELERATOR);
+        accelerator.bind(Bindings.select(acceleratorChoiceBox.valueProperty(), "accelerator"));
+
 
         String resetFont = "\uf0e2";
         String playFont = "\uf04b";
@@ -266,13 +261,10 @@ public class Main extends Application {
 
         BooleanProperty isPlaying = new SimpleBooleanProperty(false);
         isPlaying.bind(canvasManager.getTimeAnimator().getRunningProperty());
-        //timeAnimator.setAccelerator(NamedTimeAccelerator.TIMES_300.getAccelerator());
         pausePlayButton.textProperty().bind(
                 when(isPlaying)
                 .then(pauseFont)
                 .otherwise(playFont));
-
-
 
         pausePlayButton.setOnAction(event -> {
             if (isPlaying.get()) {
@@ -284,15 +276,12 @@ public class Main extends Application {
 
         acceleratorChoiceBox.disableProperty().bind(isPlaying);
 
-
         resetButton.setOnAction(event -> {
             if (!isPlaying.get())
                 dateTimeBean.setZonedDateTime(ZonedDateTime.now());
         });
         resetButton.setFont(fontAwesome);
         pausePlayButton.setFont(fontAwesome);
-
-
 
         accBox.getChildren().addAll(acceleratorChoiceBox, resetButton, pausePlayButton);
         accBox.setStyle("-fx-spacing: inherit;");
@@ -306,23 +295,16 @@ public class Main extends Application {
         Text fov = new Text();
         fov.textProperty().bind(format("Champ de vue : %.1f°", viewingParametersBean.fieldOfViewDegProperty()));
 
-        BooleanBinding isObjectPresent;
-        isObjectPresent = Bindings.createBooleanBinding(() -> canvasManager.objectUnderMouse.get().isPresent(), canvasManager.objectUnderMouseProperty());
-
         StringBinding objectName;
-        objectName = Bindings.createStringBinding(() -> {
-            if (isObjectPresent.get()) {
-                return canvasManager.getObjectUnderMouse().get().info();
-            } else{
-                return "";
-            }
-        }, canvasManager.objectUnderMouseProperty());
+        objectName = Bindings.createStringBinding(() -> canvasManager.objectUnderMouse.get().isPresent() ?
+                canvasManager.getObjectUnderMouse().get().info() : "", canvasManager.objectUnderMouseProperty());
 
         Text objectUnderMouse = new Text();
         objectUnderMouse.textProperty().bind(objectName);
 
         Text mousePosCoord = new Text();
-        mousePosCoord.textProperty().bind(format("Azimut : %.2f°, hauteur : %.2f°", canvasManager.mouseAzDegProperty(), canvasManager.mouseAltDegProperty()));
+        mousePosCoord.textProperty().bind(format("Azimut : %.2f°, hauteur : %.2f°", canvasManager.mouseAzDegProperty(),
+                canvasManager.mouseAltDegProperty()));
 
         infoPane.setLeft(fov);
         infoPane.setCenter(objectUnderMouse);
