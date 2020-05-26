@@ -6,16 +6,12 @@ import ch.epfl.rigel.coordinates.HorizontalCoordinates;
 import ch.epfl.rigel.coordinates.StereographicProjection;
 import ch.epfl.rigel.math.Angle;
 import ch.epfl.rigel.math.ClosedInterval;
-import javafx.application.Application;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import javafx.scene.transform.Affine;
-import javafx.scene.transform.Scale;
 import javafx.scene.transform.Transform;
-import javafx.stage.Stage;
 
 import java.util.*;
 
@@ -69,38 +65,26 @@ public class SkyCanvasPainter {
     private void drawAsterisms(ObservedSky sky, Transform planeToCanvas) {
         double[] starCoord = sky.starCoordinates();
         for (Asterism asterism : sky.asterisms()) {
-            List<Integer> asterismIndex = sky.asterismIndex(asterism);
-            List<CartesianCoordinates> coord = new ArrayList<>();
-            for (Integer i : asterismIndex)
-               coord.add(CartesianCoordinates.of(starCoord[2 * i], starCoord[2 * i + 1]));
-            drawLinesForAsterism(coord, planeToCanvas);
+            Bounds b = canvas.getBoundsInLocal();
+            gc.setStroke(Color.BLUE);
+            gc.setLineWidth(1);
+            gc.beginPath();
+            boolean previousInBound = true;
+            CartesianCoordinates coord;
+            for (Integer i : sky.asterismIndex(asterism)) {
+                coord = CartesianCoordinates.of(starCoord[2 * i], starCoord[2 * i + 1]);
+                Point2D point = planeToCanvas.transform(coord.x(), coord.y());
+                double x = point.getX();
+                double y = point.getY();
+                //draws only a line if two consecutive stars not out of bound
+                if (previousInBound || b.contains(x, y)) gc.lineTo(x, y);
+                else gc.moveTo(x, y);
+                previousInBound = b.contains(x, y);
+            }
+            gc.stroke();
         }
     }
 
-    private void drawLinesForAsterism (List<CartesianCoordinates> coord, Transform planeToCanvas) {
-        Bounds b = canvas.getBoundsInLocal();
-        gc.setStroke(Color.BLUE);
-        gc.setLineWidth(1);
-        gc.beginPath();
-        boolean previousInBound = true;
-        for (CartesianCoordinates c : coord) {
-            Point2D point = planeToCanvas.transform(c.x(), c.y());
-            double x = point.getX();
-            double y = point.getY();
-            //draws only a line if two consecutive stars not out of bound
-            if (previousInBound) {
-                gc.lineTo(x, y);
-            } else {
-                if (b.contains(x, y)) {
-                    gc.lineTo(x, y);
-                } else {
-                    gc.moveTo(x, y);
-                }
-            }
-            previousInBound = b.contains(x, y);
-        }
-        gc.stroke();
-    }
 
     /*
     DRAW PLANETS
@@ -135,13 +119,13 @@ public class SkyCanvasPainter {
         Point2D sunPositionOnCanvas = planeToCanvas.transform(sunPosition.x(), sunPosition.y());
 
         gc.setFill(Color.YELLOW.deriveColor(1, 1, 1, 0.25));
-        drawCenteredCiruclarBody(sunPositionOnCanvas, sunDiameter*2.2);
+        drawCenteredCircularBody(sunPositionOnCanvas, sunDiameter*2.2);
 
         gc.setFill(Color.YELLOW);
-        drawCenteredCiruclarBody(sunPositionOnCanvas, sunDiameter + 2);
+        drawCenteredCircularBody(sunPositionOnCanvas, sunDiameter + 2);
 
         gc.setFill(Color.WHITE);
-        drawCenteredCiruclarBody(sunPositionOnCanvas, sunDiameter);
+        drawCenteredCircularBody(sunPositionOnCanvas, sunDiameter);
     }
 
     /*
@@ -173,10 +157,8 @@ public class SkyCanvasPainter {
         gc.setStroke(Color.RED);
         gc.setLineWidth(2);
         CartesianCoordinates fromProjection = projection.circleCenterForParallel(HorizontalCoordinates.ofDeg(0,0));
-        System.out.println("from projection: " + fromProjection.toString());
         double projRadius = Math.abs(projection.circleRadiusForParallel(HorizontalCoordinates.ofDeg(0,0)));
         Point2D horizonCenter = planeToCanvas.transform(fromProjection.x() , fromProjection.y());
-        System.out.println("from projection transformed: " + horizonCenter.toString());
         double radius = planeToCanvas.deltaTransform(projRadius, 0).getX();
         gc.strokeOval(horizonCenter.getX() - radius, horizonCenter.getY() - radius ,radius * 2, radius * 2);
 
@@ -209,7 +191,7 @@ public class SkyCanvasPainter {
     PRIVATE UTILITY CLASSES
      */
 
-    private void drawCenteredCiruclarBody(Point2D center, double diameter){
+    private void drawCenteredCircularBody(Point2D center, double diameter){
         gc.fillOval(center.getX()-diameter/2, center.getY()-diameter/2, diameter, diameter);
     }
 
@@ -235,9 +217,8 @@ public class SkyCanvasPainter {
             else if (toDraw instanceof Moon) gc.setFill(Color.WHITE); //TODO bad practice
 
 
-
             Point2D position = new Point2D(transformedPoints[2*i], transformedPoints[2*i + 1]);
-            drawCenteredCiruclarBody(position, diameter); //TODO rewrite this method here internally, never used elsewhere
+            drawCenteredCircularBody(position, diameter); //TODO rewrite this method here internally, never used elsewhere
         }
     }
 

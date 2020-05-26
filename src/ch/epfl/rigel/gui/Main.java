@@ -5,16 +5,13 @@ import ch.epfl.rigel.astronomy.HygDatabaseLoader;
 import ch.epfl.rigel.astronomy.StarCatalogue;
 import ch.epfl.rigel.coordinates.GeographicCoordinates;
 import ch.epfl.rigel.coordinates.HorizontalCoordinates;
-import ch.epfl.rigel.math.Interval;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ObservableObjectValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Orientation;
@@ -39,7 +36,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
@@ -70,7 +66,7 @@ public class Main extends Application {
      *                     the application scene can be set.
      *                     Applications may create other stages, if needed, but they will not be
      *                     primary stages.
-     * @throws Exception if something goes wrong
+     * @throws IOException if something goes wrong
      */
     @Override
     public void start(Stage primaryStage) throws IOException {
@@ -296,8 +292,7 @@ public class Main extends Application {
         fov.textProperty().bind(format("Champ de vue : %.1f°", viewingParametersBean.fieldOfViewDegProperty()));
 
         StringBinding objectName;
-        objectName = Bindings.createStringBinding(() -> canvasManager.objectUnderMouse.get().isPresent() ?
-                canvasManager.getObjectUnderMouse().get().info() : "", canvasManager.objectUnderMouseProperty());
+        objectName = Bindings.createStringBinding(() -> canvasManager.objectUnderMouse.get().isPresent() ? canvasManager.getObjectUnderMouse().get().info() : "");
 
         Text objectUnderMouse = new Text();
         objectUnderMouse.textProperty().bind(objectName);
