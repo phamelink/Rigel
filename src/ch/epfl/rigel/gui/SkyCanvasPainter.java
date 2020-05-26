@@ -14,6 +14,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.transform.Transform;
 
 import java.util.*;
+import java.util.function.Function;
 
 /**
  * SkyCanvasPainter
@@ -58,8 +59,15 @@ public class SkyCanvasPainter {
      */
     public void drawStars (ObservedSky sky, StereographicProjection projection, Transform planeToCanvas) {
         drawAsterisms(sky, planeToCanvas);
-        List<CelestialObject> stars = List.copyOf(sky.stars());
-        drawCelestialObject(sky.starCoordinates(), stars, projection, planeToCanvas);
+        List<Star> stars = sky.stars();
+        double[] stereoPoints = new double[sky.starCoordinates().length];
+        planeToCanvas.transform2DPoints(sky.starCoordinates(), 0, stereoPoints, 0, stereoPoints.length);
+        for (int i = 0; i < stars.size(); i++) {
+            drawCelestialObject(new Point2D(stereoPoints[2 * i],stereoPoints[2 * i + 1]), planeToCanvas,
+                    BlackBodyColor.colorForTemperature(stars.get(i).colorTemperature()),
+                    getMagnitudeBasedCelestialObjectDiameter(stars.get(i), projection));
+        }
+
     }
 
     private void drawAsterisms(ObservedSky sky, Transform planeToCanvas) {
@@ -97,10 +105,14 @@ public class SkyCanvasPainter {
      * @param planeToCanvas Transform used
      */
     public void drawPlanets(ObservedSky sky, StereographicProjection projection, Transform planeToCanvas){
-        List<CelestialObject> planets = List.copyOf(sky.planets());
-        double[] planetCoordinates = new double[sky.planetCoordinates().size()];
-        for (int i = 0; i < planetCoordinates.length; i++)  planetCoordinates[i] = sky.planetCoordinates().get(i);
-        drawCelestialObject(planetCoordinates, planets, projection, planeToCanvas);
+        List<Planet> planets = sky.planets();
+        double[] stereoPoints = new double[sky.planetCoordinates().length];
+        planeToCanvas.transform2DPoints(sky.planetCoordinates(), 0, stereoPoints, 0, stereoPoints.length);
+        for (int i = 0; i < planets.size(); i++) {
+            drawCelestialObject(new Point2D(stereoPoints[2 * i],stereoPoints[2 * i + 1]), planeToCanvas,
+                    Color.LIGHTGRAY,
+                    getMagnitudeBasedCelestialObjectDiameter(planets.get(i), projection));
+        }
     }
 
     /*
@@ -114,10 +126,11 @@ public class SkyCanvasPainter {
      * @param planeToCanvas Transform used
      */
     public void drawSun(ObservedSky sky, StereographicProjection projection, Transform planeToCanvas){
-        final double sunDiameter = planeToCanvas.deltaTransform(projection.applyToAngle(Angle.ofDeg(0.5)), 0).getX();
+        final double sunDiameter = projection.applyToAngle(Angle.ofDeg(0.5));
         CartesianCoordinates sunPosition = sky.sunPosition();
         Point2D sunPositionOnCanvas = planeToCanvas.transform(sunPosition.x(), sunPosition.y());
 
+<<<<<<< HEAD
         gc.setFill(Color.YELLOW.deriveColor(1, 1, 1, 0.25));
         drawCenteredCircularBody(sunPositionOnCanvas, sunDiameter*2.2);
 
@@ -126,6 +139,12 @@ public class SkyCanvasPainter {
 
         gc.setFill(Color.WHITE);
         drawCenteredCircularBody(sunPositionOnCanvas, sunDiameter);
+=======
+        drawCelestialObject(sunPositionOnCanvas, planeToCanvas,Color.YELLOW.deriveColor(1, 1, 1, 0.25),  sunDiameter*2.2 );
+        drawCelestialObject(sunPositionOnCanvas, planeToCanvas,Color.YELLOW,  sunDiameter + 2 );
+        drawCelestialObject(sunPositionOnCanvas, planeToCanvas,Color.WHITE,  sunDiameter );
+
+>>>>>>> 0d882189d68ab7779302230deb52512d780959e6
     }
 
     /*
@@ -139,8 +158,8 @@ public class SkyCanvasPainter {
      * @param planeToCanvas Transform used
      */
     public void drawMoon(ObservedSky sky, StereographicProjection projection, Transform planeToCanvas){
-        List<CelestialObject> moon = List.of(sky.moon());
-        double[] moonCoordinates = {sky.moonPosition().x(), sky.moonPosition().y()};
+        Moon moon = sky.moon();
+        planeToCanvas
         drawCelestialObject(moonCoordinates, moon, projection, planeToCanvas);
     }
 
@@ -191,17 +210,22 @@ public class SkyCanvasPainter {
     PRIVATE UTILITY CLASSES
      */
 
+<<<<<<< HEAD
     private void drawCenteredCircularBody(Point2D center, double diameter){
         gc.fillOval(center.getX()-diameter/2, center.getY()-diameter/2, diameter, diameter);
     }
 
     private double getCelestialObjectDiameter(CelestialObject celestialObject, StereographicProjection projection){
+=======
+    private double getMagnitudeBasedCelestialObjectDiameter(CelestialObject celestialObject, StereographicProjection projection){
+>>>>>>> 0d882189d68ab7779302230deb52512d780959e6
         final double mag = MAGNITUDE_INTERVAL.clip(celestialObject.magnitude());
         final double factor = (99-17*mag) / (140);
         return factor * projection.applyToAngle(Angle.ofDeg(0.5));
     }
 
     //TODO color should be set by parent class before method call
+<<<<<<< HEAD
     private void drawCelestialObject(double[] objectCoordinates, List<CelestialObject> objects,
                                     StereographicProjection projection, Transform planeToCanvas) {
         int objectCount = objects.size();
@@ -219,6 +243,13 @@ public class SkyCanvasPainter {
 
             Point2D position = new Point2D(transformedPoints[2*i], transformedPoints[2*i + 1]);
             drawCenteredCircularBody(position, diameter); //TODO rewrite this method here internally, never used elsewhere
+=======
+    private void drawCelestialObject(Point2D planeCoordinates, Transform planeToCanvas, Color color,
+                                     double diameterToTransformInPlane) {
+        double diameter = planeToCanvas.deltaTransform(diameterToTransformInPlane, 0).getX();
+        gc.setFill(color);
+        gc.fillOval(planeCoordinates.getX()-diameter/2, planeCoordinates.getY()-diameter/2, diameter, diameter);
+>>>>>>> 0d882189d68ab7779302230deb52512d780959e6
         }
     }
 

@@ -10,10 +10,8 @@ import ch.epfl.rigel.coordinates.StereographicProjection;
 import ch.epfl.rigel.math.Angle;
 import ch.epfl.rigel.math.ClosedInterval;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableDoubleValue;
 import javafx.beans.value.ObservableObjectValue;
 import javafx.geometry.Point2D;
@@ -72,6 +70,7 @@ public class SkyCanvasManager {
     private IntegerProperty mouseY;
     private Point2D lastMouseDragPosition;
     private GraphicsContext gc;
+    private BooleanProperty mousePresentOverPane;
 
 
 
@@ -111,6 +110,9 @@ public class SkyCanvasManager {
         mousePosition = Bindings.createObjectBinding(() -> new Point2D(mouseX.get(), mouseY.get()), mouseX, mouseY);
         canvas.get().setOnMouseMoved((e) -> {mouseX.set((int) e.getX()); mouseY.set((int) e.getY());});
         canvas.get().setOnMousePressed((e) -> { if(e.isPrimaryButtonDown()) canvas.get().requestFocus(); });
+        mousePresentOverPane = new SimpleBooleanProperty(false);
+
+        canvas.get().hoverProperty().addListener((p, o, isHovering) -> mousePresentOverPane.setValue(isHovering));
 
         //Continue bindings
         mousePositionInPlane = Bindings.createObjectBinding(() ->
@@ -124,15 +126,21 @@ public class SkyCanvasManager {
 
         mouseAltDeg = Bindings.createDoubleBinding(() -> mouseHorizontalPosition.get().altDeg(), mouseHorizontalPosition);
 
-        objectUnderMouse = Bindings.createObjectBinding(() ->
-                observedSky.get().objectClosestTo(CartesianCoordinates.of(mousePositionInPlane.get().getX(),
-                        mousePositionInPlane.get().getY()), planeToCanvas.get().inverseDeltaTransform(10, 0).getX()), mousePositionInPlane, observedSky);
+        objectUnderMouse = Bindings.createObjectBinding(() -> {
+            if (mousePresentOverPane.getValue()) {
+                return observedSky.get().objectClosestTo(CartesianCoordinates.of(mousePositionInPlane.get().getX(),
+                        mousePositionInPlane.get().getY()), planeToCanvas.get().inverseDeltaTransform(10, 0).getX());
+            }else{
+                return Optional.empty();
+            }
+        }, mousePositionInPlane, observedSky, mousePresentOverPane);
 
         //Bind sky painter
         this.skyCanvasPainter = new SimpleObjectProperty<>(new SkyCanvasPainter(this.canvas.get()));
         this.timeAnimator = new SimpleObjectProperty<>(new TimeAnimator(this.dateTimeBean));
         observedSky.addListener((p,o,n) -> refreshCanvas());
         planeToCanvas.addListener((p,o,n) -> refreshCanvas());
+        objectUnderMouse.addListener((p,o,n) -> refreshCanvas());
         timeAcc = new SimpleObjectProperty<>();
         timeAcc.addListener((p,o,n) -> this.timeAnimator.get().setAccelerator(n));
 
