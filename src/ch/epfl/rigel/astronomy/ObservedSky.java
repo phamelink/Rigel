@@ -20,7 +20,7 @@ public class ObservedSky {
     private final Moon moonAtTime;
     private final CartesianCoordinates moonPosition;
     private final List<Planet> planetsAtTime;
-    private final List<Double> planetCoordinates; //TODO if possible switch to double primitive type to accelerate animations
+    private final double[] planetCoordinates;
     private final List<Star> starsAtTime;
     private final double[] starCoordinates;
 
@@ -61,14 +61,15 @@ public class ObservedSky {
         registerObject(moonAtTime, moonPosition);
 
         this.planetsAtTime = new ArrayList<>();
-        this.planetCoordinates = new ArrayList<>();
-        for(PlanetModel planetModel : PlanetModel.values()){
+        this.planetCoordinates = new double[PlanetModel.values().length * 2];
+        for (int i = 0; i < PlanetModel.values().length; i++) {
+            PlanetModel planetModel = PlanetModel.values()[i];
             if(planetModel.equals(PlanetModel.EARTH)) continue;
             Planet planet = planetModel.at(daysUntil, eclConv);
             planetsAtTime.add(planet);
             CartesianCoordinates coordinates = toCartesian.apply(planet.equatorialPos());
-            planetCoordinates.add(coordinates.x());
-            planetCoordinates.add(coordinates.y());
+            planetCoordinates[2 * i] = coordinates.x();
+            planetCoordinates[2 * i + 1] = coordinates.x();
             registerObject(planet, coordinates);
         }
 
@@ -132,7 +133,7 @@ public class ObservedSky {
      * returns a list of the planets' coordinates (position 0 and 1 represent the cartesian coordinates x and y of first planet, 2 and 3 the x and y of second planet, etc...)
      * @return a list of the planets' coordinates
      */
-    public List<Double> planetCoordinates(){return Collections.unmodifiableList(planetCoordinates);}
+    public double[] planetCoordinates(){return Arrays.copyOf(planetCoordinates, planetCoordinates.length);}
 
     /**
      * returns a list of all the stars at time
@@ -147,7 +148,7 @@ public class ObservedSky {
 
     //TODO copy or not copy?
     public double[] starCoordinates(){
-        return starCoordinates;}
+        return Arrays.copyOf(starCoordinates, starCoordinates.length);}
 
     /**
      * returns a set of all asterisms
