@@ -5,7 +5,6 @@ import ch.epfl.rigel.astronomy.HygDatabaseLoader;
 import ch.epfl.rigel.astronomy.StarCatalogue;
 import ch.epfl.rigel.coordinates.GeographicCoordinates;
 import ch.epfl.rigel.coordinates.HorizontalCoordinates;
-import ch.epfl.rigel.math.ClosedInterval;
 import ch.epfl.rigel.math.Interval;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
@@ -19,6 +18,7 @@ import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -50,7 +50,6 @@ public class Main extends Application {
     private Font fontAwesome;
     public static void main(String[] args) { launch(args); }
 
-//TODO: Why are there no asterisms painted ?
 
     /**
      * The main entry point for all JavaFX applications.
@@ -114,13 +113,14 @@ public class Main extends Application {
             root.setBottom(infoBar);
 
             primaryStage.setTitle("Rigel");
-            //TODO: min width and height not respected
             primaryStage.setMinHeight(600);
             primaryStage.setMinWidth(800);
             primaryStage.setScene(new Scene(root));
             primaryStage.show();
+            primaryStage.getIcons().add(new Image("file:icon.png"));
 
             sky.requestFocus();
+
 
         }
 
@@ -310,14 +310,16 @@ public class Main extends Application {
         isObjectPresent = Bindings.createBooleanBinding(() -> canvasManager.objectUnderMouse.get().isPresent(), canvasManager.objectUnderMouseProperty());
 
         StringBinding objectName;
-        objectName = Bindings.createStringBinding(() -> canvasManager.getObjectUnderMouse().get().info(), canvasManager.objectUnderMouseProperty());
+        objectName = Bindings.createStringBinding(() -> {
+            if (isObjectPresent.get()) {
+                return canvasManager.getObjectUnderMouse().get().info();
+            } else{
+                return "";
+            }
+        }, canvasManager.objectUnderMouseProperty());
 
         Text objectUnderMouse = new Text();
-        objectUnderMouse.textProperty().bind(
-               when(isObjectPresent)
-                .then(objectName)
-                .otherwise("")
-        );
+        objectUnderMouse.textProperty().bind(objectName);
 
         Text mousePosCoord = new Text();
         mousePosCoord.textProperty().bind(format("Azimut : %.2f°, hauteur : %.2f°", canvasManager.mouseAzDegProperty(), canvasManager.mouseAltDegProperty()));

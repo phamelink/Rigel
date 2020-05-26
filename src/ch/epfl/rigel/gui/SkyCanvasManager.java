@@ -198,6 +198,7 @@ public class SkyCanvasManager {
         });
 
         canvas.get().setOnScroll((e) -> {
+            System.out.println("scroll event");
             if(Math.abs(e.getDeltaX()) >= Math.abs(e.getDeltaY())){
                 viewingParameters.setFieldOfViewDeg(FOV_BOUND.clip(viewingParameters.getFieldOfViewDeg() - ZOOM_FACTOR * e.getDeltaX()));
             }else{
