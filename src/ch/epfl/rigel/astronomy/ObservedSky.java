@@ -1,6 +1,5 @@
 package ch.epfl.rigel.astronomy;
 
-import ch.epfl.rigel.Preconditions;
 import ch.epfl.rigel.coordinates.*;
 
 import java.time.ZonedDateTime;
@@ -85,10 +84,6 @@ public class ObservedSky {
             ++index;
             registerObject(star, coordinates);
         }
-
-
-
-
     }
 
     //Private functions
@@ -147,7 +142,6 @@ public class ObservedSky {
      * @return a list of the stars' coordinates
      */
 
-    //TODO copy or not copy?
     public double[] starCoordinates(){
         return Arrays.copyOf(starCoordinates, starCoordinates.length);}
 
@@ -181,7 +175,6 @@ public class ObservedSky {
         double minimalDistance = distance;
         CelestialObject toReturn = null;
         for(CelestialObject object : this.distanceMap.subMap(point.norm()-distance, point.norm()+distance).values()){
-
             CartesianCoordinates coord = positionMap.get(object);
             double d = Math.sqrt(Math.pow(coord.x()-point.x(), 2) + Math.pow(coord.y()-point.y(), 2));
             if(d <= minimalDistance){
@@ -189,7 +182,6 @@ public class ObservedSky {
                 toReturn = object;
             }
         }
-
         if(toReturn == null) {
             return Optional.empty();
         }else{

@@ -56,7 +56,6 @@ public final class Angle {
         return Math.toRadians(deg)
                 + Preconditions.checkInInterval(HOUR_INTERVAL, min) * RAD_PER_MIN
                 + ofArcsec(Preconditions.checkInInterval(HOUR_INTERVAL, sec));
-
     }
 
     /**

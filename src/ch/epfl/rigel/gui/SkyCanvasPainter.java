@@ -27,7 +27,6 @@ public class SkyCanvasPainter {
     private GraphicsContext gc;
 
     private static final ClosedInterval MAGNITUDE_INTERVAL = ClosedInterval.of(-2, 5);
-    private static final double HORIZON_DISTANCE_STEPS = 10;
 
     /**
      * SkyCanvasPainterConstructor
@@ -132,7 +131,6 @@ public class SkyCanvasPainter {
         drawCelestialObject(sunPositionOnCanvas, planeToCanvas,Color.YELLOW.deriveColor(1, 1, 1, 0.25),  sunDiameter*2.2 );
         drawCelestialObject(sunPositionOnCanvas, planeToCanvas,Color.YELLOW,   sunDiameter + 2 );
         drawCelestialObject(sunPositionOnCanvas, planeToCanvas,Color.WHITE,  sunDiameter );
-
     }
 
     /*
@@ -198,6 +196,7 @@ public class SkyCanvasPainter {
     /*
     PRIVATE UTILITY CLASSES
      */
+
 
     private double getMagnitudeBasedCelestialObjectDiameter(CelestialObject celestialObject, StereographicProjection projection, Transform planeToCanvas){
         final double mag = MAGNITUDE_INTERVAL.clip(celestialObject.magnitude());

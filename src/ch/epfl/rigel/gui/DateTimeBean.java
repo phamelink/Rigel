@@ -23,12 +23,9 @@ public final class DateTimeBean {
      * DateTimeBean constructor, initializing all properties to null
      */
     public DateTimeBean () {
-        this.date = new SimpleObjectProperty<>();
-        date.set(null);
-        this.time = new SimpleObjectProperty<>();
-        time.set(null);
-        this.zoneId = new SimpleObjectProperty<>();
-        zoneId.set(null);
+        this.date = new SimpleObjectProperty<>(null);
+        this.time = new SimpleObjectProperty<>(null);
+        this.zoneId = new SimpleObjectProperty<>(null);
     }
 
     /**

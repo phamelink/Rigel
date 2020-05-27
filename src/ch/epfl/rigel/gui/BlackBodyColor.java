@@ -10,10 +10,17 @@ import javafx.scene.paint.Color;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 
+/**
+ * Black Body Color
+ *
+ * @author Philip Hamelink (311769)
+ * @author Malo Ranzetti (296956)
+ */
 public class BlackBodyColor {
 
     //Prevent instantiation
@@ -29,14 +36,15 @@ public class BlackBodyColor {
     KEY: Temperature
     Image: The corresponding color
      */
-    private static HashMap<Integer, Color> COLOR_MAP = loadMap(DATA_FILE);
+    private static HashMap<Integer, Color> COLOR_MAP = loadMap();
 
-    private static HashMap<Integer, Color> loadMap(String file) {
+    //TODO: parameter unnecessary?
+    private static HashMap<Integer, Color> loadMap() {
 
         HashMap<Integer, Color> mapToReturn = new HashMap<>();
 
         try(BufferedReader reader = new BufferedReader(
-                new InputStreamReader(BlackBodyColor.class.getResourceAsStream(file), StandardCharsets.US_ASCII))) {
+                new InputStreamReader(BlackBodyColor.class.getResourceAsStream(DATA_FILE), StandardCharsets.US_ASCII))) {
 
             String lineContent;
 
@@ -50,10 +58,10 @@ public class BlackBodyColor {
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new UncheckedIOException(e);
         }
-        temperatureDomain = ClosedInterval.of(Collections.min(mapToReturn.keySet()),Collections.max(mapToReturn.keySet()));
 
+        temperatureDomain = ClosedInterval.of(Collections.min(mapToReturn.keySet()),Collections.max(mapToReturn.keySet()));
         return mapToReturn;
     }
 
@@ -62,7 +70,7 @@ public class BlackBodyColor {
      * @param str sting to parse
      * @return an integer extracted from the string
      */
-    public static int parseInt(String str){
+    private static int parseInt(String str){
         String parsing = str;
         while(parsing.charAt(0) == ' '){
             parsing = parsing.substring(1);
@@ -70,7 +78,11 @@ public class BlackBodyColor {
         return Integer.parseInt(parsing);
     }
 
-
+    /**
+     * Returns color corresponding to the given temperature
+     * @param temperature integer of temperature
+     * @return color corresponding to the given temperature
+     */
     public static Color colorForTemperature(int temperature){
         Preconditions.checkInInterval(temperatureDomain, temperature);
         int temperatureApproximation = Math.round((float) temperature / 100 ) * 100;

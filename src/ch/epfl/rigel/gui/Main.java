@@ -133,8 +133,8 @@ public class Main extends Application {
         root.setCenter(skyPane);
         root.setBottom(infoBar);
 
-        sky.widthProperty().bind(root.widthProperty());
-        sky.heightProperty().bind(root.heightProperty());
+        sky.widthProperty().bind(skyPane.widthProperty());
+        sky.heightProperty().bind(skyPane.heightProperty());
 
         //Window parameters
         primaryStage.setTitle("Rigel");

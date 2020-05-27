@@ -3,10 +3,15 @@ package ch.epfl.rigel.gui;
 import javafx.animation.AnimationTimer;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleLongProperty;
 
 import java.time.ZonedDateTime;
 
+/**
+ * Time animator
+ *
+ * @author Philip Hamelink (311769)
+ * @author Malo Ranzetti (296956)
+ */
 public final class TimeAnimator extends AnimationTimer {
     private final DateTimeBean bean;
     private ZonedDateTime initialDateTime;
@@ -14,6 +19,10 @@ public final class TimeAnimator extends AnimationTimer {
     private final SimpleBooleanProperty running;
     private long initialTime;
 
+    /**
+     * TimeAnimator contructor
+     * @param bean DateTimeBean whose value the time animator will control to adjust the observation instant
+     */
     public TimeAnimator(DateTimeBean bean) {
         this.bean = bean;
         running = new SimpleBooleanProperty();
@@ -22,8 +31,7 @@ public final class TimeAnimator extends AnimationTimer {
 
 
     /**
-     * This method needs to be overridden by extending classes. It is going to
-     * be called in every frame while the {@code AnimationTimer} is active.
+     * It is going to be called in every frame while the TimeAnimator is active.
      *
      * @param now The timestamp of the current frame given in nanoseconds. This
      *            value will be the same for all {@code AnimationTimers} called
@@ -35,6 +43,10 @@ public final class TimeAnimator extends AnimationTimer {
         bean.setZonedDateTime(newTime);
     }
 
+    /**
+     * Starts the TimeAnimator. Once it is started, the handle(long) method of this TimeAnimator will be called
+     * in every frame. The TimeAnimator can be stopped by calling stop().
+     */
     @Override
     public void start() {
         super.start();
@@ -43,27 +55,36 @@ public final class TimeAnimator extends AnimationTimer {
         setRunning(true);
     }
 
+    /**
+     * Stops the TimeAnimator. It can be activated again by calling start().
+     */
     @Override
     public void stop() {
         super.stop();
         setRunning(false);
     }
 
+    /**
+     * Sets accelerator to use
+     * @param accelerator
+     */
     public void setAccelerator(TimeAccelerator accelerator) { this.accelerator = accelerator; }
 
+    /**
+     * Return a ReadOnlyBooleanProperty of running
+     * @return
+     */
     public ReadOnlyBooleanProperty getRunningProperty() {
         return running;
     }
 
+    /**
+     * Returns the boolean value of running
+     * @return the boolean value of running
+     */
     public boolean getRunning() { return running.get(); }
 
     private void setRunning(boolean newRunning) {
         running.set(newRunning);
     }
-
-
-
-
-
-
 }

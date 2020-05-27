@@ -1,13 +1,9 @@
 package ch.epfl.rigel.gui;
 
-import ch.epfl.rigel.astronomy.SiderealTime;
 
 import java.time.Duration;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.Temporal;
-import java.time.temporal.TemporalAmount;
-import java.util.concurrent.TimeUnit;
+
 
 /**
  * Time accelerator interface
@@ -38,7 +34,6 @@ public interface TimeAccelerator {
                 initialSimulatedTime.plusNanos(acceleration * realTimeElapsed);
     }
 
-    //TODO: find better way to accelerate with a frequency in s^-1 and realTimeElapsed in ns
     /**
      * returns a discrete time acceleration according to the advancement frequency and the discrete step of simulated time
      * @param v advancement frequency of simulated time
@@ -47,6 +42,6 @@ public interface TimeAccelerator {
      */
     static TimeAccelerator discrete(int v, Duration step) {
         return (initialSimulatedTime, realTimeElapsed) ->
-            initialSimulatedTime.plus(step.multipliedBy((long)Math.floor(v * 0.000000001 * realTimeElapsed)));
+            initialSimulatedTime.plus(step.multipliedBy((v * realTimeElapsed) / (int)1e+9 ));
     }
 }

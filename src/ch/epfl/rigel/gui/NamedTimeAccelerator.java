@@ -1,8 +1,13 @@
 package ch.epfl.rigel.gui;
 
 import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 
+/**
+ * Named Time Accelerator enum
+ *
+ * @author Philip Hamelink (311769)
+ * @author Malo Ranzetti (296956)
+ */
 public enum NamedTimeAccelerator {
     TIMES_1("1x", TimeAccelerator.continuous(1)),
     TIMES_30("30x", TimeAccelerator.continuous(30)),

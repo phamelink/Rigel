@@ -24,6 +24,12 @@ import javafx.scene.transform.Transform;
 
 import java.util.Optional;
 
+/**
+ * Sky Canvas Manager
+ *
+ * @author Philip Hamelink (311769)
+ * @author Malo Ranzetti (296956)
+ */
 public class SkyCanvasManager {
 
     private static final double CANVAS_WIDTH = 800;
@@ -36,45 +42,49 @@ public class SkyCanvasManager {
     private static final double CONTROL_FACTOR_Y = 0.74;
 
 
-    private DateTimeBean dateTimeBean;
-    private ObserverLocationBean observerLocation;
-    private ViewingParametersBean viewingParameters;
+    private final DateTimeBean dateTimeBean;
+    private final ObserverLocationBean observerLocation;
+    private final ViewingParametersBean viewingParameters;
 
-    private ObservableObjectValue<Canvas> canvas;
-    private ObservableObjectValue<SkyCanvasPainter> skyCanvasPainter;
+    private final ObservableObjectValue<Canvas> canvas;
+    private final ObservableObjectValue<SkyCanvasPainter> skyCanvasPainter;
 
 
     //Given
-    private ObservableObjectValue<ObservedSky> observedSky;
-    private ObservableObjectValue<StereographicProjection> projection;
-    private ObservableObjectValue<Transform> planeToCanvas;
-    private ObservableObjectValue<HorizontalCoordinates> mouseHorizontalPosition;
-    private ObservableObjectValue<Point2D> mousePosition;
-    private ObservableObjectValue<Point2D> mousePositionInPlane;
+    private final ObservableObjectValue<ObservedSky> observedSky;
+    private final ObservableObjectValue<StereographicProjection> projection;
+    private final ObservableObjectValue<Transform> planeToCanvas;
+    private final ObservableObjectValue<HorizontalCoordinates> mouseHorizontalPosition;
+    private final ObservableObjectValue<Point2D> mousePosition;
+    private final ObservableObjectValue<Point2D> mousePositionInPlane;
 
 
     //Additional
-    private ObservableObjectValue<TimeAnimator> timeAnimator;
-    private ObjectProperty<TimeAccelerator> timeAcc;
-    private ObservableDoubleValue dilationFactor;
-    private ObservableDoubleValue dilationFactorY;
+    private final ObservableObjectValue<TimeAnimator> timeAnimator;
+    private final ObjectProperty<TimeAccelerator> timeAcc;
+    private final ObservableDoubleValue dilationFactor;
+    private final ObservableDoubleValue dilationFactorY;
 
 
 
 
-    public ObservableObjectValue<Optional<CelestialObject>> objectUnderMouse;
-    public ObservableDoubleValue mouseAzDeg;
-    public ObservableDoubleValue mouseAltDeg;
+    public final ObservableObjectValue<Optional<CelestialObject>> objectUnderMouse;
+    public final ObservableDoubleValue mouseAzDeg;
+    public final ObservableDoubleValue mouseAltDeg;
 
-    private IntegerProperty mouseX;
-    private IntegerProperty mouseY;
+    private final IntegerProperty mouseX;
+    private final IntegerProperty mouseY;
     private Point2D lastMouseDragPosition;
     private GraphicsContext gc;
-    private BooleanProperty mousePresentOverPane;
+    private final BooleanProperty mousePresentOverPane;
 
-
-
-
+    /**
+     * Sky canvas manager constructor
+     * @param starCatalogue Star catalogue
+     * @param dateTimeBean Date time bean
+     * @param observerLocation Observer location bean
+     * @param viewingParameters Viewing parameters bean
+     */
     public SkyCanvasManager(StarCatalogue starCatalogue, DateTimeBean dateTimeBean, ObserverLocationBean observerLocation, ViewingParametersBean viewingParameters) {
 
         this.observerLocation = observerLocation;
@@ -94,15 +104,15 @@ public class SkyCanvasManager {
                         this.projection);
 
         dilationFactor = Bindings.createDoubleBinding(() -> canvas.get().getWidth() /
-                (2 * Math.tan(Angle.ofDeg(viewingParameters.getFieldOfViewDeg()) / 4)), canvas,
-                viewingParameters.fieldOfViewDegProperty());
+                (2 * Math.tan(Angle.ofDeg(viewingParameters.getFieldOfViewDeg()) / 4)),
+                viewingParameters.fieldOfViewDegProperty(), canvas.get().widthProperty());
 
         dilationFactorY = Bindings.createDoubleBinding(() -> canvas.get().getHeight() /
-                        (2 * Math.tan(Angle.ofDeg(viewingParameters.getFieldOfViewDeg()) / 4)), canvas,
-                viewingParameters.fieldOfViewDegProperty());
+                        (2 * Math.tan(Angle.ofDeg(viewingParameters.getFieldOfViewDeg()) / 4)),
+                viewingParameters.fieldOfViewDegProperty(), canvas.get().heightProperty());
 
         planeToCanvas = Bindings.createObjectBinding(() -> Transform.affine(dilationFactor.get(), 0, 0, - dilationFactor.get(),
-                canvas.get().getWidth() / 2,canvas.get().getHeight() / 2), canvas.get().widthProperty(), canvas.get().heightProperty(), dilationFactor );
+                canvas.get().getWidth() / 2,canvas.get().getHeight() / 2), canvas.get().widthProperty(), canvas.get().heightProperty(), dilationFactor);
 
         //Mouse listeners
         mouseX = new SimpleIntegerProperty(0);
@@ -220,18 +230,33 @@ public class SkyCanvasManager {
 
     }
 
+    /**
+     * Refreshes canvas by clearing it and drawings all elements
+     */
     public void refreshCanvas(){
         skyCanvasPainter.get().drawAll(observedSky.get(), projection.get(), planeToCanvas.get());
     }
 
+    /**
+     * Getter for the sky canvas manager's canvas
+     * @return Sky canvas manager's canvas
+     */
     public Canvas canvas() {
         return canvas.get();
     }
 
+    /**
+     * Getter for this sky canvas manager's canvas observable object value property
+     * @return
+     */
     public ObservableObjectValue<Canvas> canvasProperty() {
         return canvas;
     }
 
+    /**
+     * Getter for this sky canvas manager's canvas painter
+     * @return Sky canvas manager's canvas painter
+     */
     public SkyCanvasPainter getSkyCanvasPainter() {
         return skyCanvasPainter.get();
     }
