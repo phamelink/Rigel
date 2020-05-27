@@ -146,35 +146,40 @@ public class SkyCanvasManager {
             }
         }, mousePositionInPlane, observedSky, mousePresentOverPane);
 
-
         //Bind sky painter
         this.skyCanvasPainter = new SimpleObjectProperty<>(new SkyCanvasPainter(this.canvas.get()));
-        timeAcc = new SimpleObjectProperty<>(NamedTimeAccelerator.TIMES_1.getAccelerator());
+        timeAcc = new SimpleObjectProperty<>();
         this.timeAnimator = new SimpleObjectProperty<> (new TimeAnimator(this.dateTimeBean));
         timeAcc.addListener((p,o,n) -> timeAnimator.getValue().setAccelerator(n));
         observedSky.addListener((p,o,n) -> refreshCanvas());
         planeToCanvas.addListener((p,o,n) -> refreshCanvas());
         objectUnderMouse.addListener((p,o,n) -> refreshCanvas());
 
-
-
         //Bind controls
         canvas.get().addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             switch (event.getCode()){
                 case UP:
-                    viewingParameters.setCenter(HorizontalCoordinates.of(Angle.normalizePositive(viewingParameters.getCenter().az()), ALT_BOUND.clip(viewingParameters.getCenter().alt() + MOVEMENT_DELTA)));
+                    viewingParameters.setCenter(HorizontalCoordinates
+                            .of(Angle.normalizePositive(viewingParameters.getCenter().az()),
+                                    ALT_BOUND.clip(viewingParameters.getCenter().alt() + MOVEMENT_DELTA)));
                     event.consume();
                     break;
                 case DOWN:
-                    viewingParameters.setCenter(HorizontalCoordinates.of(Angle.normalizePositive(viewingParameters.getCenter().az()), ALT_BOUND.clip(viewingParameters.getCenter().alt() - MOVEMENT_DELTA)));
+                    viewingParameters.setCenter(HorizontalCoordinates
+                            .of(Angle.normalizePositive(viewingParameters.getCenter().az()),
+                                    ALT_BOUND.clip(viewingParameters.getCenter().alt() - MOVEMENT_DELTA)));
                     event.consume();
                     break;
                 case LEFT:
-                    viewingParameters.setCenter(HorizontalCoordinates.of(Angle.normalizePositive(viewingParameters.getCenter().az() - MOVEMENT_DELTA) , ALT_BOUND.clip(viewingParameters.getCenter().alt())));
+                    viewingParameters.setCenter(HorizontalCoordinates
+                            .of(Angle.normalizePositive(viewingParameters.getCenter().az() - MOVEMENT_DELTA) ,
+                                    ALT_BOUND.clip(viewingParameters.getCenter().alt())));
                     event.consume();
                     break;
                 case RIGHT:
-                    viewingParameters.setCenter(HorizontalCoordinates.of(Angle.normalizePositive(viewingParameters.getCenter().az() + MOVEMENT_DELTA), ALT_BOUND.clip(viewingParameters.getCenter().alt())));
+                    viewingParameters.setCenter(HorizontalCoordinates
+                            .of(Angle.normalizePositive(viewingParameters.getCenter().az() + MOVEMENT_DELTA),
+                                    ALT_BOUND.clip(viewingParameters.getCenter().alt())));
                     event.consume();
                     break;
                 default:
@@ -185,13 +190,14 @@ public class SkyCanvasManager {
         });
 
         //Bind drag controls
-
         canvas.get().addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
-            if(event.isSecondaryButtonDown()) {
+            if (event.isSecondaryButtonDown()) {
                 lastMouseDragPosition = new Point2D(event.getX(), event.getY());
-            }else if(event.isPrimaryButtonDown() && objectUnderMouse.get().isPresent()){
+            } else if (event.isPrimaryButtonDown() && objectUnderMouse.get().isPresent()) {
                 refreshCanvas();
-                CartesianCoordinates objPos = new StereographicProjection(viewingParameters.getCenter()).apply(new EquatorialToHorizontalConversion(dateTimeBean.getZonedDateTime(), observerLocation.getCoordinates()).apply(objectUnderMouse.get().get().equatorialPos()));
+                CartesianCoordinates objPos = new StereographicProjection(viewingParameters.getCenter())
+                        .apply(new EquatorialToHorizontalConversion(dateTimeBean.getZonedDateTime(),
+                                observerLocation.getCoordinates()).apply(objectUnderMouse.get().get().equatorialPos()));
                 Point2D posTrans = planeToCanvas.get().transform(objPos.x(), objPos.y());
                 gc.setFill(Color.WHITE);
                 gc.fillRoundRect(posTrans.getX() + 5, posTrans.getY() - 55,200, 50, 2, 2);
@@ -201,10 +207,8 @@ public class SkyCanvasManager {
             }
         });
 
-
         canvas.get().addEventFilter(MouseEvent.MOUSE_DRAGGED, event-> {
             if(event.isSecondaryButtonDown()) {
-
                 System.out.println(lastMouseDragPosition);
                 Point2D nextPoint = new Point2D(event.getX(), event.getY());
                 double deltaX = lastMouseDragPosition.getX() - nextPoint.getX();
@@ -220,11 +224,12 @@ public class SkyCanvasManager {
         });
 
         canvas.get().setOnScroll((e) -> {
-            System.out.println("scroll event");
-            if(Math.abs(e.getDeltaX()) >= Math.abs(e.getDeltaY())){
-                viewingParameters.setFieldOfViewDeg(FOV_BOUND.clip(viewingParameters.getFieldOfViewDeg() - ZOOM_FACTOR * e.getDeltaX()));
-            }else{
-                viewingParameters.setFieldOfViewDeg(FOV_BOUND.clip(viewingParameters.getFieldOfViewDeg() - ZOOM_FACTOR * e.getDeltaY()));
+            if (Math.abs(e.getDeltaX()) >= Math.abs(e.getDeltaY())) {
+                viewingParameters.setFieldOfViewDeg(FOV_BOUND
+                        .clip(viewingParameters.getFieldOfViewDeg() - ZOOM_FACTOR * e.getDeltaX()));
+            } else {
+                viewingParameters.setFieldOfViewDeg(FOV_BOUND
+                        .clip(viewingParameters.getFieldOfViewDeg() - ZOOM_FACTOR * e.getDeltaY()));
             }
         });
 
@@ -238,7 +243,7 @@ public class SkyCanvasManager {
     }
 
     /**
-     * Getter for the sky canvas manager's canvas
+     * Returns the sky canvas manager's canvas
      * @return Sky canvas manager's canvas
      */
     public Canvas canvas() {
@@ -246,8 +251,8 @@ public class SkyCanvasManager {
     }
 
     /**
-     * Getter for this sky canvas manager's canvas observable object value property
-     * @return
+     * Returns this sky canvas manager's canvas observable object value
+     * @return Sky canvas manager's canvas observable object value
      */
     public ObservableObjectValue<Canvas> canvasProperty() {
         return canvas;
@@ -261,104 +266,220 @@ public class SkyCanvasManager {
         return skyCanvasPainter.get();
     }
 
+    /**
+     * Returns this sky canvas manager's sky canvas painter observable object value
+     * @return Sky canvas manager's sky canvas painter observable object value
+     */
     public ObservableObjectValue<SkyCanvasPainter> skyCanvasPainterProperty() {
         return skyCanvasPainter;
     }
 
+    /**
+     * Getter for observed sky
+     * @return Observed sky
+     */
     public ObservedSky getObservedSky() {
         return observedSky.get();
     }
 
+    /**
+     * Returns observed sky property as observable object value
+     * @return Observed sky property as observable object value
+     */
     public ObservableObjectValue<ObservedSky> observedSkyProperty() {
         return observedSky;
     }
 
+    /**
+     * Getter for this sky manager's stereographic projection
+     * @return Stereographic projection
+     */
     public StereographicProjection getProjection() {
         return projection.get();
     }
 
+    /**
+     * Returns this sky canvas manager's stereographic projection observable object value
+     * @return Stereographic projection observable object value
+     */
     public ObservableObjectValue<StereographicProjection> projectionProperty() {
         return projection;
     }
 
+    /**
+     * Getter for plane to canvas transform
+     * @return Plane to canvas transform
+     */
     public Transform getPlaneToCanvas() {
         return planeToCanvas.get();
     }
 
+    /**
+     * Returns plane to canvas transform observable object value
+     * @return Plane to canvas transform observable object value
+     */
     public ObservableObjectValue<Transform> planeToCanvasProperty() {
         return planeToCanvas;
     }
 
+    /**
+     * Getter for horizontal mouse position in horizontal coordinates
+     * @return Horizontal mouse position in horizontal coordinates
+     */
     public HorizontalCoordinates getMouseHorizontalPosition() {
         return mouseHorizontalPosition.get();
     }
 
+    /**
+     * Returns horizontal mouse position property as observable object value
+     * @return Horizontal mouse position property as observable object value
+     */
     public ObservableObjectValue<HorizontalCoordinates> mouseHorizontalPositionProperty() {
         return mouseHorizontalPosition;
     }
 
+    /**
+     * Getter for a Point2D of the mouse's position
+     * @return Point2D of the mouse's position
+     */
     public Point2D getMousePosition() {
         return mousePosition.get();
     }
 
+    /**
+     * Returns the mouse position property as observable object value
+     * @return Mouse position property as observable object value
+     */
     public ObservableObjectValue<Point2D> mousePositionProperty() {
         return mousePosition;
     }
 
+    /**
+     * Getter for a Point2d of the mouse position in plane
+     * @return Point2d of the mouse position in plane
+     */
     public Point2D getMousePositionInPlane() {
         return mousePositionInPlane.get();
     }
 
+    /**
+     * Returns the mouse position in plane property as observable object value
+     * @return Mouse position in plane property as observable object value
+     */
     public ObservableObjectValue<Point2D> mousePositionInPlaneProperty() {
         return mousePositionInPlane;
     }
 
+    /**
+     * Getter for time animator
+     * @return Time animator
+     */
     public TimeAnimator getTimeAnimator() {
         return timeAnimator.get();
     }
 
+    /**
+     * Returns time animator property as observable object value
+     * @return Time animator property as observable object value
+     */
     public ObservableObjectValue<TimeAnimator> timeAnimatorProperty() {
         return timeAnimator;
     }
 
+    /**
+     * Getter for current time animator's accelerator
+     * @return Time animator's accelerator
+     */
     public TimeAccelerator getTimeAcc() {
         return timeAcc.get();
     }
 
+    /**
+     * Returns the time accelerator object property
+     * @return Time accelerator object property
+     */
     public ObjectProperty<TimeAccelerator> timeAccProperty() {
         return timeAcc;
     }
 
+    /**
+     * Getter for the dilatation factor
+     * @return Dilatation factor
+     */
     public Number getDilationFactor() {
         return dilationFactor.get();
     }
 
+    /**
+     * Returns dilatation factor property as observable double value
+     * @return Dilatation factor property as observable double value
+     */
     public ObservableDoubleValue dilationFactorProperty() {
         return dilationFactor;
     }
 
+    /**
+     * Getter for an optional object under mouse
+     * @return Optional object under mouse
+     */
     public Optional<CelestialObject> getObjectUnderMouse() {
         return objectUnderMouse.get();
     }
 
+    /**
+     * Returns object under mouse property as observable object value
+     * @return Object under mouse property as observable object value
+     */
     public ObservableObjectValue<Optional<CelestialObject>> objectUnderMouseProperty() {
         return objectUnderMouse;
     }
 
+    /**
+     * Getter for mouse azimuth coordinate
+     * @return Mouse azimuth coordinate
+     */
     public Number getMouseAzDeg() {
         return mouseAzDeg.get();
     }
 
+    /**
+     * Returns mouse azimuth coordinate property as observable double value
+     * @return Mouse azimuth coordinate property as observable double value
+     */
     public ObservableDoubleValue mouseAzDegProperty() {
         return mouseAzDeg;
     }
 
+    /**
+     * Getter for mouse altitude coordinate
+     * @return Mouse altitude coordinate
+     */
     public Number getMouseAltDeg() {
         return mouseAltDeg.get();
     }
 
+    /**
+     * Returns mouse altitude coordinate property as observable double value
+     * @return Mouse altitude coordinate property as observable double value
+     */
     public ObservableDoubleValue mouseAltDegProperty() {
         return mouseAltDeg;
+    }
+
+    /**
+     * Returns time animator's running property as observable boolean value
+     * @return Time animator's running property as observable boolean value
+     */
+    public ObservableBooleanValue timeAnimatorRunningProperty() {
+        return timeAnimator.get().getRunningProperty();
+    }
+
+    /**
+     * Getter for boolean value of time animator's running
+     * @return Boolean value of time animator's running
+     */
+    public boolean getTimeAnimatorRunning() {
+        return timeAnimator.get().getRunning();
     }
 
 }

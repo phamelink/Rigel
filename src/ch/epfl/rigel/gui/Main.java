@@ -236,7 +236,7 @@ public class Main extends Application {
         zoneIdComboBox.valueProperty().bindBidirectional(dateTimeBean.zoneIdProperty());
 
         HBox obsIntBox = new HBox(dateLabel, datePicker, timeLabel, timeTextField, zoneIdComboBox);
-        obsIntBox.disableProperty().bind(canvasManager.getTimeAnimator().getRunningProperty());
+        obsIntBox.disableProperty().bind(canvasManager.timeAnimatorRunningProperty());
         obsIntBox.setStyle("-fx-spacing: inherit; -fx-alignment: baseline-left;");
 
         return obsIntBox;
@@ -253,38 +253,30 @@ public class Main extends Application {
     }
 
     private HBox accBox(DateTimeBean dateTimeBean, SkyCanvasManager canvasManager) {
-
-
         ChoiceBox<NamedTimeAccelerator> acceleratorChoiceBox = new ChoiceBox<>(FXCollections.observableArrayList(NamedTimeAccelerator.values()));
         acceleratorChoiceBox.setValue(DEFAULT_ACCELERATOR);
         canvasManager.timeAccProperty().bind(Bindings.select(acceleratorChoiceBox.valueProperty(), "accelerator"));
 
-
-
         Button resetButton = new Button(RESET_CHAR);
         Button pausePlayButton = new Button(PLAY_CHAR);
 
-        BooleanProperty isPlaying = new SimpleBooleanProperty(false);
-        isPlaying.bind(canvasManager.getTimeAnimator().getRunningProperty());
         pausePlayButton.textProperty().bind(
-                when(isPlaying)
+                when(canvasManager.timeAnimatorRunningProperty())
                 .then(PAUSE_CHAR)
                 .otherwise(PLAY_CHAR));
 
         pausePlayButton.setOnAction(event -> {
-            if (isPlaying.get()) {
+            if (canvasManager.getTimeAnimatorRunning()) {
                 canvasManager.getTimeAnimator().stop();
             } else {
                 canvasManager.getTimeAnimator().start();
             }
         });
 
-        acceleratorChoiceBox.disableProperty().bind(isPlaying);
+        acceleratorChoiceBox.disableProperty().bind(canvasManager.timeAnimatorRunningProperty());
 
-        resetButton.setOnAction(event -> {
-            if (!isPlaying.get())
-                dateTimeBean.setZonedDateTime(ZonedDateTime.now());
-        });
+        resetButton.setOnAction(event -> dateTimeBean.setZonedDateTime(ZonedDateTime.now()));
+        resetButton.disableProperty().bind(canvasManager.timeAnimatorRunningProperty());
         resetButton.setFont(fontAwesome);
         pausePlayButton.setFont(fontAwesome);
 
