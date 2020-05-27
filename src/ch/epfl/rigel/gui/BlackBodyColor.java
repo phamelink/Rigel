@@ -1,12 +1,9 @@
 package ch.epfl.rigel.gui;
 
-
 import ch.epfl.rigel.Preconditions;
 import ch.epfl.rigel.math.ClosedInterval;
 import ch.epfl.rigel.math.Interval;
 import javafx.scene.paint.Color;
-
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -23,13 +20,7 @@ import java.util.HashMap;
  */
 public class BlackBodyColor {
 
-    //Prevent instantiation
-    private BlackBodyColor() {
-    }
-
-    private static final String DATA_FILE =
-            "/bbr_color.txt";
-
+    private static final String DATA_FILE = "/bbr_color.txt";
     private static Interval temperatureDomain;
 
     /*
@@ -38,7 +29,10 @@ public class BlackBodyColor {
      */
     private static HashMap<Integer, Color> COLOR_MAP = loadMap();
 
-    //TODO: parameter unnecessary?
+    //Prevent instantiation
+    private BlackBodyColor() {
+    }
+
     private static HashMap<Integer, Color> loadMap() {
 
         HashMap<Integer, Color> mapToReturn = new HashMap<>();
@@ -64,12 +58,7 @@ public class BlackBodyColor {
         temperatureDomain = ClosedInterval.of(Collections.min(mapToReturn.keySet()),Collections.max(mapToReturn.keySet()));
         return mapToReturn;
     }
-
-    /**
-     * Custom Integer parser that removes unnecessary spaces in front of the String.
-     * @param str sting to parse
-     * @return an integer extracted from the string
-     */
+    
     private static int parseInt(String str){
         String parsing = str;
         while(parsing.charAt(0) == ' '){

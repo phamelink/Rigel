@@ -93,7 +93,7 @@ public class Main extends Application {
         try (InputStream fontStream = getClass()
                 .getResourceAsStream("/Font Awesome 5 Free-Solid-900.otf")) {
             fontAwesome = Font.loadFont(fontStream, 15);
-        } catch (IOException e){
+        } catch (Exception e){
             System.err.println("Error loading font data");
             fontAwesome = Font.getDefault();
         }

@@ -23,13 +23,14 @@ import java.util.function.Function;
  * @author Malo Ranzetti (296956)
  */
 public class SkyCanvasPainter {
-    private Canvas canvas;
-    private GraphicsContext gc;
 
     private static final ClosedInterval MAGNITUDE_INTERVAL = ClosedInterval.of(-2, 5);
 
+    private Canvas canvas;
+    private GraphicsContext gc;
+
     /**
-     * SkyCanvasPainterConstructor
+     * Attaches a SkyCanvasPainter to a canvas
      * @param canvas canvas on which the sky will be painted
      */
     public SkyCanvasPainter(Canvas canvas) {
@@ -57,10 +58,10 @@ public class SkyCanvasPainter {
      * @param planeToCanvas Transform used
      */
     public void drawStars (ObservedSky sky, StereographicProjection projection, Transform planeToCanvas) {
-        drawAsterisms(sky, planeToCanvas);
         List<Star> stars = sky.stars();
         double[] stereoPoints = new double[sky.starCoordinates().length];
         planeToCanvas.transform2DPoints(sky.starCoordinates(), 0, stereoPoints, 0, stars.size());
+        drawAsterisms(sky, stereoPoints);
         for (int i = 0; i < stars.size(); i++) {
             drawCelestialObject(new Point2D(stereoPoints[2 * i],stereoPoints[2 * i + 1]), planeToCanvas,
                     BlackBodyColor.colorForTemperature(stars.get(i).colorTemperature()),
@@ -68,24 +69,20 @@ public class SkyCanvasPainter {
         }
     }
 
-    private void drawAsterisms(ObservedSky sky, Transform planeToCanvas) {
-        double[] allStarCoord = sky.starCoordinates();
+    private void drawAsterisms(ObservedSky sky, double[] transformedPoints) {
         Bounds b = canvas.getBoundsInLocal();
         gc.setStroke(Color.BLUE);
         gc.setLineWidth(1);
         for (Asterism asterism : sky.asterisms()) {
             gc.beginPath();
             boolean previousInBound = true;
-            CartesianCoordinates starCoord;
             for (Integer i : sky.asterismIndex(asterism)) {
-                starCoord = CartesianCoordinates.of(allStarCoord[2 * i], allStarCoord[2 * i + 1]);
-                Point2D point = planeToCanvas.transform(starCoord.x(), starCoord.y());
-                double x = point.getX();
-                double y = point.getY();
+                Point2D point = new Point2D(transformedPoints[2 * i], transformedPoints[2 * i + 1]);
                 //draws only a line if two consecutive stars not out of bound
-                if (previousInBound || b.contains(x, y)) gc.lineTo(x, y);
-                else gc.moveTo(x, y);
-                previousInBound = b.contains(x, y);
+                boolean thisInBound = b.contains(point);
+                if (previousInBound || thisInBound) gc.lineTo(point.getX(), point.getY());
+                else gc.moveTo(point.getX(), point.getY());
+                previousInBound =thisInBound;
             }
             gc.stroke();
         }
