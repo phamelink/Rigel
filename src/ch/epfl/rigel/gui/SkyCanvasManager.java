@@ -36,11 +36,11 @@ public class SkyCanvasManager {
     private static final double CANVAS_HEIGHT = 600;
     private static final float ZOOM_FACTOR = 0.05f;
     private static final ClosedInterval FOV_BOUND = ClosedInterval.of(30, 150);
-    private static final double MOVEMENT_DELTA = Angle.ofDeg(1.0);
+    private static final double HORIZONTAL_MOVEMENT_DELTA = Angle.ofDeg(10);
+    private static final double VERTICAL_MOVEMENT_DELTA = Angle.ofDeg(5);
     private static final ClosedInterval ALT_BOUND = ClosedInterval.of(Angle.ofDeg(5.0), Angle.ofDeg(90.0));
     private static final double CONTROL_FACTOR_X = 1.32;
     private static final double CONTROL_FACTOR_Y = 0.74;
-
 
     private final DateTimeBean dateTimeBean;
     private final ObserverLocationBean observerLocation;
@@ -48,7 +48,6 @@ public class SkyCanvasManager {
 
     private final ObservableObjectValue<Canvas> canvas;
     private final ObservableObjectValue<SkyCanvasPainter> skyCanvasPainter;
-
 
     //Given
     private final ObservableObjectValue<ObservedSky> observedSky;
@@ -58,15 +57,11 @@ public class SkyCanvasManager {
     private final ObservableObjectValue<Point2D> mousePosition;
     private final ObservableObjectValue<Point2D> mousePositionInPlane;
 
-
     //Additional
     private final ObservableObjectValue<TimeAnimator> timeAnimator;
     private final ObjectProperty<TimeAccelerator> timeAcc;
     private final ObservableDoubleValue dilationFactor;
     private final ObservableDoubleValue dilationFactorY;
-
-
-
 
     public final ObservableObjectValue<Optional<CelestialObject>> objectUnderMouse;
     public final ObservableDoubleValue mouseAzDeg;
@@ -99,7 +94,8 @@ public class SkyCanvasManager {
         projection = Bindings.createObjectBinding(() -> new StereographicProjection(viewingParameters.getCenter()), viewingParameters.centerProperty());
 
         observedSky = Bindings.createObjectBinding(() ->new ObservedSky(this.dateTimeBean.getZonedDateTime(),
-                        this.observerLocation.getCoordinates(), this.projection.get(), starCatalogue),this.dateTimeBean.dateProperty(), this.dateTimeBean.timeProperty(),
+                        this.observerLocation.getCoordinates(), this.projection.get(), starCatalogue),
+                        this.dateTimeBean.dateProperty(), this.dateTimeBean.timeProperty(),
                         this.dateTimeBean.zoneIdProperty(), this.observerLocation.coordinatesProperty(),
                         this.projection);
 
@@ -111,13 +107,14 @@ public class SkyCanvasManager {
                         (2 * Math.tan(Angle.ofDeg(viewingParameters.getFieldOfViewDeg()) / 4)),
                 viewingParameters.fieldOfViewDegProperty(), canvas.get().heightProperty());
 
-        planeToCanvas = Bindings.createObjectBinding(() -> Transform.affine(dilationFactor.get(), 0, 0, - dilationFactor.get(),
-                canvas.get().getWidth() / 2,canvas.get().getHeight() / 2), canvas.get().widthProperty(), canvas.get().heightProperty(), dilationFactor);
+        planeToCanvas = Bindings.createObjectBinding(() -> Transform.affine(dilationFactor.get(), 0, 0,
+                - dilationFactor.get(), canvas.get().getWidth() / 2,canvas.get().getHeight() / 2),
+                canvas.get().widthProperty(), canvas.get().heightProperty(), dilationFactor);
 
         //Mouse listeners
         mouseX = new SimpleIntegerProperty(0);
         mouseY = new SimpleIntegerProperty(0);
-        mousePosition = Bindings.createObjectBinding(() -> new Point2D(mouseX.get(), mouseY.get()), mouseX, mouseY);
+        mousePosition = Bindings.createObjectBinding(() -> new Point2D(mouseX.get(), mouseY.get()), mouseX, mouseY, viewingParameters.centerProperty());
         canvas.get().setOnMouseMoved((e) -> {mouseX.set((int) e.getX()); mouseY.set((int) e.getY());});
         canvas.get().setOnMousePressed((e) -> { if(e.isPrimaryButtonDown()) canvas.get().requestFocus(); });
         mousePresentOverPane = new SimpleBooleanProperty(false);
@@ -141,7 +138,7 @@ public class SkyCanvasManager {
             if (mousePresentOverPane.getValue()) {
                 return observedSky.get().objectClosestTo(CartesianCoordinates.of(mousePositionInPlane.get().getX(),
                         mousePositionInPlane.get().getY()), planeToCanvas.get().inverseDeltaTransform(10, 0).getX());
-            }else{
+            } else {
                 return Optional.empty();
             }
         }, mousePositionInPlane, observedSky, mousePresentOverPane);
@@ -161,24 +158,24 @@ public class SkyCanvasManager {
                 case UP:
                     viewingParameters.setCenter(HorizontalCoordinates
                             .of(Angle.normalizePositive(viewingParameters.getCenter().az()),
-                                    ALT_BOUND.clip(viewingParameters.getCenter().alt() + MOVEMENT_DELTA)));
+                                    ALT_BOUND.clip(viewingParameters.getCenter().alt() + VERTICAL_MOVEMENT_DELTA)));
                     event.consume();
                     break;
                 case DOWN:
                     viewingParameters.setCenter(HorizontalCoordinates
                             .of(Angle.normalizePositive(viewingParameters.getCenter().az()),
-                                    ALT_BOUND.clip(viewingParameters.getCenter().alt() - MOVEMENT_DELTA)));
+                                    ALT_BOUND.clip(viewingParameters.getCenter().alt() - VERTICAL_MOVEMENT_DELTA)));
                     event.consume();
                     break;
                 case LEFT:
                     viewingParameters.setCenter(HorizontalCoordinates
-                            .of(Angle.normalizePositive(viewingParameters.getCenter().az() - MOVEMENT_DELTA) ,
+                            .of(Angle.normalizePositive(viewingParameters.getCenter().az() - HORIZONTAL_MOVEMENT_DELTA) ,
                                     ALT_BOUND.clip(viewingParameters.getCenter().alt())));
                     event.consume();
                     break;
                 case RIGHT:
                     viewingParameters.setCenter(HorizontalCoordinates
-                            .of(Angle.normalizePositive(viewingParameters.getCenter().az() + MOVEMENT_DELTA),
+                            .of(Angle.normalizePositive(viewingParameters.getCenter().az() + HORIZONTAL_MOVEMENT_DELTA),
                                     ALT_BOUND.clip(viewingParameters.getCenter().alt())));
                     event.consume();
                     break;
