@@ -57,24 +57,8 @@ public class Main extends Application {
 
     public static void main(String[] args) { launch(args); }
 
-
-    /**
-     * The main entry point for all JavaFX applications.
-     * The start method is called after the init method has returned,
-     * and after the system is ready for the application to begin running.
-     *
-     * <p>
-     * NOTE: This method is called on the JavaFX Application Thread.
-     * </p>
-     *
-     * @param primaryStage the primary stage for this application, onto which
-     *                     the application scene can be set.
-     *                     Applications may create other stages, if needed, but they will not be
-     *                     primary stages.
-     */
     @Override
     public void start(Stage primaryStage) {
-
         //Load catalogue
         StarCatalogue catalogue;
         try (InputStream hs = getClass().getResourceAsStream(("/hygdata_v3.csv"));
@@ -98,12 +82,13 @@ public class Main extends Application {
             fontAwesome = Font.getDefault();
         }
 
-
         //Parameter instantiation
         DateTimeBean dateTimeBean = new DateTimeBean(ZonedDateTime.now());
-        ObserverLocationBean observerLocationBean = new ObserverLocationBean( GeographicCoordinates.ofDeg(DEFAULT_LONGITUDE, DEFAULT_LATITUDE));
+        ObserverLocationBean observerLocationBean =
+                new ObserverLocationBean(GeographicCoordinates.ofDeg(DEFAULT_LONGITUDE, DEFAULT_LATITUDE));
         ViewingParametersBean viewingParametersBean =
-                new ViewingParametersBean(DEFAULT_FIELD_OF_VIEW, HorizontalCoordinates.ofDeg(DEFAULT_OBSERVATION_AZIMUTH, DEFAULT_OBSERVATION_ALTITUDE));
+                new ViewingParametersBean(DEFAULT_FIELD_OF_VIEW,
+                        HorizontalCoordinates.ofDeg(DEFAULT_OBSERVATION_AZIMUTH, DEFAULT_OBSERVATION_ALTITUDE));
 
         //Graphics engine instantiation
         SkyCanvasManager canvasManager = new SkyCanvasManager(catalogue, dateTimeBean, observerLocationBean,
@@ -122,8 +107,6 @@ public class Main extends Application {
          */
 
         BorderPane root = new BorderPane();
-
-
 
         HBox primaryBox = controlBar(dateTimeBean, observerLocationBean, canvasManager);
         Pane skyPane = new Pane(sky);
@@ -145,11 +128,9 @@ public class Main extends Application {
 
         primaryStage.show();
         sky.requestFocus();
-
     }
 
     private HBox controlBar(DateTimeBean dateTimeBean, ObserverLocationBean observerLocationBean, SkyCanvasManager canvasManager) {
-
         HBox controlBar = new HBox(
                 obsPosBox(observerLocationBean),
                 new Separator(Orientation.VERTICAL),
@@ -293,7 +274,8 @@ public class Main extends Application {
         fov.textProperty().bind(format("Champ de vue : %.1f°", viewingParametersBean.fieldOfViewDegProperty()));
 
         StringBinding objectName;
-        objectName = Bindings.createStringBinding(() -> canvasManager.objectUnderMouse.get().isPresent() ? canvasManager.getObjectUnderMouse().get().info() : "", canvasManager.objectUnderMouse);
+        objectName = Bindings.createStringBinding(() -> canvasManager.objectUnderMouse.get().isPresent() ?
+                canvasManager.getObjectUnderMouse().get().info() : "", canvasManager.objectUnderMouse);
 
         Text objectUnderMouse = new Text();
         objectUnderMouse.textProperty().bind(objectName);
