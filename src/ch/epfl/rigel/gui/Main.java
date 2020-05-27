@@ -49,6 +49,11 @@ public class Main extends Application {
     private static final double DEFAULT_FIELD_OF_VIEW = 100.0;
     private static final double DEFAULT_LONGITUDE = 6.57;
     private static final double DEFAULT_LATITUDE = 46.52;
+    private static String RESET_CHAR = "\uf0e2";
+    private static String PLAY_CHAR = "\uf04b";
+    private static String PAUSE_CHAR = "\uf04c";
+
+    private static Font fontAwesome;
 
     public static void main(String[] args) { launch(args); }
 
@@ -66,101 +71,126 @@ public class Main extends Application {
      *                     the application scene can be set.
      *                     Applications may create other stages, if needed, but they will not be
      *                     primary stages.
-     * @throws IOException if something goes wrong
      */
     @Override
-    public void start(Stage primaryStage) throws IOException {
+    public void start(Stage primaryStage) {
+
+        //Load catalogue
+        StarCatalogue catalogue;
         try (InputStream hs = getClass().getResourceAsStream(("/hygdata_v3.csv"));
-             InputStream ast = getClass().getResourceAsStream("/asterisms.txt")) {
-            StarCatalogue catalogue = new StarCatalogue.Builder()
+             InputStream ast = getClass().getResourceAsStream("/asterisms.txt");){
+
+             catalogue = new StarCatalogue.Builder()
                     .loadFrom(hs, HygDatabaseLoader.INSTANCE)
                     .loadFrom(ast, AsterismLoader.INSTANCE)
                     .build();
-
-            DateTimeBean dateTimeBean = new DateTimeBean();
-            dateTimeBean.setZonedDateTime(ZonedDateTime.now());
-
-            ObserverLocationBean observerLocationBean =
-                    new ObserverLocationBean();
-            observerLocationBean.setCoordinates(
-                    GeographicCoordinates.ofDeg(DEFAULT_LONGITUDE, DEFAULT_LATITUDE));
-
-            ViewingParametersBean viewingParametersBean =
-                    new ViewingParametersBean(DEFAULT_FIELD_OF_VIEW, HorizontalCoordinates.ofDeg(DEFAULT_OBSERVATION_AZIMUTH, DEFAULT_OBSERVATION_ALTITUDE));
-
-            SkyCanvasManager canvasManager = new SkyCanvasManager(
-                    catalogue,
-                    dateTimeBean,
-                    observerLocationBean,
-                    viewingParametersBean);
-
-            Canvas sky = canvasManager.canvas();
-            BorderPane root = new BorderPane();
-
-            sky.widthProperty().bind(root.widthProperty());
-            sky.heightProperty().bind(root.heightProperty());
-
-
-            HBox primaryBox = controlBar(dateTimeBean, observerLocationBean, canvasManager);
-            Pane skyPane = new Pane(sky);
-            BorderPane infoBar = infoBar(viewingParametersBean, canvasManager);
-
-            root.setTop(primaryBox);
-            root.setCenter(skyPane);
-            root.setBottom(infoBar);
-
-            primaryStage.setTitle("Rigel");
-            primaryStage.setMinHeight(600);
-            primaryStage.setMinWidth(800);
-            primaryStage.setScene(new Scene(root));
-            primaryStage.show();
-            primaryStage.getIcons().add(new Image("file:icon.png"));
-
-            sky.requestFocus();
+        }catch (Exception e) {
+            System.err.println("Error loading star data");
+            catalogue = new StarCatalogue.Builder().build();
         }
+
+        //Load font
+        try (InputStream fontStream = getClass()
+                .getResourceAsStream("/Font Awesome 5 Free-Solid-900.otf")) {
+            fontAwesome = Font.loadFont(fontStream, 15);
+        } catch (IOException e){
+            System.err.println("Error loading font data");
+            fontAwesome = Font.getDefault();
+        }
+
+
+        //Parameter instantiation
+        DateTimeBean dateTimeBean = new DateTimeBean(ZonedDateTime.now());
+        ObserverLocationBean observerLocationBean = new ObserverLocationBean( GeographicCoordinates.ofDeg(DEFAULT_LONGITUDE, DEFAULT_LATITUDE));
+        ViewingParametersBean viewingParametersBean =
+                new ViewingParametersBean(DEFAULT_FIELD_OF_VIEW, HorizontalCoordinates.ofDeg(DEFAULT_OBSERVATION_AZIMUTH, DEFAULT_OBSERVATION_ALTITUDE));
+
+        //Graphics engine instantiation
+        SkyCanvasManager canvasManager = new SkyCanvasManager(catalogue, dateTimeBean, observerLocationBean,
+                viewingParametersBean);
+        Canvas sky = canvasManager.canvas(); //Extract canvas from graphics engine
+
+        /*
+                                                        GUI
+
+                                ¦--  TOP   -- primaryBox <= controlBar()    Parameter controls
+                                ¦
+         primaryStage---root----¦-- CENTER -- skyPane    <= sky             Pane containing rendered graphics
+                                ¦
+                                ¦-- BOTTOM -- infoBar    <= infoBar()       Information display
+
+         */
+
+        BorderPane root = new BorderPane();
+
+
+
+        HBox primaryBox = controlBar(dateTimeBean, observerLocationBean, canvasManager);
+        Pane skyPane = new Pane(sky);
+        BorderPane infoBar = infoBar(viewingParametersBean, canvasManager);
+
+        root.setTop(primaryBox);
+        root.setCenter(skyPane);
+        root.setBottom(infoBar);
+
+        sky.widthProperty().bind(root.widthProperty());
+        sky.heightProperty().bind(root.heightProperty());
+
+        //Window parameters
+        primaryStage.setTitle("Rigel");
+        primaryStage.setMinHeight(600);
+        primaryStage.setMinWidth(800);
+        primaryStage.setScene(new Scene(root));
+        primaryStage.getIcons().add(new Image("file:icon.png"));
+
+        primaryStage.show();
+        sky.requestFocus();
+
     }
 
     private HBox controlBar(DateTimeBean dateTimeBean, ObserverLocationBean observerLocationBean, SkyCanvasManager canvasManager) {
-        HBox controlBar = new HBox();
-        HBox obsPosBox = obsPosBox(observerLocationBean);
-        HBox obsInstBox = obsInstBox(dateTimeBean, canvasManager);
-        HBox accBox = accBox(dateTimeBean, canvasManager);
 
-        controlBar.getChildren().addAll(obsPosBox, new Separator(Orientation.VERTICAL), obsInstBox,
-                new Separator(Orientation.VERTICAL), accBox);
+        HBox controlBar = new HBox(
+                obsPosBox(observerLocationBean),
+                new Separator(Orientation.VERTICAL),
+                obsInstBox(dateTimeBean, canvasManager),
+                new Separator(Orientation.VERTICAL),
+                accBox(dateTimeBean, canvasManager)
+        );
         controlBar.setStyle("-fx-spacing: 4; -fx-padding: 4;");
         return controlBar;
     }
 
     private HBox obsPosBox(ObserverLocationBean observerLocationBean) {
-        HBox observationPosBox = new HBox();
-
         Label lonLabel = new Label("Longitude (°) :");
-        Label latLabel = new Label("Latitude (°) :");
-
         TextField lonTextField = new TextField();
         lonTextField.setStyle("-fx-pref-width: 60; -fx-alignment: baseline-right;");
         TextFormatter<Number> lonTextFormatter = textFormatter(GeographicCoordinates::isValidLonDeg);
         lonTextField.setTextFormatter(lonTextFormatter);
         lonTextFormatter.valueProperty().bindBidirectional(observerLocationBean.lonDegProperty());
 
+        Label latLabel = new Label("Latitude (°) :");
         TextField latTextField = new TextField();
         latTextField.setStyle("-fx-pref-width: 60; -fx-alignment: baseline-right;");
         TextFormatter<Number> latTextFormatter = textFormatter(GeographicCoordinates::isValidLatDeg);
         latTextField.setTextFormatter(latTextFormatter);
         latTextFormatter.valueProperty().bindBidirectional(observerLocationBean.latDegProperty());
 
-        observationPosBox.getChildren().addAll(lonLabel, lonTextField, latLabel, latTextField);
+        HBox observationPosBox = new HBox(lonLabel, lonTextField, latLabel, latTextField);
         observationPosBox.setStyle("-fx-spacing: inherit; -fx-alignment: baseline-left;");
-
         return observationPosBox;
     }
 
+    /**
+     * Creates a TextFormatter based on a logical predicate. This text formatter will disallow modifications if the
+     * predicate is not respected
+     * @param predicate : logical condition based on a Double
+     * @return created TextFormatter
+     */
     private TextFormatter<Number> textFormatter(Predicate<Double> predicate) {
-        NumberStringConverter stringConverter =
-                new NumberStringConverter("#0.00");
+        NumberStringConverter stringConverter = new NumberStringConverter("#0.00");
 
-        UnaryOperator<TextFormatter.Change> degFilter = (change -> {
+        UnaryOperator<TextFormatter.Change> validityFilter = (change -> {
             try {
                 String newText =
                         change.getControlNewText();
@@ -174,20 +204,16 @@ public class Main extends Application {
                 return null;
             }
         });
-        return new TextFormatter<>(stringConverter, 0, degFilter);
+        return new TextFormatter<>(stringConverter, 0, validityFilter);
     }
 
     private HBox obsInstBox(DateTimeBean dateTimeBean, SkyCanvasManager canvasManager) {
-        HBox obsIntBox = new HBox();
-
         Label dateLabel = new Label("Date :");
-
         DatePicker datePicker = new DatePicker();
         datePicker.setStyle("-fx-pref-width: 120;");
         datePicker.valueProperty().bindBidirectional(dateTimeBean.dateProperty());
 
         Label timeLabel = new Label("Heure :");
-
         TextField timeTextField = new TextField();
         timeTextField.setStyle("-fx-pref-width: 75; -fx-alignment: baseline-right;");
 
@@ -209,7 +235,7 @@ public class Main extends Application {
         zoneIdComboBox.setStyle("-fx-pref-width: 180;");
         zoneIdComboBox.valueProperty().bindBidirectional(dateTimeBean.zoneIdProperty());
 
-        obsIntBox.getChildren().addAll(dateLabel, datePicker, timeLabel, timeTextField, zoneIdComboBox);
+        HBox obsIntBox = new HBox(dateLabel, datePicker, timeLabel, timeTextField, zoneIdComboBox);
         obsIntBox.disableProperty().bind(canvasManager.getTimeAnimator().getRunningProperty());
         obsIntBox.setStyle("-fx-spacing: inherit; -fx-alignment: baseline-left;");
 
@@ -227,40 +253,23 @@ public class Main extends Application {
     }
 
     private HBox accBox(DateTimeBean dateTimeBean, SkyCanvasManager canvasManager) {
-        Font fontAwesome;
-        try (InputStream fontStream = getClass()
-                .getResourceAsStream("/Font Awesome 5 Free-Solid-900.otf")) {
-            fontAwesome = Font.loadFont(fontStream, 15);
-        } catch  (IOException e) {
-            fontAwesome = Font.getDefault();
-        }
 
 
-        HBox accBox = new HBox();
-
-        ChoiceBox<NamedTimeAccelerator> acceleratorChoiceBox = new ChoiceBox<>();
-        ObservableList<NamedTimeAccelerator> accObsList = FXCollections.observableArrayList(NamedTimeAccelerator.values());
-        acceleratorChoiceBox.setItems(accObsList);
-
-        ObjectProperty<TimeAccelerator> accelerator = new SimpleObjectProperty<>();
-        canvasManager.timeAccProperty().bindBidirectional(accelerator);
+        ChoiceBox<NamedTimeAccelerator> acceleratorChoiceBox = new ChoiceBox<>(FXCollections.observableArrayList(NamedTimeAccelerator.values()));
         acceleratorChoiceBox.setValue(DEFAULT_ACCELERATOR);
-        accelerator.bind(Bindings.select(acceleratorChoiceBox.valueProperty(), "accelerator"));
+        canvasManager.timeAccProperty().bind(Bindings.select(acceleratorChoiceBox.valueProperty(), "accelerator"));
 
 
-        String resetFont = "\uf0e2";
-        String playFont = "\uf04b";
-        String pauseFont = "\uf04c";
 
-        Button resetButton = new Button(resetFont);
-        Button pausePlayButton = new Button(playFont);
+        Button resetButton = new Button(RESET_CHAR);
+        Button pausePlayButton = new Button(PLAY_CHAR);
 
         BooleanProperty isPlaying = new SimpleBooleanProperty(false);
         isPlaying.bind(canvasManager.getTimeAnimator().getRunningProperty());
         pausePlayButton.textProperty().bind(
                 when(isPlaying)
-                .then(pauseFont)
-                .otherwise(playFont));
+                .then(PAUSE_CHAR)
+                .otherwise(PLAY_CHAR));
 
         pausePlayButton.setOnAction(event -> {
             if (isPlaying.get()) {
@@ -279,7 +288,7 @@ public class Main extends Application {
         resetButton.setFont(fontAwesome);
         pausePlayButton.setFont(fontAwesome);
 
-        accBox.getChildren().addAll(acceleratorChoiceBox, resetButton, pausePlayButton);
+        HBox accBox = new HBox(acceleratorChoiceBox, resetButton, pausePlayButton);
         accBox.setStyle("-fx-spacing: inherit;");
         return accBox;
 
@@ -292,7 +301,7 @@ public class Main extends Application {
         fov.textProperty().bind(format("Champ de vue : %.1f°", viewingParametersBean.fieldOfViewDegProperty()));
 
         StringBinding objectName;
-        objectName = Bindings.createStringBinding(() -> canvasManager.objectUnderMouse.get().isPresent() ? canvasManager.getObjectUnderMouse().get().info() : "");
+        objectName = Bindings.createStringBinding(() -> canvasManager.objectUnderMouse.get().isPresent() ? canvasManager.getObjectUnderMouse().get().info() : "", canvasManager.objectUnderMouse);
 
         Text objectUnderMouse = new Text();
         objectUnderMouse.textProperty().bind(objectName);

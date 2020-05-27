@@ -127,6 +127,7 @@ public class SkyCanvasManager {
         mouseAltDeg = Bindings.createDoubleBinding(() -> mouseHorizontalPosition.get().altDeg(), mouseHorizontalPosition);
 
         objectUnderMouse = Bindings.createObjectBinding(() -> {
+
             if (mousePresentOverPane.getValue()) {
                 return observedSky.get().objectClosestTo(CartesianCoordinates.of(mousePositionInPlane.get().getX(),
                         mousePositionInPlane.get().getY()), planeToCanvas.get().inverseDeltaTransform(10, 0).getX());
@@ -135,14 +136,16 @@ public class SkyCanvasManager {
             }
         }, mousePositionInPlane, observedSky, mousePresentOverPane);
 
+
         //Bind sky painter
         this.skyCanvasPainter = new SimpleObjectProperty<>(new SkyCanvasPainter(this.canvas.get()));
-        this.timeAnimator = new SimpleObjectProperty<>(new TimeAnimator(this.dateTimeBean));
+        timeAcc = new SimpleObjectProperty<>(NamedTimeAccelerator.TIMES_1.getAccelerator());
+        this.timeAnimator = new SimpleObjectProperty<> (new TimeAnimator(this.dateTimeBean));
+        timeAcc.addListener((p,o,n) -> timeAnimator.getValue().setAccelerator(n));
         observedSky.addListener((p,o,n) -> refreshCanvas());
         planeToCanvas.addListener((p,o,n) -> refreshCanvas());
         objectUnderMouse.addListener((p,o,n) -> refreshCanvas());
-        timeAcc = new SimpleObjectProperty<>();
-        timeAcc.addListener((p,o,n) -> this.timeAnimator.get().setAccelerator(n));
+
 
 
         //Bind controls

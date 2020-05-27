@@ -61,16 +61,17 @@ public class ObservedSky {
         registerObject(moonAtTime, moonPosition);
 
         this.planetsAtTime = new ArrayList<>();
-        this.planetCoordinates = new double[PlanetModel.values().length * 2];
-        for (int i = 0; i < PlanetModel.values().length; i++) {
+        this.planetCoordinates = new double[(PlanetModel.values().length-1) * 2];
+        for (int i = 0, skipI = 0; i < PlanetModel.values().length; ++i) {
             PlanetModel planetModel = PlanetModel.values()[i];
-            if(planetModel.equals(PlanetModel.EARTH)) continue;
+            if(planetModel.equals(PlanetModel.EARTH))continue;
             Planet planet = planetModel.at(daysUntil, eclConv);
             planetsAtTime.add(planet);
             CartesianCoordinates coordinates = toCartesian.apply(planet.equatorialPos());
-            planetCoordinates[2 * i] = coordinates.x();
-            planetCoordinates[2 * i + 1] = coordinates.x();
+            planetCoordinates[2 * skipI] = coordinates.x();
+            planetCoordinates[2 * skipI + 1] = coordinates.y();
             registerObject(planet, coordinates);
+            ++skipI;
         }
 
         this.starsAtTime = new ArrayList<>();
@@ -79,9 +80,9 @@ public class ObservedSky {
         for(Star star : catalogue.stars()){
             starsAtTime.add(star);
             CartesianCoordinates coordinates = toCartesian.apply(star.equatorialPos());
-            starCoordinates[index] = coordinates.x();
-            starCoordinates[index + 1] = coordinates.y();
-            index = index + 2;
+            starCoordinates[index * 2] = coordinates.x();
+            starCoordinates[index* 2  + 1] = coordinates.y();
+            ++index;
             registerObject(star, coordinates);
         }
 

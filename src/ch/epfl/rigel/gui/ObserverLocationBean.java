@@ -21,6 +21,11 @@ public class ObserverLocationBean {
         this(0,0);
     }
 
+    public ObserverLocationBean(GeographicCoordinates where) {
+        this();
+        setCoordinates(where);
+    }
+
     public void setLonDeg(double lonDeg) {
         System.out.println(lonDeg);
         this.lonDeg.set(lonDeg);

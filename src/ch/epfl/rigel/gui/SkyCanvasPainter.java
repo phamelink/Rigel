@@ -65,7 +65,7 @@ public class SkyCanvasPainter {
         for (int i = 0; i < stars.size(); i++) {
             drawCelestialObject(new Point2D(stereoPoints[2 * i],stereoPoints[2 * i + 1]), planeToCanvas,
                     BlackBodyColor.colorForTemperature(stars.get(i).colorTemperature()),
-                    getMagnitudeBasedCelestialObjectDiameter(stars.get(i), projection));
+                    getMagnitudeBasedCelestialObjectDiameter(stars.get(i), projection, planeToCanvas));
         }
     }
 
@@ -110,7 +110,7 @@ public class SkyCanvasPainter {
         for (int i = 0; i < planets.size(); i++) {
             drawCelestialObject(new Point2D(stereoPoints[2 * i],stereoPoints[2 * i + 1]), planeToCanvas,
                     Color.LIGHTGRAY,
-                    getMagnitudeBasedCelestialObjectDiameter(planets.get(i), projection));
+                    getMagnitudeBasedCelestialObjectDiameter(planets.get(i), projection, planeToCanvas));
         }
     }
 
@@ -125,12 +125,12 @@ public class SkyCanvasPainter {
      * @param planeToCanvas Transform used
      */
     public void drawSun(ObservedSky sky, StereographicProjection projection, Transform planeToCanvas){
-        final double sunDiameter = projection.applyToAngle(Angle.ofDeg(0.5));
+        final double sunDiameter = deltaTransform(planeToCanvas, projection.applyToAngle(sky.sun().angularSize()));
         CartesianCoordinates sunPosition = sky.sunPosition();
         Point2D sunPositionOnCanvas = planeToCanvas.transform(sunPosition.x(), sunPosition.y());
 
         drawCelestialObject(sunPositionOnCanvas, planeToCanvas,Color.YELLOW.deriveColor(1, 1, 1, 0.25),  sunDiameter*2.2 );
-        drawCelestialObject(sunPositionOnCanvas, planeToCanvas,Color.YELLOW,  sunDiameter + 2 );
+        drawCelestialObject(sunPositionOnCanvas, planeToCanvas,Color.YELLOW,   sunDiameter + 2 );
         drawCelestialObject(sunPositionOnCanvas, planeToCanvas,Color.WHITE,  sunDiameter );
 
     }
@@ -146,14 +146,11 @@ public class SkyCanvasPainter {
      * @param planeToCanvas Transform used
      */
     public void drawMoon(ObservedSky sky, StereographicProjection projection, Transform planeToCanvas){
-        Moon moon = sky.moon();
-        
-        double[] moonCoordinates = {sky.moonPosition().x(), sky.moonPosition().y()};
-        double[] stereoPoints = new double[2];
-        Point2D transMoonCoordinates = new Point2D(stereoPoints[0], stereoPoints[1]);
-        planeToCanvas.transform2DPoints(moonCoordinates, 0, stereoPoints, 0, 1);
-        drawCelestialObject(transMoonCoordinates, planeToCanvas, Color.WHITE,
-                getMagnitudeBasedCelestialObjectDiameter(moon, projection));
+        final double moonDiameter = deltaTransform(planeToCanvas, projection.applyToAngle(sky.moon().angularSize()));
+        Point2D moonCoordinates = new Point2D(sky.moonPosition().x(), sky.moonPosition().y());
+        Point2D planePoint = planeToCanvas.transform(moonCoordinates);
+        drawCelestialObject(planePoint, planeToCanvas, Color.WHITE,
+                moonDiameter);
     }
 
     /*
@@ -202,16 +199,19 @@ public class SkyCanvasPainter {
     PRIVATE UTILITY CLASSES
      */
 
-    private double getMagnitudeBasedCelestialObjectDiameter(CelestialObject celestialObject, StereographicProjection projection){
+    private double getMagnitudeBasedCelestialObjectDiameter(CelestialObject celestialObject, StereographicProjection projection, Transform planeToCanvas){
         final double mag = MAGNITUDE_INTERVAL.clip(celestialObject.magnitude());
         final double factor = (99-17*mag) / (140);
-        return factor * projection.applyToAngle(Angle.ofDeg(0.5));
+        return deltaTransform(planeToCanvas, factor * projection.applyToAngle(Angle.ofDeg(0.5)));
     }
 
     private void drawCelestialObject(Point2D planeCoordinates, Transform planeToCanvas, Color color,
-                                     double diameterToTransformInPlane) {
-        double diameter = planeToCanvas.deltaTransform(diameterToTransformInPlane, 0).getX();
+                                     double diameter) {
         gc.setFill(color);
         gc.fillOval(planeCoordinates.getX()-diameter/2, planeCoordinates.getY()-diameter/2, diameter, diameter);
+    }
+
+    private double deltaTransform(Transform planeToCanvas, double diameterToTransformInPlane){
+        return planeToCanvas.deltaTransform(diameterToTransformInPlane, 0).getX();
     }
 }

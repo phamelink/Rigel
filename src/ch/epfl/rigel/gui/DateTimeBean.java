@@ -32,6 +32,14 @@ public final class DateTimeBean {
     }
 
     /**
+     * DateTimeBean parametrized instance constructor
+     */
+    public DateTimeBean (ZonedDateTime when) {
+        this();
+        setZonedDateTime(when);
+    }
+
+    /**
      * Getter for date property
      * @return date property
      */
