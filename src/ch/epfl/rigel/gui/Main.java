@@ -8,10 +8,6 @@ import ch.epfl.rigel.coordinates.HorizontalCoordinates;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.StringBinding;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Orientation;
@@ -28,7 +24,6 @@ import javafx.stage.Stage;
 import javafx.util.converter.LocalTimeStringConverter;
 import javafx.util.converter.NumberStringConverter;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -49,9 +44,6 @@ public class Main extends Application {
     private static final double DEFAULT_FIELD_OF_VIEW = 100.0;
     private static final double DEFAULT_LONGITUDE = 6.57;
     private static final double DEFAULT_LATITUDE = 46.52;
-    private static String RESET_CHAR = "\uf0e2";
-    private static String PLAY_CHAR = "\uf04b";
-    private static String PAUSE_CHAR = "\uf04c";
 
     private static Font fontAwesome;
 
@@ -93,7 +85,7 @@ public class Main extends Application {
         //Graphics engine instantiation
         SkyCanvasManager canvasManager = new SkyCanvasManager(catalogue, dateTimeBean, observerLocationBean,
                 viewingParametersBean);
-        Canvas sky = canvasManager.canvas(); //Extract canvas from graphics engine
+        Canvas sky = canvasManager.getCanvas(); //Extract canvas from graphics engine
 
         /*
                                                         GUI
@@ -124,7 +116,7 @@ public class Main extends Application {
         primaryStage.setMinHeight(600);
         primaryStage.setMinWidth(800);
         primaryStage.setScene(new Scene(root));
-        primaryStage.getIcons().add(new Image("file:icon.png"));
+        primaryStage.getIcons().add(new Image("file:resources/icon.png"));
 
         primaryStage.show();
         sky.requestFocus();
@@ -238,13 +230,16 @@ public class Main extends Application {
         acceleratorChoiceBox.setValue(DEFAULT_ACCELERATOR);
         canvasManager.timeAccProperty().bind(Bindings.select(acceleratorChoiceBox.valueProperty(), "accelerator"));
 
-        Button resetButton = new Button(RESET_CHAR);
-        Button pausePlayButton = new Button(PLAY_CHAR);
+        String resetChar = "\uf0e2";
+        String pauseChar = "\uf04c";
+        String playChar = "\uf04b";
 
+        Button resetButton = new Button(resetChar);
+        Button pausePlayButton = new Button(playChar);
         pausePlayButton.textProperty().bind(
                 when(canvasManager.timeAnimatorRunningProperty())
-                .then(PAUSE_CHAR)
-                .otherwise(PLAY_CHAR));
+                .then(pauseChar)
+                .otherwise(playChar));
 
         pausePlayButton.setOnAction(event -> {
             if (canvasManager.getTimeAnimatorRunning()) {

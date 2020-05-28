@@ -32,7 +32,22 @@ public final class Preconditions {
      */
     public static double checkInInterval(Interval interval, double value){
         if(!interval.contains(value)){
-            throw new IllegalArgumentException("Element is not in interval");
+            throw new IllegalArgumentException("Value is not in interval");
+        }else{
+            return value;
+        }
+    }
+
+    /**
+     * Throws exception if "value" is not positive
+     *
+     * @param value
+     *              value to be verified
+     * @return (double) value: returns the value or an IllegalArgumentException
+     */
+    public static double checkPositive(double value){
+        if(value < 0.0 ){
+            throw new IllegalArgumentException("Value is negative");
         }else{
             return value;
         }

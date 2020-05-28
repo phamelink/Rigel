@@ -14,9 +14,9 @@ import java.time.ZonedDateTime;
  */
 public final class TimeAnimator extends AnimationTimer {
     private final DateTimeBean bean;
+    private final SimpleBooleanProperty running;
     private ZonedDateTime initialDateTime;
     private TimeAccelerator accelerator;
-    private final SimpleBooleanProperty running;
     private long initialTime;
 
     /**
@@ -26,7 +26,6 @@ public final class TimeAnimator extends AnimationTimer {
     public TimeAnimator(DateTimeBean bean) {
         this.bean = bean;
         running = new SimpleBooleanProperty();
-        accelerator = null;
     }
 
 

@@ -27,7 +27,7 @@ public class ViewingParametersBean {
     }
 
     /**
-     * Default ViewingParametersBean constructor initializing FOV at 68.4° and center at (0,0)
+     * Default ViewingParametersBean constructor initializing FOV at 68.4° and center at (0,0) as default values
      */
     public ViewingParametersBean() {
         this(68.4, HorizontalCoordinates.ofDeg(0,0));
@@ -80,4 +80,6 @@ public class ViewingParametersBean {
     public ObjectProperty<HorizontalCoordinates> centerProperty() {
         return center;
     }
+
+
 }

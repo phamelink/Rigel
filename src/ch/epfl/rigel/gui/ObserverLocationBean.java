@@ -29,7 +29,7 @@ public class ObserverLocationBean {
     }
 
     /**
-     * Default bean constructor with initial coordinates at (0,0)
+     * Default bean constructor with initial coordinates at (0,0) as default values
      */
     public ObserverLocationBean() {
         this(0,0);
@@ -49,7 +49,6 @@ public class ObserverLocationBean {
      * @param lonDeg
      */
     public void setLonDeg(double lonDeg) {
-        System.out.println(lonDeg);
         this.lonDeg.set(lonDeg);
     }
 

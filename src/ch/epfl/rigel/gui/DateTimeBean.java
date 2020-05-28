@@ -37,6 +37,16 @@ public final class DateTimeBean {
     }
 
     /**
+     * Setter for new ZonedDateTime
+     * @param zonedDateTime new zoned date time to set
+     */
+    public void setZonedDateTime(ZonedDateTime zonedDateTime) {
+        setDate(zonedDateTime.toLocalDate());
+        setTime(zonedDateTime.toLocalTime());
+        setZoneId(zonedDateTime.getZone());
+    }
+
+    /**
      * Getter for date property
      * @return date property
      */
@@ -98,14 +108,6 @@ public final class DateTimeBean {
         return ZonedDateTime.of(getDate(), getTime(), getZoneId());
     }
 
-    /**
-     * Setter for new ZonedDateTime
-     * @param zonedDateTime new zoned date time to set
-     */
-    public void setZonedDateTime(ZonedDateTime zonedDateTime) {
-        setDate(zonedDateTime.toLocalDate());
-        setTime(zonedDateTime.toLocalTime());
-        setZoneId(zonedDateTime.getZone());
-    }
+
 
 }

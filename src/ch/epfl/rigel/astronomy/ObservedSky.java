@@ -86,14 +86,59 @@ public class ObservedSky {
         }
     }
 
-    //Private functions
+    /*
+    Private methods
+     */
+
     private void registerObject(CelestialObject obj, CartesianCoordinates cord){
         positionMap.put(obj, cord);
         distanceMap.put(cord.norm(), obj);
     }
 
+    /*
+    Public interface methods
+     */
 
-    //Public functions
+    /**
+     * returns optional which is either empty or containing nearest celestial object from given point in a given radius
+     * threshold 'distance'
+     * @param point point in cartesian coordinates to obtain nearest object from
+     * @param distance maximal distance from point in which to search for nearest object
+     * @return empty Optional if no objects within radius or an optional containing nearest object from point
+     */
+    public Optional<CelestialObject> objectClosestTo(CartesianCoordinates point, double distance){
+
+        /*
+        Filter out any celestial object which could not be near the point by creating sub map from all object
+        coordinates which are present in the intersection of a ball of radius ||point||-distance and a ball of radius
+        ( ||point|| + distance ) around the origin. Filter operation in O(1), and greatly reduces possible candidates.
+
+         Sub map is created from distanceMap, where objects are registered along with their norm upon instantiation.
+
+         Then, keep only element with smallest distance from point that is smaller than or equal to distance.
+         */
+
+        double minimalDistance = distance;
+        CelestialObject toReturn = null;
+        for(CelestialObject object : this.distanceMap.subMap(point.norm()-distance, point.norm()+distance).values()){
+            CartesianCoordinates coord = positionMap.get(object);
+            double d = Math.sqrt(Math.pow(coord.x()-point.x(), 2) + Math.pow(coord.y()-point.y(), 2));
+            if(d <= minimalDistance){
+                minimalDistance = d;
+                toReturn = object;
+            }
+        }
+        if(toReturn == null) {
+            return Optional.empty();
+        }else{
+            return Optional.of(toReturn);
+        }
+
+    }
+
+    /*
+    Public getters
+     */
 
     /**
      * returns sun at time
@@ -158,36 +203,6 @@ public class ObservedSky {
      */
     public List<Integer> asterismIndex(Asterism asterism){return catalogue.asterismIndices(asterism);}
 
-    /**
-     * returns optional which is either empty or containing nearest celestial object from given point in a given radius
-     * @param point point in cartesian coordinates to obtain nearest object from
-     * @param distance maximal distance from point in which to search for nearest object
-     * @return empty Optional if no objects within radius or an optional containing nearest object from point
-     */
-    public Optional<CelestialObject> objectClosestTo(CartesianCoordinates point, double distance){
 
-        /*Filter out any celestial object which could not be near the point by creating submap from all object coordinates
-        which are present in the intersection of a ball of radius ||point||-distance and a ball of radius
-         ||point||+distance around the origin. Filter operation in O(1), and greatly reduces possible candidates.
-
-         Then, keep only element with smallest distance from point that is smaller than or equal to distance.
-         */
-        double minimalDistance = distance;
-        CelestialObject toReturn = null;
-        for(CelestialObject object : this.distanceMap.subMap(point.norm()-distance, point.norm()+distance).values()){
-            CartesianCoordinates coord = positionMap.get(object);
-            double d = Math.sqrt(Math.pow(coord.x()-point.x(), 2) + Math.pow(coord.y()-point.y(), 2));
-            if(d <= minimalDistance){
-                minimalDistance = d;
-                toReturn = object;
-            }
-        }
-        if(toReturn == null) {
-            return Optional.empty();
-        }else{
-            return Optional.of(toReturn);
-        }
-
-    }
 
 }

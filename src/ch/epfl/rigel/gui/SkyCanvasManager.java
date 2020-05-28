@@ -13,6 +13,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableDoubleValue;
+import javafx.beans.value.ObservableIntegerValue;
 import javafx.beans.value.ObservableObjectValue;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
@@ -46,6 +47,7 @@ public class SkyCanvasManager {
     private final ObserverLocationBean observerLocation;
     private final ViewingParametersBean viewingParameters;
 
+    //Graphical elements
     private final ObservableObjectValue<Canvas> canvas;
     private final ObservableObjectValue<SkyCanvasPainter> skyCanvasPainter;
 
@@ -54,10 +56,9 @@ public class SkyCanvasManager {
     private final ObservableObjectValue<StereographicProjection> projection;
     private final ObservableObjectValue<Transform> planeToCanvas;
     private final ObservableObjectValue<HorizontalCoordinates> mouseHorizontalPosition;
-    private final ObservableObjectValue<Point2D> mousePosition;
+    private final ObjectProperty<Point2D> mousePosition;
     private final ObservableObjectValue<Point2D> mousePositionInPlane;
 
-    //Additional
     private final ObservableObjectValue<TimeAnimator> timeAnimator;
     private final ObjectProperty<TimeAccelerator> timeAcc;
     private final ObservableDoubleValue dilationFactor;
@@ -66,12 +67,12 @@ public class SkyCanvasManager {
     public final ObservableObjectValue<Optional<CelestialObject>> objectUnderMouse;
     public final ObservableDoubleValue mouseAzDeg;
     public final ObservableDoubleValue mouseAltDeg;
-
-    private final IntegerProperty mouseX;
-    private final IntegerProperty mouseY;
+    private final BooleanProperty mousePresentOverPane;
+    private int mouseX;
+    private int mouseY;
     private Point2D lastMouseDragPosition;
     private GraphicsContext gc;
-    private final BooleanProperty mousePresentOverPane;
+
 
     /**
      * Sky canvas manager constructor
@@ -90,7 +91,8 @@ public class SkyCanvasManager {
         this.canvas = new SimpleObjectProperty<>(new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT));
         gc = canvas.get().getGraphicsContext2D();
 
-        //Create bindings
+
+        //Create bindings for projection and observed sky
         projection = Bindings.createObjectBinding(() -> new StereographicProjection(viewingParameters.getCenter()), viewingParameters.centerProperty());
 
         observedSky = Bindings.createObjectBinding(() ->new ObservedSky(this.dateTimeBean.getZonedDateTime(),
@@ -99,6 +101,8 @@ public class SkyCanvasManager {
                         this.dateTimeBean.zoneIdProperty(), this.observerLocation.coordinatesProperty(),
                         this.projection);
 
+
+        //Create bindings for transformation properties
         dilationFactor = Bindings.createDoubleBinding(() -> canvas.get().getWidth() /
                 (2 * Math.tan(Angle.ofDeg(viewingParameters.getFieldOfViewDeg()) / 4)),
                 viewingParameters.fieldOfViewDegProperty(), canvas.get().widthProperty());
@@ -111,19 +115,22 @@ public class SkyCanvasManager {
                 - dilationFactor.get(), canvas.get().getWidth() / 2,canvas.get().getHeight() / 2),
                 canvas.get().widthProperty(), canvas.get().heightProperty(), dilationFactor);
 
-        //Mouse listeners
-        mouseX = new SimpleIntegerProperty(0);
-        mouseY = new SimpleIntegerProperty(0);
-        mousePosition = Bindings.createObjectBinding(() -> new Point2D(mouseX.get(), mouseY.get()), mouseX, mouseY, viewingParameters.centerProperty());
-        canvas.get().setOnMouseMoved((e) -> {mouseX.set((int) e.getX()); mouseY.set((int) e.getY());});
+
+        //Mouse listeners and bindings
+
+        mousePosition = new SimpleObjectProperty<>(new Point2D(0,0));
+        canvas.get().setOnMouseMoved((e) -> mousePosition.set(new Point2D(e.getX(), e.getY())));
+
+
         canvas.get().setOnMousePressed((e) -> { if(e.isPrimaryButtonDown()) canvas.get().requestFocus(); });
+
         mousePresentOverPane = new SimpleBooleanProperty(false);
 
         canvas.get().hoverProperty().addListener((p, o, isHovering) -> mousePresentOverPane.setValue(isHovering));
 
-        //Continue bindings
         mousePositionInPlane = Bindings.createObjectBinding(() ->
-                planeToCanvas.get().inverseTransform(mousePosition.get().getX(),mousePosition.get().getY()), mousePosition);
+                planeToCanvas.get().inverseTransform(mousePosition.get().getX(),mousePosition.get().getY()),
+                mousePosition, viewingParameters.fieldOfViewDegProperty());
 
         mouseHorizontalPosition = Bindings.createObjectBinding(() ->
                 projection.get().inverseApply(CartesianCoordinates.of(mousePositionInPlane.get().getX(),
@@ -152,42 +159,38 @@ public class SkyCanvasManager {
         planeToCanvas.addListener((p,o,n) -> refreshCanvas());
         objectUnderMouse.addListener((p,o,n) -> refreshCanvas());
 
-        //Bind controls
+        //Bind keyboard controls
         canvas.get().addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             switch (event.getCode()){
                 case UP:
                     viewingParameters.setCenter(HorizontalCoordinates
                             .of(Angle.normalizePositive(viewingParameters.getCenter().az()),
                                     ALT_BOUND.clip(viewingParameters.getCenter().alt() + VERTICAL_MOVEMENT_DELTA)));
-                    event.consume();
                     break;
                 case DOWN:
                     viewingParameters.setCenter(HorizontalCoordinates
                             .of(Angle.normalizePositive(viewingParameters.getCenter().az()),
                                     ALT_BOUND.clip(viewingParameters.getCenter().alt() - VERTICAL_MOVEMENT_DELTA)));
-                    event.consume();
                     break;
                 case LEFT:
                     viewingParameters.setCenter(HorizontalCoordinates
                             .of(Angle.normalizePositive(viewingParameters.getCenter().az() - HORIZONTAL_MOVEMENT_DELTA) ,
                                     ALT_BOUND.clip(viewingParameters.getCenter().alt())));
-                    event.consume();
                     break;
                 case RIGHT:
                     viewingParameters.setCenter(HorizontalCoordinates
                             .of(Angle.normalizePositive(viewingParameters.getCenter().az() + HORIZONTAL_MOVEMENT_DELTA),
                                     ALT_BOUND.clip(viewingParameters.getCenter().alt())));
-                    event.consume();
                     break;
-                default:
-                    event.consume();
-                    break;
+
 
             }
+            event.consume();
         });
 
-        //Bind drag controls
+        //Bind click and drag controls
         canvas.get().addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
+            canvas.get().requestFocus();
             if (event.isSecondaryButtonDown()) {
                 lastMouseDragPosition = new Point2D(event.getX(), event.getY());
             } else if (event.isPrimaryButtonDown() && objectUnderMouse.get().isPresent()) {
@@ -206,7 +209,6 @@ public class SkyCanvasManager {
 
         canvas.get().addEventFilter(MouseEvent.MOUSE_DRAGGED, event-> {
             if(event.isSecondaryButtonDown()) {
-                System.out.println(lastMouseDragPosition);
                 Point2D nextPoint = new Point2D(event.getX(), event.getY());
                 double deltaX = lastMouseDragPosition.getX() - nextPoint.getX();
                 double deltaY = lastMouseDragPosition.getY() - nextPoint.getY();
@@ -220,6 +222,7 @@ public class SkyCanvasManager {
             }
         });
 
+        //Bind scroll controls
         canvas.get().setOnScroll((e) -> {
             if (Math.abs(e.getDeltaX()) >= Math.abs(e.getDeltaY())) {
                 viewingParameters.setFieldOfViewDeg(FOV_BOUND
@@ -228,6 +231,7 @@ public class SkyCanvasManager {
                 viewingParameters.setFieldOfViewDeg(FOV_BOUND
                         .clip(viewingParameters.getFieldOfViewDeg() - ZOOM_FACTOR * e.getDeltaY()));
             }
+            e.consume();
         });
 
     }
@@ -236,14 +240,14 @@ public class SkyCanvasManager {
      * Refreshes canvas by clearing it and drawings all elements
      */
     public void refreshCanvas(){
-        skyCanvasPainter.get().drawAll(observedSky.get(), projection.get(), planeToCanvas.get());
+        skyCanvasPainter.get().draw(observedSky.get(), projection.get(), planeToCanvas.get());
     }
 
     /**
      * Returns the sky canvas manager's canvas
      * @return Sky canvas manager's canvas
      */
-    public Canvas canvas() {
+    public Canvas getCanvas() {
         return canvas.get();
     }
 
@@ -254,6 +258,7 @@ public class SkyCanvasManager {
     public ObservableObjectValue<Canvas> canvasProperty() {
         return canvas;
     }
+
 
     /**
      * Getter for this sky canvas manager's canvas painter
@@ -400,6 +405,14 @@ public class SkyCanvasManager {
     }
 
     /**
+     * Setter for the time accelerator property
+     * @param timeAcc new time accelerator
+     */
+    public void setTimeAcc(TimeAccelerator timeAcc) {
+        this.timeAcc.set(timeAcc);
+    }
+
+    /**
      * Getter for the dilatation factor
      * @return Dilatation factor
      */
@@ -464,6 +477,18 @@ public class SkyCanvasManager {
     }
 
     /**
+     * Returns boolean indicating if the mouse pointer is over the canvas
+     * @return boolean indicating if the mouse pointer is over the canvas
+     */
+    public boolean isMousePresentOverPane() {return mousePresentOverPane.get(); }
+
+    /**
+     * Returns boolean property indicating if the mouse pointer is over the canvas
+     * @return boolean property indicating if the mouse pointer is over the canvas
+     */
+    public ObservableBooleanValue mousePresentOverPaneProperty() {return mousePresentOverPane;}
+
+    /**
      * Returns time animator's running property as observable boolean value
      * @return Time animator's running property as observable boolean value
      */
@@ -478,5 +503,6 @@ public class SkyCanvasManager {
     public boolean getTimeAnimatorRunning() {
         return timeAnimator.get().getRunning();
     }
+
 
 }

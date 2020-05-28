@@ -54,10 +54,7 @@ public final class UseSkyCanvasManager extends Application {
                     (p, o, n) -> {if (n != null){ System.out.println(n); }else{
                         System.out.println("none");} });
             canvasManager.mousePositionInPlaneProperty().addListener((p, o, n) -> System.out.println(p.getValue()));
-            //canvasManager.getTimeAnimator().setAccelerator(NamedTimeAccelerator.TIMES_3000.getAccelerator());
-            //canvasManager.getTimeAnimator().start();
-            //System.out.println(canvasManager.observedSkyProperty().get().stars());
-            Canvas sky = canvasManager.canvas();
+            Canvas sky = canvasManager.getCanvas();
             BorderPane root = new BorderPane(sky);
             sky.widthProperty().bind(root.widthProperty());
             sky.heightProperty().bind(root.heightProperty());

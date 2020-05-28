@@ -53,7 +53,7 @@ public final class Angle {
      * @return  angle in radians
      */
     public static double ofDMS(int deg, int min, double sec){
-        return Math.toRadians(deg)
+        return Math.toRadians(Preconditions.checkPositive(deg))
                 + Preconditions.checkInInterval(HOUR_INTERVAL, min) * RAD_PER_MIN
                 + ofArcsec(Preconditions.checkInInterval(HOUR_INTERVAL, sec));
     }

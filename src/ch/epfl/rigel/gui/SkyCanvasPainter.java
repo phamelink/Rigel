@@ -6,6 +6,9 @@ import ch.epfl.rigel.coordinates.HorizontalCoordinates;
 import ch.epfl.rigel.coordinates.StereographicProjection;
 import ch.epfl.rigel.math.Angle;
 import ch.epfl.rigel.math.ClosedInterval;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
@@ -26,8 +29,13 @@ public class SkyCanvasPainter {
 
     private static final ClosedInterval MAGNITUDE_INTERVAL = ClosedInterval.of(-2, 5);
 
-    private Canvas canvas;
-    private GraphicsContext gc;
+    private final Canvas canvas;
+    private final GraphicsContext gc;
+    private final BooleanProperty starsEnabled;
+    private final BooleanProperty asterismsEnabled;
+    private final BooleanProperty sunEnabled;
+    private final BooleanProperty moonEnabled;
+    private final BooleanProperty planetsEnabled;
 
     /**
      * Attaches a SkyCanvasPainter to a canvas
@@ -36,6 +44,11 @@ public class SkyCanvasPainter {
     public SkyCanvasPainter(Canvas canvas) {
         this.canvas = canvas;
         gc = canvas.getGraphicsContext2D();
+        starsEnabled = new SimpleBooleanProperty(true);
+        asterismsEnabled = new SimpleBooleanProperty(true);
+        sunEnabled = new SimpleBooleanProperty(true);
+        moonEnabled = new SimpleBooleanProperty(true);
+        planetsEnabled = new SimpleBooleanProperty(true);
     }
 
     /**
@@ -47,10 +60,6 @@ public class SkyCanvasPainter {
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
     }
 
-    /*
-    DRAW STARS & ASTERISMS
-     */
-
     /**
      * draws all stars and asterisms
      * @param sky observed sky
@@ -61,7 +70,7 @@ public class SkyCanvasPainter {
         List<Star> stars = sky.stars();
         double[] stereoPoints = new double[sky.starCoordinates().length];
         planeToCanvas.transform2DPoints(sky.starCoordinates(), 0, stereoPoints, 0, stars.size());
-        drawAsterisms(sky, stereoPoints);
+        if(asterismsEnabled.get()) drawAsterisms(sky, stereoPoints);
         for (int i = 0; i < stars.size(); i++) {
             drawCelestialObject(new Point2D(stereoPoints[2 * i],stereoPoints[2 * i + 1]), planeToCanvas,
                     BlackBodyColor.colorForTemperature(stars.get(i).colorTemperature()),
@@ -82,16 +91,11 @@ public class SkyCanvasPainter {
                 boolean thisInBound = b.contains(point);
                 if (previousInBound || thisInBound) gc.lineTo(point.getX(), point.getY());
                 else gc.moveTo(point.getX(), point.getY());
-                previousInBound =thisInBound;
+                previousInBound = thisInBound;
             }
             gc.stroke();
         }
     }
-
-
-    /*
-    DRAW PLANETS
-     */
 
     /**
      * draws all planets
@@ -110,10 +114,6 @@ public class SkyCanvasPainter {
         }
     }
 
-    /*
-    DRAW SUN
-     */
-
     /**
      * draws sun
      * @param sky observed sky
@@ -130,10 +130,6 @@ public class SkyCanvasPainter {
         drawCelestialObject(sunPositionOnCanvas, planeToCanvas,Color.WHITE,  sunDiameter );
     }
 
-    /*
-    DRAW MOON
-     */
-
     /**
      * draws moon
      * @param sky observed sky
@@ -147,10 +143,6 @@ public class SkyCanvasPainter {
         drawCelestialObject(planePoint, planeToCanvas, Color.WHITE,
                 moonDiameter);
     }
-
-    /*
-    DRAW HORIZON
-     */
 
     /**
      * draws horizon in red
@@ -175,25 +167,25 @@ public class SkyCanvasPainter {
     }
 
     /**
-     * draws all celestial objects in sky and the horizon
+     * draws all enabled celestial objects in sky and the horizon
      * @param sky observed sky
      * @param projection stereographic projection used
      * @param planeToCanvas Transform used
      */
-    public void drawAll(ObservedSky sky, StereographicProjection projection, Transform planeToCanvas){
+    public void draw(ObservedSky sky, StereographicProjection projection, Transform planeToCanvas){
         clear();
-        drawStars(sky, projection, planeToCanvas);
-        drawPlanets(sky, projection, planeToCanvas);
-        drawSun(sky, projection, planeToCanvas);
-        drawMoon(sky, projection, planeToCanvas);
+        if(starsEnabled.get()) drawStars(sky, projection, planeToCanvas);
+        if(planetsEnabled.get()) drawPlanets(sky, projection, planeToCanvas);
+        if(sunEnabled.get()) drawSun(sky, projection, planeToCanvas);
+        if(moonEnabled.get()) drawMoon(sky, projection, planeToCanvas);
         drawHorizon(projection, planeToCanvas);
-
     }
+
+
 
     /*
     PRIVATE UTILITY CLASSES
      */
-
 
     private double getMagnitudeBasedCelestialObjectDiameter(CelestialObject celestialObject, StereographicProjection projection, Transform planeToCanvas){
         final double mag = MAGNITUDE_INTERVAL.clip(celestialObject.magnitude());
@@ -209,5 +201,69 @@ public class SkyCanvasPainter {
 
     private double deltaTransform(Transform planeToCanvas, double diameterToTransformInPlane){
         return planeToCanvas.deltaTransform(diameterToTransformInPlane, 0).getX();
+    }
+
+    /*
+    Getters/setters for properties
+     */
+
+    public boolean isStarsEnabled() {
+        return starsEnabled.get();
+    }
+
+    public BooleanProperty starsEnabledProperty() {
+        return starsEnabled;
+    }
+
+    public void setStarsEnabled(boolean starsEnabled) {
+        this.starsEnabled.set(starsEnabled);
+    }
+
+    public boolean isAsterismsEnabled() {
+        return asterismsEnabled.get();
+    }
+
+    public BooleanProperty asterismsEnabledProperty() {
+        return asterismsEnabled;
+    }
+
+    public void setAsterismsEnabled(boolean asterismsEnabled) {
+        this.asterismsEnabled.set(asterismsEnabled);
+    }
+
+    public boolean isSunEnabled() {
+        return sunEnabled.get();
+    }
+
+    public BooleanProperty sunEnabledProperty() {
+        return sunEnabled;
+    }
+
+    public void setSunEnabled(boolean sunEnabled) {
+        this.sunEnabled.set(sunEnabled);
+    }
+
+    public boolean isMoonEnabled() {
+        return moonEnabled.get();
+    }
+
+    public BooleanProperty moonEnabledProperty() {
+        return moonEnabled;
+    }
+
+    public void setMoonEnabled(boolean moonEnabled) {
+        this.moonEnabled.set(moonEnabled);
+    }
+
+    public boolean isPlanetsEnabled() {
+        return planetsEnabled.get();
+    }
+
+    public BooleanProperty planetsEnabledProperty() {
+        return planetsEnabled;
+    }
+
+    public void setPlanetsEnabled(boolean planetsEnabled) {
+        this.planetsEnabled.set(planetsEnabled);
     }
 }
