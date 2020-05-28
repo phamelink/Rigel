@@ -14,6 +14,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.scene.transform.Transform;
 
 import java.util.*;
@@ -162,7 +163,7 @@ public class SkyCanvasPainter {
         for (HorizontalCoordinates.OCTANT octant: HorizontalCoordinates.OCTANT.values()) {
             CartesianCoordinates octantCartesian = projection.apply(HorizontalCoordinates.ofDeg(octant.getOctantAngle(),-0.5));
             Point2D octantCoord = planeToCanvas.transform(octantCartesian.x(), octantCartesian.y());
-            gc.fillText(octant.name(), octantCoord.getX(), octantCoord.getY());
+            gc.fillText(octant.name(), octantCoord.getX(), octantCoord.getY() + Font.getDefault().getSize());
         }
     }
 
