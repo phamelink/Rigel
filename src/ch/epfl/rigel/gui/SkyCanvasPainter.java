@@ -41,7 +41,9 @@ public class SkyCanvasPainter {
     private final BooleanProperty moonEnabled;
     private final BooleanProperty planetsEnabled;
     private final BooleanProperty realisticSkyEnabled;
+    private final BooleanProperty realisticSunEnabled;
     private double dayLightFactor;
+    private double brightnessFactor;
 
     /**
      * Attaches a SkyCanvasPainter to a canvas
@@ -56,6 +58,7 @@ public class SkyCanvasPainter {
         moonEnabled = new SimpleBooleanProperty(true);
         planetsEnabled = new SimpleBooleanProperty(true);
         realisticSkyEnabled = new SimpleBooleanProperty(false);
+        realisticSunEnabled = new SimpleBooleanProperty(false);
     }
 
     /**
@@ -147,9 +150,9 @@ public class SkyCanvasPainter {
         final double sunDiameter = deltaTransform(planeToCanvas, projection.applyToAngle(sky.sun().angularSize()));
         CartesianCoordinates sunPosition = sky.sunPosition();
         Point2D sunPositionOnCanvas = planeToCanvas.transform(sunPosition.x(), sunPosition.y());
-        RadialGradient sunGradient = new RadialGradient(canvas.getWidth(), 1, 1, 1, 1, true, CycleMethod.NO_CYCLE, new Stop(1, Color.RED), new Stop(1, Color.GREEN));
-        gc.setFill(Color.RED);
-        gc.fillOval(sunPositionOnCanvas.getX()-sunDiameter/2, sunPositionOnCanvas.getY()-sunDiameter/2, canvas.getWidth()*2, canvas.getWidth()*2);
+        RadialGradient sunGradient = new RadialGradient(0, .1, sunPositionOnCanvas.getX(), sunPositionOnCanvas.getY(), 500, false, CycleMethod.NO_CYCLE, new Stop(0, BlackBodyColor.colorForTemperature((int) (20000 * dayLightFactor )).deriveColor(1,1,1,brightnessFactor)), new Stop(1, BlackBodyColor.colorForTemperature((int) (40000 * dayLightFactor)).deriveColor(1,1,1,brightnessFactor*0.7)));
+        gc.setFill(sunGradient);
+        if(isRealisticSunEnabled()) gc.fillOval(sunPositionOnCanvas.getX()-canvas.getWidth()*10, sunPositionOnCanvas.getY()-canvas.getWidth()*10, canvas.getWidth()*20, canvas.getWidth()*20);
         drawCelestialObject(sunPositionOnCanvas, planeToCanvas,BlackBodyColor.colorForTemperature((int) (40000 * dayLightFactor)).deriveColor(1,1,1,0.25),  sunDiameter*2.2 );
         drawCelestialObject(sunPositionOnCanvas, planeToCanvas,BlackBodyColor.colorForTemperature((int) (40000 * dayLightFactor)).deriveColor(1,1,1,0.25),  sunDiameter*2.2 );
         drawCelestialObject(sunPositionOnCanvas, planeToCanvas,Color.YELLOW,   sunDiameter + 2 );
@@ -199,7 +202,8 @@ public class SkyCanvasPainter {
      * @param planeToCanvas Transform used
      */
     public void draw(ObservedSky sky, StereographicProjection projection, Transform planeToCanvas){
-        dayLightFactor = Math.max(0.0, Math.pow((Math.PI / 4 ) * projection.inverseApply(sky.sunPosition()).alt(), 1));
+        dayLightFactor = Math.max(0.05 , Math.pow((Math.PI / 4 ) * projection.inverseApply(sky.sunPosition()).alt(), 1));
+        brightnessFactor = (Math.pow((Math.PI / 4 ) * projection.inverseApply(sky.sunPosition()).alt() + 0.2, 1/3.0)/2);
         clear();
         if(starsEnabled.get()) drawStars(sky, projection, planeToCanvas);
         if(planetsEnabled.get()) drawPlanets(sky, projection, planeToCanvas);
@@ -300,5 +304,13 @@ public class SkyCanvasPainter {
 
     public BooleanProperty realisticSkyEnabledProperty() {
         return realisticSkyEnabled;
+    }
+
+    public boolean isRealisticSunEnabled() {
+        return realisticSunEnabled.get();
+    }
+
+    public BooleanProperty realisticSunEnabledProperty() {
+        return realisticSunEnabled;
     }
 }

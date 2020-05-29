@@ -120,8 +120,8 @@ public class Main extends Application {
 
         //Window parameters
         primaryStage.setTitle("Rigel");
-        primaryStage.setMinHeight(600);
-        primaryStage.setMinWidth(1000);
+        primaryStage.setMinHeight(900);
+        primaryStage.setMinWidth(1600);
         primaryStage.setScene(new Scene(root));
         primaryStage.getIcons().add(new Image("file:resources/icon.png"));
         primaryStage.show();
@@ -182,6 +182,8 @@ public class Main extends Application {
         planets.setSelected(true);
         CheckBox sun = new CheckBox("Sun");
         sun.setSelected(true);
+        CheckBox sunlight = new CheckBox("\u2ba1  Generate sunlight");
+        sun.setSelected(true);
         CheckBox moon = new CheckBox("Moon");
         moon.setSelected(true);
         Button fullScreen = new Button("Fullscreen view");
@@ -192,7 +194,7 @@ public class Main extends Application {
         canvasManager.getSkyCanvasPainter().planetsEnabledProperty().bindBidirectional(planets.selectedProperty());
         canvasManager.getSkyCanvasPainter().sunEnabledProperty().bindBidirectional(sun.selectedProperty());
         canvasManager.getSkyCanvasPainter().moonEnabledProperty().bindBidirectional(moon.selectedProperty());
-
+        canvasManager.getSkyCanvasPainter().realisticSunEnabledProperty().bindBidirectional(sunlight.selectedProperty());
         stars.selectedProperty().addListener((p,o,n) ->{if(n){
             asterisms.setDisable(false);
             asterisms.setSelected(false);
@@ -204,6 +206,15 @@ public class Main extends Application {
             asterisms.setDisable(true);
             asterisms.setSelected(false);
         }});
+        sun.selectedProperty().addListener((p,o,n) -> {
+            if(n){
+                sunlight.setDisable(false);
+                sunlight.setSelected(false);
+            }else{
+                sunlight.setDisable(true);
+                sunlight.setSelected(false);
+            }
+        });
 
         fullScreen.setOnAction(((e)->{
             stage.setFullScreen(true);
@@ -247,7 +258,7 @@ public class Main extends Application {
 
 
         infoBox.addColumn(1, objectLabel, objectImage, description);
-        graphicsBox.addColumn(1, graphicsLabel ,stars, asterisms, realism, planets, sun, moon, fullScreen);
+        graphicsBox.addColumn(1, graphicsLabel ,stars, asterisms, realism, planets, sun, sunlight, moon, fullScreen);
         BorderPane constructed = new BorderPane();
         constructed.setTop(infoBox);
         constructed.setBottom(graphicsBox);

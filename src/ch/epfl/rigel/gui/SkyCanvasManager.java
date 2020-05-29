@@ -166,6 +166,7 @@ public class SkyCanvasManager {
         getSkyCanvasPainter().planetsEnabledProperty().addListener((p,o,n) -> refreshCanvas());
         getSkyCanvasPainter().sunEnabledProperty().addListener((p,o,n) -> refreshCanvas());
         getSkyCanvasPainter().moonEnabledProperty().addListener((p,o,n) -> refreshCanvas());
+        getSkyCanvasPainter().realisticSunEnabledProperty().addListener((p,o,n) -> refreshCanvas());
 
         //Bind keyboard controls
         canvas.get().addEventFilter(KeyEvent.KEY_PRESSED, event -> {
