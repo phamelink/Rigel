@@ -64,10 +64,10 @@ public class SkyCanvasManager {
     private final ObservableDoubleValue dilationFactor;
     private final ObservableDoubleValue dilationFactorY;
 
-    public final ObservableObjectValue<Optional<CelestialObject>> objectUnderMouse;
-    public final ObjectProperty<Optional<CelestialObject>> lastObjectInspected;
-    public final ObservableDoubleValue mouseAzDeg;
-    public final ObservableDoubleValue mouseAltDeg;
+    private final ObservableObjectValue<Optional<CelestialObject>> objectUnderMouse;
+    private final ObjectProperty<Optional<CelestialObject>> lastObjectInspected;
+    private final ObservableDoubleValue mouseAzDeg;
+    private final ObservableDoubleValue mouseAltDeg;
     private final BooleanProperty mousePresentOverPane;
     private Point2D lastMouseDragPosition;
     private GraphicsContext gc;
@@ -155,9 +155,17 @@ public class SkyCanvasManager {
         timeAcc = new SimpleObjectProperty<>();
         this.timeAnimator = new SimpleObjectProperty<> (new TimeAnimator(this.dateTimeBean));
         timeAcc.addListener((p,o,n) -> timeAnimator.getValue().setAccelerator(n));
+
+        //Set sensitivities for canvas refresh
         observedSky.addListener((p,o,n) -> refreshCanvas());
         planeToCanvas.addListener((p,o,n) -> refreshCanvas());
         objectUnderMouse.addListener((p,o,n) -> refreshCanvas());
+        getSkyCanvasPainter().starsEnabledProperty().addListener((p,o,n) -> refreshCanvas());
+        getSkyCanvasPainter().asterismsEnabledProperty().addListener((p,o,n) -> refreshCanvas());
+        getSkyCanvasPainter().realisticSkyEnabledProperty().addListener((p,o,n) -> refreshCanvas());
+        getSkyCanvasPainter().planetsEnabledProperty().addListener((p,o,n) -> refreshCanvas());
+        getSkyCanvasPainter().sunEnabledProperty().addListener((p,o,n) -> refreshCanvas());
+        getSkyCanvasPainter().moonEnabledProperty().addListener((p,o,n) -> refreshCanvas());
 
         //Bind keyboard controls
         canvas.get().addEventFilter(KeyEvent.KEY_PRESSED, event -> {
@@ -497,5 +505,11 @@ public class SkyCanvasManager {
         return timeAnimator.get().getRunning();
     }
 
+    public Optional<CelestialObject> getLastObjectInspected() {
+        return lastObjectInspected.get();
+    }
 
+    public ObjectProperty<Optional<CelestialObject>> lastObjectInspectedProperty() {
+        return lastObjectInspected;
+    }
 }

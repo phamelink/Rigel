@@ -1,8 +1,6 @@
 package ch.epfl.rigel.gui;
 
-import ch.epfl.rigel.astronomy.AsterismLoader;
-import ch.epfl.rigel.astronomy.HygDatabaseLoader;
-import ch.epfl.rigel.astronomy.StarCatalogue;
+import ch.epfl.rigel.astronomy.*;
 import ch.epfl.rigel.coordinates.GeographicCoordinates;
 import ch.epfl.rigel.coordinates.HorizontalCoordinates;
 import javafx.application.Application;
@@ -10,6 +8,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ObservableObjectValue;
 import javafx.beans.value.ObservableStringValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -19,6 +18,7 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -33,6 +33,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
@@ -107,7 +108,7 @@ public class Main extends Application {
         HBox primaryBox = controlBar(dateTimeBean, observerLocationBean, canvasManager);
         Pane skyPane = new Pane(sky);
         BorderPane infoBar = infoBar(viewingParametersBean, canvasManager);
-        GridPane sideBar = sideBar(canvasManager);
+        BorderPane sideBar = sideBar(canvasManager, primaryStage);
 
         root.setTop(primaryBox);
         root.setCenter(skyPane);
@@ -127,27 +128,130 @@ public class Main extends Application {
         sky.requestFocus();
     }
 
-    private GridPane sideBar(SkyCanvasManager canvasManager) {
+    private BorderPane sideBar(SkyCanvasManager canvasManager, Stage stage) {
         ObservableStringValue inspectedObjectName = Bindings.createStringBinding(()->{
-            canvasManager.
-        })
+            Optional<CelestialObject> obj = canvasManager.getLastObjectInspected();
+            return obj.isPresent() ? obj.get().name() : "No object selected";
+        }, canvasManager.lastObjectInspectedProperty());
 
-        GridPane constructed = new GridPane();
-        constructed.setGridLinesVisible(true);
-        constructed.setStyle("-fx-pref-width: 200; -fx-alignment: baseline-left; -fx-font-weight: bold;");
-        constructed.setHgap(10);
-        constructed.setVgap(10);
-        constructed.setPadding(new Insets(10, 10, 10, 10));
-        Label objectLabel = new Label(inspectedObjectName.get());
-        constructed.add(objectLabel, 1,1 );
-        StackPane imageContainer = new StackPane();
-        imageContainer.setStyle("-fx-pref-width: 200;-fx-pref-height: 200;-fx-alignment: baseline-center;");
-        constructed.add(imageContainer, 1, 2);
+        ObservableObjectValue<Image> inspectedObjectImage = Bindings.createObjectBinding(()->{
+            Optional<CelestialObject> obj = canvasManager.getLastObjectInspected();
+            if (obj.isPresent()) {
+                return obj.get() instanceof Star ?
+                        CelestialObjectInfo.getInfoOf("Star" ).getImage()
+                        : CelestialObjectInfo.getInfoOf(obj.get().name()).getImage();
+            }else return CelestialObjectInfo.NONE.getImage();
+        }, canvasManager.lastObjectInspectedProperty());
+
+        ObservableObjectValue<String> inspectedObjectDesc = Bindings.createObjectBinding(()->{
+            Optional<CelestialObject> obj = canvasManager.getLastObjectInspected();
+            if (obj.isPresent()) {
+                return obj.get() instanceof Star ?
+                        CelestialObjectInfo.getInfoOf("Star" ).getDescription(obj.get())
+                        : CelestialObjectInfo.getInfoOf(obj.get().name()).getDescription(obj.get());
+            }else return CelestialObjectInfo.NONE.getDescription(null);
+        }, canvasManager.lastObjectInspectedProperty());
+
+        
+        Label objectLabel = new Label();
+        objectLabel.setStyle("-fx-font-weight: bold;");
+        ImageView objectImage = new ImageView();
+        objectImage.setFitWidth(180);
+        objectImage.setFitHeight(180);
+
+        Text description = new Text("");
+        description.setStyle("-fx-pref-width: 130; -fx-alignment: baseline-left; ");
+        description.minHeight(180);
+        objectLabel.textProperty().bind(inspectedObjectName);
+        objectImage.imageProperty().bind(inspectedObjectImage);
+        description.textProperty().bind(inspectedObjectDesc);
+        description.setWrappingWidth(180);
 
 
 
 
+        Label graphicsLabel = new Label("Rendering parameters");
+        graphicsLabel.setStyle("-fx-font-weight: bold;");
+        CheckBox stars = new CheckBox("Stars");
+        stars.setSelected(true);
+        CheckBox asterisms = new CheckBox("\u2ba1  Asterisms");
+        asterisms.setSelected(false);
+        CheckBox realism = new CheckBox("\u2ba1  Realistic starry sky");
+        asterisms.setSelected(false);
+        CheckBox planets = new CheckBox("Planets");
+        planets.setSelected(true);
+        CheckBox sun = new CheckBox("Sun");
+        sun.setSelected(true);
+        CheckBox moon = new CheckBox("Moon");
+        moon.setSelected(true);
+        Button fullScreen = new Button("Fullscreen view");
 
+        canvasManager.getSkyCanvasPainter().starsEnabledProperty().bindBidirectional(stars.selectedProperty());
+        canvasManager.getSkyCanvasPainter().asterismsEnabledProperty().bindBidirectional(asterisms.selectedProperty());
+        canvasManager.getSkyCanvasPainter().realisticSkyEnabledProperty().bindBidirectional(realism.selectedProperty());
+        canvasManager.getSkyCanvasPainter().planetsEnabledProperty().bindBidirectional(planets.selectedProperty());
+        canvasManager.getSkyCanvasPainter().sunEnabledProperty().bindBidirectional(sun.selectedProperty());
+        canvasManager.getSkyCanvasPainter().moonEnabledProperty().bindBidirectional(moon.selectedProperty());
+
+        stars.selectedProperty().addListener((p,o,n) ->{if(n){
+            asterisms.setDisable(false);
+            asterisms.setSelected(false);
+            realism.setDisable(false);
+            realism.setSelected(false);
+        }else{
+            realism.setDisable(true);
+            realism.setSelected(false);
+            asterisms.setDisable(true);
+            asterisms.setSelected(false);
+        }});
+
+        fullScreen.setOnAction(((e)->{
+            stage.setFullScreen(true);
+        }));
+
+        GridPane infoBox = new GridPane();
+        infoBox.setGridLinesVisible(false);
+        infoBox.setStyle("-fx-pref-width: 200; -fr-pref-height: 300;  -fx-alignment: baseline-left;" +
+                "-fx-background-color: white;");
+        infoBox.setHgap(10);
+        infoBox.setVgap(10);
+        infoBox.setPadding(new Insets(10, 10, 10, 10));
+        
+
+        GridPane graphicsBox = new GridPane();
+        graphicsBox.setGridLinesVisible(false);
+        graphicsBox.setStyle("-fx-pref-width: 200;-fx-alignment: baseline-left;" +
+                "-fx-background-color: white;");
+        graphicsBox.setHgap(10);
+        graphicsBox.setVgap(10);
+        graphicsBox.setPadding(new Insets(10, 10, 10, 10));
+
+
+        Label classification = new Label("Star type: ");
+        Label type = new Label();
+        classification.setStyle("-fx-font-weight:bold;");
+        type.setStyle("-fx-font-weight:bold; -fx-background-color: grey;");
+
+
+        canvasManager.lastObjectInspectedProperty().addListener((p,o,n) -> {
+            if(n.isPresent() && n.get() instanceof Star) {
+                infoBox.getChildren().removeAll(classification, type);
+                CelestialObjectInfo.StarType st = CelestialObjectInfo.StarType.getStarType((Star) n.get());
+                type.setText(st.getType());
+                type.setTextFill(st.getColor());
+                infoBox.addColumn(1, classification, type);
+            }else{
+                infoBox.getChildren().removeAll(classification, type);
+            }
+        });
+
+
+        infoBox.addColumn(1, objectLabel, objectImage, description);
+        graphicsBox.addColumn(1, graphicsLabel ,stars, asterisms, realism, planets, sun, moon, fullScreen);
+        BorderPane constructed = new BorderPane();
+        constructed.setTop(infoBox);
+        constructed.setBottom(graphicsBox);
+        constructed.setStyle("-fx-background-color:white;");
         return constructed;
     }
 
@@ -215,7 +319,7 @@ public class Main extends Application {
         datePicker.setStyle("-fx-pref-width: 120;");
         datePicker.valueProperty().bindBidirectional(dateTimeBean.dateProperty());
 
-        Label timeLabel = new Label("Heure :");
+        Label timeLabel = new Label("Time :");
         TextField timeTextField = new TextField();
         timeTextField.setStyle("-fx-pref-width: 75; -fx-alignment: baseline-right;");
 
@@ -295,17 +399,17 @@ public class Main extends Application {
         BorderPane infoPane = new BorderPane();
 
         Text fov = new Text();
-        fov.textProperty().bind(format("Champ de vue : %.1f°", viewingParametersBean.fieldOfViewDegProperty()));
+        fov.textProperty().bind(format("FOV : %.1f°", viewingParametersBean.fieldOfViewDegProperty()));
 
         StringBinding objectName;
-        objectName = Bindings.createStringBinding(() -> canvasManager.objectUnderMouse.get().isPresent() ?
-                canvasManager.getObjectUnderMouse().get().info() : "", canvasManager.objectUnderMouse);
+        objectName = Bindings.createStringBinding(() -> canvasManager.getObjectUnderMouse().isPresent() ?
+                canvasManager.getObjectUnderMouse().get().info() : "", canvasManager.objectUnderMouseProperty());
 
         Text objectUnderMouse = new Text();
         objectUnderMouse.textProperty().bind(objectName);
 
         Text mousePosCoord = new Text();
-        mousePosCoord.textProperty().bind(format("Azimut : %.2f°, hauteur : %.2f°", canvasManager.mouseAzDegProperty(),
+        mousePosCoord.textProperty().bind(format("Azimuth : %.2f°, altitude : %.2f°", canvasManager.mouseAzDegProperty(),
                 canvasManager.mouseAltDegProperty()));
 
         infoPane.setLeft(fov);

@@ -14,6 +14,9 @@ import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.RadialGradient;
+import javafx.scene.paint.Stop;
 import javafx.scene.text.Font;
 import javafx.scene.transform.Transform;
 
@@ -37,6 +40,8 @@ public class SkyCanvasPainter {
     private final BooleanProperty sunEnabled;
     private final BooleanProperty moonEnabled;
     private final BooleanProperty planetsEnabled;
+    private final BooleanProperty realisticSkyEnabled;
+    private double dayLightFactor;
 
     /**
      * Attaches a SkyCanvasPainter to a canvas
@@ -50,6 +55,7 @@ public class SkyCanvasPainter {
         sunEnabled = new SimpleBooleanProperty(true);
         moonEnabled = new SimpleBooleanProperty(true);
         planetsEnabled = new SimpleBooleanProperty(true);
+        realisticSkyEnabled = new SimpleBooleanProperty(false);
     }
 
     /**
@@ -73,12 +79,21 @@ public class SkyCanvasPainter {
         planeToCanvas.transform2DPoints(sky.starCoordinates(), 0, stereoPoints, 0, stars.size());
         if(asterismsEnabled.get()) drawAsterisms(sky, stereoPoints);
         for (int i = 0; i < stars.size(); i++) {
-            drawCelestialObject(new Point2D(stereoPoints[2 * i],stereoPoints[2 * i + 1]), planeToCanvas,
-                    BlackBodyColor.colorForTemperature(stars.get(i).colorTemperature()).deriveColor(1,6,2,0.01),
-                    getMagnitudeBasedCelestialObjectDiameter(stars.get(i), projection, planeToCanvas) * 3);
-            drawCelestialObject(new Point2D(stereoPoints[2 * i],stereoPoints[2 * i + 1]), planeToCanvas,
-                    BlackBodyColor.colorForTemperature(stars.get(i).colorTemperature()).deriveColor(1,3,2,0.3),
-                    getMagnitudeBasedCelestialObjectDiameter(stars.get(i), projection, planeToCanvas) * 1.5);
+            if(realisticSkyEnabled.get()) {
+                drawCelestialObject(new Point2D(stereoPoints[2 * i], stereoPoints[2 * i + 1]), planeToCanvas,
+                        BlackBodyColor.colorForTemperature(stars.get(i).colorTemperature()).deriveColor(1, 5, 0.25, 0.005),
+                        getMagnitudeBasedCelestialObjectDiameter(stars.get(i), projection, planeToCanvas) * 200);
+                drawCelestialObject(new Point2D(stereoPoints[2 * i], stereoPoints[2 * i + 1]), planeToCanvas,
+                        BlackBodyColor.colorForTemperature(stars.get(i).colorTemperature()).deriveColor(1, 10, 0.5, 0.01),
+                        getMagnitudeBasedCelestialObjectDiameter(stars.get(i), projection, planeToCanvas) * 100);
+                drawCelestialObject(new Point2D(stereoPoints[2 * i], stereoPoints[2 * i + 1]), planeToCanvas,
+                        BlackBodyColor.colorForTemperature(stars.get(i).colorTemperature()).deriveColor(1, 15, 1, 0.01),
+                        getMagnitudeBasedCelestialObjectDiameter(stars.get(i), projection, planeToCanvas) * 50);
+                drawCelestialObject(new Point2D(stereoPoints[2 * i], stereoPoints[2 * i + 1]), planeToCanvas,
+                        BlackBodyColor.colorForTemperature(stars.get(i).colorTemperature()).deriveColor(1, 20, 2, 0.3),
+                        getMagnitudeBasedCelestialObjectDiameter(stars.get(i), projection, planeToCanvas) * 1.5);
+            }
+
             drawCelestialObject(new Point2D(stereoPoints[2 * i],stereoPoints[2 * i + 1]), planeToCanvas,
                     BlackBodyColor.colorForTemperature(stars.get(i).colorTemperature()),
                     getMagnitudeBasedCelestialObjectDiameter(stars.get(i), projection, planeToCanvas));
@@ -132,8 +147,11 @@ public class SkyCanvasPainter {
         final double sunDiameter = deltaTransform(planeToCanvas, projection.applyToAngle(sky.sun().angularSize()));
         CartesianCoordinates sunPosition = sky.sunPosition();
         Point2D sunPositionOnCanvas = planeToCanvas.transform(sunPosition.x(), sunPosition.y());
-
-        drawCelestialObject(sunPositionOnCanvas, planeToCanvas,Color.YELLOW.deriveColor(1, 1, 1, 0.25),  sunDiameter*2.2 );
+        RadialGradient sunGradient = new RadialGradient(canvas.getWidth(), 1, 1, 1, 1, true, CycleMethod.NO_CYCLE, new Stop(1, Color.RED), new Stop(1, Color.GREEN));
+        gc.setFill(Color.RED);
+        gc.fillOval(sunPositionOnCanvas.getX()-sunDiameter/2, sunPositionOnCanvas.getY()-sunDiameter/2, canvas.getWidth()*2, canvas.getWidth()*2);
+        drawCelestialObject(sunPositionOnCanvas, planeToCanvas,BlackBodyColor.colorForTemperature((int) (40000 * dayLightFactor)).deriveColor(1,1,1,0.25),  sunDiameter*2.2 );
+        drawCelestialObject(sunPositionOnCanvas, planeToCanvas,BlackBodyColor.colorForTemperature((int) (40000 * dayLightFactor)).deriveColor(1,1,1,0.25),  sunDiameter*2.2 );
         drawCelestialObject(sunPositionOnCanvas, planeToCanvas,Color.YELLOW,   sunDiameter + 2 );
         drawCelestialObject(sunPositionOnCanvas, planeToCanvas,Color.WHITE,  sunDiameter );
     }
@@ -181,6 +199,7 @@ public class SkyCanvasPainter {
      * @param planeToCanvas Transform used
      */
     public void draw(ObservedSky sky, StereographicProjection projection, Transform planeToCanvas){
+        dayLightFactor = Math.max(0.0, Math.pow((Math.PI / 4 ) * projection.inverseApply(sky.sunPosition()).alt(), 1));
         clear();
         if(starsEnabled.get()) drawStars(sky, projection, planeToCanvas);
         if(planetsEnabled.get()) drawPlanets(sky, projection, planeToCanvas);
@@ -273,5 +292,13 @@ public class SkyCanvasPainter {
 
     public void setPlanetsEnabled(boolean planetsEnabled) {
         this.planetsEnabled.set(planetsEnabled);
+    }
+
+    public boolean isRealisticSkyEnabled() {
+        return realisticSkyEnabled.get();
+    }
+
+    public BooleanProperty realisticSkyEnabledProperty() {
+        return realisticSkyEnabled;
     }
 }
