@@ -13,7 +13,7 @@ import java.util.Objects;
  */
 public final class Sun extends CelestialObject{
     private static final float SUN_MAGNITUDE = -26.7f;
-    private static final String BODY_NAME = "Soleil";
+    private static final String BODY_NAME = "Sun";
 
     private final EclipticCoordinates eclipticPos;
     private final float meanAnomaly;

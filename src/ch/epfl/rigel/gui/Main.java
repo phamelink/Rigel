@@ -8,16 +8,18 @@ import ch.epfl.rigel.coordinates.HorizontalCoordinates;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.StringBinding;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.beans.value.ObservableStringValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -95,6 +97,8 @@ public class Main extends Application {
          primaryStage---root----¦-- CENTER -- skyPane    <= sky             Pane containing rendered graphics
                                 ¦
                                 ¦-- BOTTOM -- infoBar    <= infoBar()       Information display
+                                ¦
+                                ¦-- SIDEBAR-- sideBar    <= sideBar()       More information and controls
 
          */
 
@@ -103,10 +107,12 @@ public class Main extends Application {
         HBox primaryBox = controlBar(dateTimeBean, observerLocationBean, canvasManager);
         Pane skyPane = new Pane(sky);
         BorderPane infoBar = infoBar(viewingParametersBean, canvasManager);
+        GridPane sideBar = sideBar(canvasManager);
 
         root.setTop(primaryBox);
         root.setCenter(skyPane);
         root.setBottom(infoBar);
+        root.setRight(sideBar);
 
         sky.widthProperty().bind(skyPane.widthProperty());
         sky.heightProperty().bind(skyPane.heightProperty());
@@ -114,12 +120,35 @@ public class Main extends Application {
         //Window parameters
         primaryStage.setTitle("Rigel");
         primaryStage.setMinHeight(600);
-        primaryStage.setMinWidth(800);
+        primaryStage.setMinWidth(1000);
         primaryStage.setScene(new Scene(root));
         primaryStage.getIcons().add(new Image("file:resources/icon.png"));
-
         primaryStage.show();
         sky.requestFocus();
+    }
+
+    private GridPane sideBar(SkyCanvasManager canvasManager) {
+        ObservableStringValue inspectedObjectName = Bindings.createStringBinding(()->{
+            canvasManager.
+        })
+
+        GridPane constructed = new GridPane();
+        constructed.setGridLinesVisible(true);
+        constructed.setStyle("-fx-pref-width: 200; -fx-alignment: baseline-left; -fx-font-weight: bold;");
+        constructed.setHgap(10);
+        constructed.setVgap(10);
+        constructed.setPadding(new Insets(10, 10, 10, 10));
+        Label objectLabel = new Label(inspectedObjectName.get());
+        constructed.add(objectLabel, 1,1 );
+        StackPane imageContainer = new StackPane();
+        imageContainer.setStyle("-fx-pref-width: 200;-fx-pref-height: 200;-fx-alignment: baseline-center;");
+        constructed.add(imageContainer, 1, 2);
+
+
+
+
+
+        return constructed;
     }
 
     private HBox controlBar(DateTimeBean dateTimeBean, ObserverLocationBean observerLocationBean, SkyCanvasManager canvasManager) {

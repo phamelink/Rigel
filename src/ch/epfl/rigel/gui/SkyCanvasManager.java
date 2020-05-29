@@ -65,11 +65,10 @@ public class SkyCanvasManager {
     private final ObservableDoubleValue dilationFactorY;
 
     public final ObservableObjectValue<Optional<CelestialObject>> objectUnderMouse;
+    public final ObjectProperty<Optional<CelestialObject>> lastObjectInspected;
     public final ObservableDoubleValue mouseAzDeg;
     public final ObservableDoubleValue mouseAltDeg;
     private final BooleanProperty mousePresentOverPane;
-    private int mouseX;
-    private int mouseY;
     private Point2D lastMouseDragPosition;
     private GraphicsContext gc;
 
@@ -140,6 +139,7 @@ public class SkyCanvasManager {
 
         mouseAltDeg = Bindings.createDoubleBinding(() -> mouseHorizontalPosition.get().altDeg(), mouseHorizontalPosition);
 
+
         objectUnderMouse = Bindings.createObjectBinding(() -> {
 
             if (mousePresentOverPane.getValue()) {
@@ -188,22 +188,15 @@ public class SkyCanvasManager {
             event.consume();
         });
 
+        lastObjectInspected = new SimpleObjectProperty<>(Optional.empty());
+
         //Bind click and drag controls
         canvas.get().addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
             canvas.get().requestFocus();
             if (event.isSecondaryButtonDown()) {
                 lastMouseDragPosition = new Point2D(event.getX(), event.getY());
-            } else if (event.isPrimaryButtonDown() && objectUnderMouse.get().isPresent()) {
-                refreshCanvas();
-                CartesianCoordinates objPos = new StereographicProjection(viewingParameters.getCenter())
-                        .apply(new EquatorialToHorizontalConversion(dateTimeBean.getZonedDateTime(),
-                                observerLocation.getCoordinates()).apply(objectUnderMouse.get().get().equatorialPos()));
-                Point2D posTrans = planeToCanvas.get().transform(objPos.x(), objPos.y());
-                gc.setFill(Color.WHITE);
-                gc.fillRoundRect(posTrans.getX() + 5, posTrans.getY() - 55,200, 50, 2, 2);
-                gc.setFill(Color.BLACK);
-                gc.fillText(objectUnderMouse.get().get().name(), posTrans.getX() + 15, posTrans.getY() - 40 );
-                gc.fillText("Magnitude: " + objectUnderMouse.get().get().magnitude(), posTrans.getX() + 15, posTrans.getY() - 20 );
+            } else if (event.isPrimaryButtonDown()) {
+                lastObjectInspected.set(objectUnderMouse.get());
             }
         });
 

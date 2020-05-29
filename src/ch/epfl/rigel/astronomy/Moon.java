@@ -16,7 +16,7 @@ import java.util.Locale;
 public final class Moon extends CelestialObject {
 
     private static final ClosedInterval PHASE_INTERVAL = ClosedInterval.of(0, 1d);
-    private static final String BODY_NAME = "Lune";
+    private static final String BODY_NAME = "Moon";
     private final float phase;
 
     /**

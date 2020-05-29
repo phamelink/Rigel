@@ -74,8 +74,15 @@ public class SkyCanvasPainter {
         if(asterismsEnabled.get()) drawAsterisms(sky, stereoPoints);
         for (int i = 0; i < stars.size(); i++) {
             drawCelestialObject(new Point2D(stereoPoints[2 * i],stereoPoints[2 * i + 1]), planeToCanvas,
+                    BlackBodyColor.colorForTemperature(stars.get(i).colorTemperature()).deriveColor(1,6,2,0.01),
+                    getMagnitudeBasedCelestialObjectDiameter(stars.get(i), projection, planeToCanvas) * 3);
+            drawCelestialObject(new Point2D(stereoPoints[2 * i],stereoPoints[2 * i + 1]), planeToCanvas,
+                    BlackBodyColor.colorForTemperature(stars.get(i).colorTemperature()).deriveColor(1,3,2,0.3),
+                    getMagnitudeBasedCelestialObjectDiameter(stars.get(i), projection, planeToCanvas) * 1.5);
+            drawCelestialObject(new Point2D(stereoPoints[2 * i],stereoPoints[2 * i + 1]), planeToCanvas,
                     BlackBodyColor.colorForTemperature(stars.get(i).colorTemperature()),
                     getMagnitudeBasedCelestialObjectDiameter(stars.get(i), projection, planeToCanvas));
+
         }
     }
 
