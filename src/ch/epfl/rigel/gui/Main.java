@@ -6,8 +6,8 @@ import ch.epfl.rigel.coordinates.HorizontalCoordinates;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.StringBinding;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableObjectValue;
 import javafx.beans.value.ObservableStringValue;
 import javafx.collections.FXCollections;
@@ -47,6 +47,8 @@ public class Main extends Application {
     private static final double DEFAULT_FIELD_OF_VIEW = 100.0;
     private static final double DEFAULT_LONGITUDE = 6.57;
     private static final double DEFAULT_LATITUDE = 46.52;
+    private static double heightBeforeFullScreen;
+    private static double widthBeforeFullScree;
 
     private static Font fontAwesome;
 
@@ -186,7 +188,8 @@ public class Main extends Application {
         sun.setSelected(true);
         CheckBox moon = new CheckBox("Moon");
         moon.setSelected(true);
-        Button fullScreen = new Button("Fullscreen view");
+        Button fullScreen = new Button();
+
 
         canvasManager.getSkyCanvasPainter().starsEnabledProperty().bindBidirectional(stars.selectedProperty());
         canvasManager.getSkyCanvasPainter().asterismsEnabledProperty().bindBidirectional(asterisms.selectedProperty());
@@ -195,6 +198,7 @@ public class Main extends Application {
         canvasManager.getSkyCanvasPainter().sunEnabledProperty().bindBidirectional(sun.selectedProperty());
         canvasManager.getSkyCanvasPainter().moonEnabledProperty().bindBidirectional(moon.selectedProperty());
         canvasManager.getSkyCanvasPainter().realisticSunEnabledProperty().bindBidirectional(sunlight.selectedProperty());
+
         stars.selectedProperty().addListener((p,o,n) ->{if(n){
             asterisms.setDisable(false);
             asterisms.setSelected(false);
@@ -216,9 +220,18 @@ public class Main extends Application {
             }
         });
 
+        SimpleBooleanProperty isFullScreen = new SimpleBooleanProperty(false);
+        fullScreen.textProperty().bind(
+                when(isFullScreen)
+                .then("Normalscreen view")
+                .otherwise("Fullscreen view")
+        );
+
         fullScreen.setOnAction(((e)->{
-            stage.setFullScreen(true);
+            stage.setFullScreen(!isFullScreen.get());
+            isFullScreen.set(!isFullScreen.get());
         }));
+
 
         GridPane infoBox = new GridPane();
         infoBox.setGridLinesVisible(false);
@@ -413,8 +426,16 @@ public class Main extends Application {
         fov.textProperty().bind(format("FOV : %.1f°", viewingParametersBean.fieldOfViewDegProperty()));
 
         StringBinding objectName;
-        objectName = Bindings.createStringBinding(() -> canvasManager.getObjectUnderMouse().isPresent() ?
-                canvasManager.getObjectUnderMouse().get().info() : "", canvasManager.objectUnderMouseProperty());
+        objectName = Bindings.createStringBinding(() -> {
+            Optional<CelestialObject> object = canvasManager.getObjectUnderMouse();
+            if (object.isEmpty() ||
+                    (!canvasManager.getSkyCanvasPainter().isMoonEnabled() && object.get() instanceof Moon) ||
+                    (!canvasManager.getSkyCanvasPainter().isPlanetsEnabled() && object.get() instanceof Planet) ||
+                    (!canvasManager.getSkyCanvasPainter().isSunEnabled() && object.get() instanceof Sun) ||
+                    (!canvasManager.getSkyCanvasPainter().isStarsEnabled() && object.get() instanceof Star)
+            ) return "";
+            else return object.get().info();
+            }, canvasManager.objectUnderMouseProperty());
 
         Text objectUnderMouse = new Text();
         objectUnderMouse.textProperty().bind(objectName);
