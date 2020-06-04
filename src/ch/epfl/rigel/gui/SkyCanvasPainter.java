@@ -97,7 +97,7 @@ public class SkyCanvasPainter {
             if(!safeDisplayBounds.contains(p)) continue;
             Color starColor = BlackBodyColor.colorForTemperature(stars.get(i).colorTemperature());
             if(realisticSkyEnabled.get()) {
-                double haloDiameter = diameter * 20;
+                double haloDiameter = diameter * 40;
                 RadialGradient starGradient = new RadialGradient(
                         0,
                         0,
@@ -106,10 +106,8 @@ public class SkyCanvasPainter {
                         haloDiameter,
                         false,
                         CycleMethod.NO_CYCLE,
-                        new Stop(0, starColor.deriveColor(1, 2, 1, 0.3)),
-                        new Stop(0.1, starColor.deriveColor(1, 1, 0.5, 0.1)),
-                        new Stop(0.2, starColor.deriveColor(1, 0.2, 0.2, 0.05)),
-                        new Stop(0.5, starColor.deriveColor(1, 0, 0, 0))
+                        new Stop(0, starColor.deriveColor(1, 0.9, 0.5, 0.25)),
+                        new Stop(0.05, starColor.deriveColor(1, 0, 0, 0))
                 );
                 gc.setFill(starGradient);
                 gc.fillOval(p.getX()-haloDiameter/2, p.getY()-haloDiameter/2, haloDiameter, haloDiameter);
@@ -179,7 +177,7 @@ public class SkyCanvasPainter {
                 halodiameter,
                 false,
                 CycleMethod.NO_CYCLE,
-                new Stop(0, inside.deriveColor(1,1,5 * skyBrightnessFactor, skyBrightnessFactor)),
+                new Stop(0, inside.deriveColor(1,0.7,5 * skyBrightnessFactor, skyBrightnessFactor)),
                 new Stop( 0.03, outside.deriveColor(1,0.5,1,skyBrightnessFactor*0.01)),
                 new Stop(1, Color.DEEPSKYBLUE.deriveColor(1, 0, 0, 0))
         );
