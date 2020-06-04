@@ -109,6 +109,14 @@ public final class StereographicProjection implements Function<HorizontalCoordin
         return 2 * Math.tan(rad / 4);
     }
 
+    /**
+     * Returns the center of the projection
+     * @return center
+     */
+    public HorizontalCoordinates getCenter() {
+        return center;
+    }
+
     @Override
     public final int hashCode() {
         throw new UnsupportedOperationException();

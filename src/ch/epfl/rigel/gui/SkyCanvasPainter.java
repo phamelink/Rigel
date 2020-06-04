@@ -34,6 +34,7 @@ import java.util.function.Function;
 public class SkyCanvasPainter {
 
     private static final ClosedInterval MAGNITUDE_INTERVAL = ClosedInterval.of(-2, 5);
+    private static final double ALT_LABEL_Y = 20;
 
     private final Canvas canvas;
     private final GraphicsContext gc;
@@ -44,6 +45,7 @@ public class SkyCanvasPainter {
     private final BooleanProperty planetsEnabled;
     private final BooleanProperty realisticSkyEnabled;
     private final BooleanProperty realisticSunEnabled;
+    private final BooleanProperty altitudeLinesEnabled;
     private double dayLightFactor;
     private double skyBrightnessFactor;
 
@@ -62,6 +64,7 @@ public class SkyCanvasPainter {
         planetsEnabled = new SimpleBooleanProperty(true);
         realisticSkyEnabled = new SimpleBooleanProperty(false);
         realisticSunEnabled = new SimpleBooleanProperty(false);
+        altitudeLinesEnabled = new SimpleBooleanProperty(false);
 
     }
 
@@ -224,6 +227,24 @@ public class SkyCanvasPainter {
             Point2D octantCoord = planeToCanvas.transform(octantCartesian.x(), octantCartesian.y());
             gc.fillText(octant.name(), octantCoord.getX(), octantCoord.getY() + Font.getDefault().getSize());
         }
+
+        if(altitudeLinesEnabled.get()) {
+            double xAltPos = canvas.getWidth() / 2;
+            gc.setStroke(Color.PALEGREEN.deriveColor(1, 1, 1, 0.5));
+            gc.setFill(Color.PALEGREEN.deriveColor(1, 2, 1, 0.8));
+            gc.setLineWidth(1);
+            gc.fillText("0°", xAltPos, planeToCanvas.transform(0, projection.apply(HorizontalCoordinates.of(projection.getCenter().az(), Angle.ofDeg(0.5))).y()).getY());
+            for (int alt = -50; alt < 90; alt = alt + 10) {
+                if (alt == 0) continue;
+                gc.fillText(alt + "°", xAltPos, planeToCanvas.transform(0, projection.apply(HorizontalCoordinates.of(projection.getCenter().az(), Angle.ofDeg(alt + 0.5))).y()).getY());
+                CartesianCoordinates circCenter = projection.circleCenterForParallel(HorizontalCoordinates.ofDeg(0, alt));
+                double circRadius = Math.abs(projection.circleRadiusForParallel(HorizontalCoordinates.ofDeg(0, alt)));
+                Point2D altCenter = planeToCanvas.transform(circCenter.x(), circCenter.y());
+                double altRadius = planeToCanvas.deltaTransform(circRadius, 0).getX();
+                gc.strokeOval(altCenter.getX() - altRadius, altCenter.getY() - altRadius, altRadius * 2, altRadius * 2);
+            }
+        }
+
     }
 
     /**
@@ -350,5 +371,13 @@ public class SkyCanvasPainter {
 
     public BooleanProperty realisticSunEnabledProperty() {
         return realisticSunEnabled;
+    }
+
+    public boolean isAltitudeLinesEnabled() {
+        return altitudeLinesEnabled.get();
+    }
+
+    public BooleanProperty altitudeLinesEnabledProperty() {
+        return altitudeLinesEnabled;
     }
 }

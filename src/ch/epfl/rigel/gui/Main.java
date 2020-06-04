@@ -3,6 +3,7 @@ package ch.epfl.rigel.gui;
 import ch.epfl.rigel.astronomy.*;
 import ch.epfl.rigel.coordinates.GeographicCoordinates;
 import ch.epfl.rigel.coordinates.HorizontalCoordinates;
+import ch.epfl.rigel.math.Angle;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.StringBinding;
@@ -14,6 +15,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
@@ -22,11 +24,15 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.converter.LocalTimeStringConverter;
 import javafx.util.converter.NumberStringConverter;
 
-import java.io.InputStream;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.*;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -47,8 +53,6 @@ public class Main extends Application {
     private static final double DEFAULT_FIELD_OF_VIEW = 100.0;
     private static final double DEFAULT_LONGITUDE = 6.57;
     private static final double DEFAULT_LATITUDE = 46.52;
-    private static double heightBeforeFullScreen;
-    private static double widthBeforeFullScree;
 
     private static Font fontAwesome;
 
@@ -107,7 +111,7 @@ public class Main extends Application {
 
         BorderPane root = new BorderPane();
 
-        HBox primaryBox = controlBar(dateTimeBean, observerLocationBean, canvasManager);
+        HBox primaryBox = controlBar(dateTimeBean, observerLocationBean, canvasManager, viewingParametersBean, primaryStage);
         Pane skyPane = new Pane(sky);
         BorderPane infoBar = infoBar(viewingParametersBean, canvasManager);
         BorderPane sideBar = sideBar(canvasManager, primaryStage);
@@ -188,6 +192,8 @@ public class Main extends Application {
         sun.setSelected(true);
         CheckBox moon = new CheckBox("Moon");
         moon.setSelected(true);
+        CheckBox alt = new CheckBox("Altitude guides");
+        alt.setSelected(false);
         Button fullScreen = new Button();
 
 
@@ -198,6 +204,7 @@ public class Main extends Application {
         canvasManager.getSkyCanvasPainter().sunEnabledProperty().bindBidirectional(sun.selectedProperty());
         canvasManager.getSkyCanvasPainter().moonEnabledProperty().bindBidirectional(moon.selectedProperty());
         canvasManager.getSkyCanvasPainter().realisticSunEnabledProperty().bindBidirectional(sunlight.selectedProperty());
+        canvasManager.getSkyCanvasPainter().altitudeLinesEnabledProperty().bindBidirectional(alt.selectedProperty());
 
         stars.selectedProperty().addListener((p,o,n) ->{if(n){
             asterisms.setDisable(false);
@@ -223,7 +230,7 @@ public class Main extends Application {
         SimpleBooleanProperty isFullScreen = new SimpleBooleanProperty(false);
         fullScreen.textProperty().bind(
                 when(isFullScreen)
-                .then("Normalscreen view")
+                .then("Exit fullscreen")
                 .otherwise("Fullscreen view")
         );
 
@@ -271,7 +278,7 @@ public class Main extends Application {
 
 
         infoBox.addColumn(1, objectLabel, objectImage, description);
-        graphicsBox.addColumn(1, graphicsLabel ,stars, asterisms, realism, planets, sun, sunlight, moon, fullScreen);
+        graphicsBox.addColumn(1, graphicsLabel ,stars, asterisms, realism, planets, sun, sunlight, moon, alt, fullScreen);
         BorderPane constructed = new BorderPane();
         constructed.setTop(infoBox);
         constructed.setBottom(graphicsBox);
@@ -279,16 +286,83 @@ public class Main extends Application {
         return constructed;
     }
 
-    private HBox controlBar(DateTimeBean dateTimeBean, ObserverLocationBean observerLocationBean, SkyCanvasManager canvasManager) {
+    private HBox controlBar(DateTimeBean dateTimeBean, ObserverLocationBean observerLocationBean, SkyCanvasManager canvasManager, ViewingParametersBean viewingParameters, Stage primaryStage) {
+
         HBox controlBar = new HBox(
                 obsPosBox(observerLocationBean),
                 new Separator(Orientation.VERTICAL),
                 obsInstBox(dateTimeBean, canvasManager),
                 new Separator(Orientation.VERTICAL),
-                accBox(dateTimeBean, canvasManager)
+                accBox(dateTimeBean, canvasManager),
+                new Separator(Orientation.VERTICAL),
+                saveBox(dateTimeBean, observerLocationBean, viewingParameters, primaryStage)
         );
         controlBar.setStyle("-fx-spacing: 4; -fx-padding: 4;");
         return controlBar;
+    }
+
+    private HBox saveBox(DateTimeBean dateTimeBean, ObserverLocationBean observerLocationBean, ViewingParametersBean viewingParameters, Stage primaryStage) {
+        Button save = new Button("Save view");
+        Button open = new Button("Open view...");
+        save.setStyle("-fx-pref-width: 80; -fx-alignment: baseline-center;");
+        open.setStyle("-fx-pref-width: 80; -fx-alignment: baseline-center;");
+
+        save.setOnAction((e) ->{
+            FileChooser fc = new FileChooser();
+            FileChooser.ExtensionFilter extensionFilter = new FileChooser.ExtensionFilter("Rigel View files (*.rgvf", "*.rgvf");
+            fc.getExtensionFilters().add(extensionFilter);
+
+            File toSave = fc.showSaveDialog(primaryStage);
+            if(toSave != null) {
+                try {
+                    BufferedWriter fw = new BufferedWriter(new FileWriter(toSave));
+                    fw.write(Double.toString(viewingParameters.getCenter().az()));
+                    fw.newLine();
+                    fw.write(Double.toString(viewingParameters.getCenter().alt()));
+                    fw.newLine();
+                    fw.write(Double.toString(viewingParameters.getFieldOfViewDeg()));
+                    fw.newLine();
+                    fw.write(dateTimeBean.getZonedDateTime().toString());
+                    fw.newLine();
+                    fw.write(Double.toString(observerLocationBean.getCoordinates().lon()));
+                    fw.newLine();
+                    fw.write(Double.toString(observerLocationBean.getCoordinates().lat()));
+                    fw.close();
+                } catch (IOException ex) {
+                    System.err.println("Could not save file!");
+                }
+            }
+        });
+
+        open.setOnAction((e) ->{
+            FileChooser fc = new FileChooser();
+            FileChooser.ExtensionFilter extensionFilter = new FileChooser.ExtensionFilter("Rigel View files (*.rgvf", "*.rgvf");
+            fc.getExtensionFilters().add(extensionFilter);
+
+            File toOpen = fc.showOpenDialog(primaryStage);
+            if(toOpen != null) {
+                try {
+                    BufferedReader fr = new BufferedReader(new FileReader(toOpen));
+                    viewingParameters.setCenter(HorizontalCoordinates.of(Double.parseDouble(fr.readLine()), Double.parseDouble(fr.readLine())));
+                    viewingParameters.setFieldOfViewDeg(Double.parseDouble(fr.readLine()));
+                    dateTimeBean.setZonedDateTime(ZonedDateTime.parse(fr.readLine()));
+                    observerLocationBean.setCoordinates(GeographicCoordinates.ofDeg(Angle.toDeg(Double.parseDouble(fr.readLine())), Angle.toDeg(Double.parseDouble(fr.readLine()))));
+
+                    fr.close();
+                } catch (IOException ex) {
+                    System.err.println("Could not open file!");
+                }
+            }
+
+        });
+        
+        
+        
+        
+        HBox toReturn = new HBox(save, open);
+        toReturn.setStyle("-fx-spacing: inherit; -fx-alignment: baseline-left;");
+
+        return toReturn;
     }
 
     private HBox obsPosBox(ObserverLocationBean observerLocationBean) {

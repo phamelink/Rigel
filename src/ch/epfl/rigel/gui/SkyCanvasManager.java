@@ -1,8 +1,6 @@
 package ch.epfl.rigel.gui;
 
-import ch.epfl.rigel.astronomy.CelestialObject;
-import ch.epfl.rigel.astronomy.ObservedSky;
-import ch.epfl.rigel.astronomy.StarCatalogue;
+import ch.epfl.rigel.astronomy.*;
 import ch.epfl.rigel.coordinates.CartesianCoordinates;
 import ch.epfl.rigel.coordinates.EquatorialToHorizontalConversion;
 import ch.epfl.rigel.coordinates.HorizontalCoordinates;
@@ -23,6 +21,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Transform;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -70,7 +69,6 @@ public class SkyCanvasManager {
     private final ObservableDoubleValue mouseAltDeg;
     private final BooleanProperty mousePresentOverPane;
     private Point2D lastMouseDragPosition;
-    private GraphicsContext gc;
 
 
     /**
@@ -88,7 +86,7 @@ public class SkyCanvasManager {
 
         //Create canvas
         this.canvas = new SimpleObjectProperty<>(new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT));
-        gc = canvas.get().getGraphicsContext2D();
+        canvas.get().getGraphicsContext2D();
 
 
         //Create bindings for projection and observed sky
@@ -160,13 +158,10 @@ public class SkyCanvasManager {
         observedSky.addListener((p,o,n) -> refreshCanvas());
         planeToCanvas.addListener((p,o,n) -> refreshCanvas());
         objectUnderMouse.addListener((p,o,n) -> refreshCanvas());
-        getSkyCanvasPainter().starsEnabledProperty().addListener((p,o,n) -> refreshCanvas());
-        getSkyCanvasPainter().asterismsEnabledProperty().addListener((p,o,n) -> refreshCanvas());
-        getSkyCanvasPainter().realisticSkyEnabledProperty().addListener((p,o,n) -> refreshCanvas());
-        getSkyCanvasPainter().planetsEnabledProperty().addListener((p,o,n) -> refreshCanvas());
-        getSkyCanvasPainter().sunEnabledProperty().addListener((p,o,n) -> refreshCanvas());
-        getSkyCanvasPainter().moonEnabledProperty().addListener((p,o,n) -> refreshCanvas());
-        getSkyCanvasPainter().realisticSunEnabledProperty().addListener((p,o,n) -> refreshCanvas());
+        SkyCanvasPainter sp = getSkyCanvasPainter();
+        addRefreshSensibilities(sp.starsEnabledProperty(),sp.asterismsEnabledProperty(), sp.realisticSkyEnabledProperty(),
+                sp.planetsEnabledProperty(), sp.sunEnabledProperty(), sp.moonEnabledProperty(),
+                sp.realisticSunEnabledProperty(), sp.altitudeLinesEnabledProperty());
 
         //Bind keyboard controls
         canvas.get().addEventFilter(KeyEvent.KEY_PRESSED, event -> {
@@ -204,8 +199,16 @@ public class SkyCanvasManager {
             canvas.get().requestFocus();
             if (event.isSecondaryButtonDown()) {
                 lastMouseDragPosition = new Point2D(event.getX(), event.getY());
-            } else if (event.isPrimaryButtonDown()) {
-                lastObjectInspected.set(objectUnderMouse.get());
+            } else if (event.isPrimaryButtonDown() ) {
+                if( getObjectUnderMouse().isEmpty()
+                        || (getSkyCanvasPainter().isStarsEnabled() && getObjectUnderMouse().get() instanceof Star)
+                        || (getSkyCanvasPainter().isPlanetsEnabled() && getObjectUnderMouse().get() instanceof Planet)
+                        || (getSkyCanvasPainter().isMoonEnabled() && getObjectUnderMouse().get() instanceof Moon)
+                        || (getSkyCanvasPainter().isSunEnabled() && getObjectUnderMouse().get() instanceof Sun)) {
+                    lastObjectInspected.set(objectUnderMouse.get());
+                }else{
+                    lastObjectInspected.set(Optional.empty());
+                }
             }
         });
 
@@ -237,6 +240,13 @@ public class SkyCanvasManager {
         });
 
     }
+
+    private void addRefreshSensibilities(Property<Boolean>... sensibilities){
+        for(Property<Boolean> s : sensibilities){
+            s.addListener((p,o,n) -> refreshCanvas());
+        }
+    }
+
 
     /**
      * Refreshes canvas by clearing it and drawings all elements

@@ -69,7 +69,7 @@ public enum CelestialObjectInfo {
         SUPER("Supergiant", ClosedInterval.of(-20, 1-5), ClosedInterval.of(1000, 50000), Color.YELLOW),
         SUB_DWARF("Sub dwarf", ClosedInterval.of(5, 15), ClosedInterval.of(2000, 5000), Color.ORANGERED),
         DWARF("Dwarf", ClosedInterval.of(-5, 7), ClosedInterval.of(4000, 40000), Color.LIGHTBLUE),
-        UNCLASSIFIED("Unclassfified", ClosedInterval.of(-20, 20), ClosedInterval.of(0, 40000), Color.BLACK);
+        UNCLASSIFIED("Main sequence", ClosedInterval.of(-20, 20), ClosedInterval.of(0, 40000), Color.BLACK);
 
         private final String type;
         private final Interval magnitude;
