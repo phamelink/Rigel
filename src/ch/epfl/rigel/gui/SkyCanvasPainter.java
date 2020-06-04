@@ -97,7 +97,7 @@ public class SkyCanvasPainter {
             if(!safeDisplayBounds.contains(p)) continue;
             Color starColor = BlackBodyColor.colorForTemperature(stars.get(i).colorTemperature());
             if(realisticSkyEnabled.get()) {
-                double haloDiameter = diameter * 40;
+                double haloDiameter = diameter * 5;
                 RadialGradient starGradient = new RadialGradient(
                         0,
                         0,
@@ -106,17 +106,16 @@ public class SkyCanvasPainter {
                         haloDiameter,
                         false,
                         CycleMethod.NO_CYCLE,
-                        new Stop(0, starColor.deriveColor(1, 0.9, 0.5, 0.25)),
-                        new Stop(0.05, starColor.deriveColor(1, 0, 0, 0))
+                        new Stop(0, starColor.deriveColor(1, 1.5, 1, 1)),
+                        new Stop(0.2, starColor.deriveColor(1, 1.1, 0.1, 0.9)),
+                        new Stop(0.4, starColor.deriveColor(1, 0, 0, 0))
                 );
                 gc.setFill(starGradient);
                 gc.fillOval(p.getX()-haloDiameter/2, p.getY()-haloDiameter/2, haloDiameter, haloDiameter);
+            }else {
+
+                drawCelestialObject(new Point2D(stereoPoints[2 * i],stereoPoints[2 * i + 1]), planeToCanvas, BlackBodyColor.colorForTemperature(stars.get(i).colorTemperature()), getMagnitudeBasedCelestialObjectDiameter(stars.get(i), projection, planeToCanvas));
             }
-
-            drawCelestialObject(new Point2D(stereoPoints[2 * i],stereoPoints[2 * i + 1]), planeToCanvas,
-                    BlackBodyColor.colorForTemperature(stars.get(i).colorTemperature()),
-                    getMagnitudeBasedCelestialObjectDiameter(stars.get(i), projection, planeToCanvas));
-
         }
     }
 

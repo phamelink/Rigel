@@ -129,19 +129,19 @@ public enum CelestialObjectInfo {
      */
     public enum StarType {
         WHITE_DWARF("White dwarf", ClosedInterval.of(10, 15), ClosedInterval.of(5200, 7500), Color.ANTIQUEWHITE),
+        RED_SUPER("Red supergiant", ClosedInterval.of(-20, -5), ClosedInterval.of(1000, 5000), Color.RED),
+        BlUE_SUPER("Blue supergiant", ClosedInterval.of(-20, -5), ClosedInterval.of(8000, 50000), Color.BLUE),
+        SUPER("Supergiant", ClosedInterval.of(-20, 1-5), ClosedInterval.of(1000, 50000), Color.YELLOW),
         SUB_GIANT("Sub giant", ClosedInterval.of(1, 3), ClosedInterval.of(5200, 6000), Color.ANTIQUEWHITE),
-        BLUE_SUB_GIANT("Blue sub giant", ClosedInterval.of(-5, 0), ClosedInterval.of(6000, 40000), Color.LIGHTBLUE),
+        BLUE_SUB_GIANT("Blue sub giant", ClosedInterval.of(-5, 0), ClosedInterval.of(8000, 50000), Color.LIGHTBLUE),
         RED_GIANT("Red giant", ClosedInterval.of(-1.5, 1.5), ClosedInterval.of(1000, 5000), Color.RED),
         BlUE_GIANT("Blue giant", ClosedInterval.of(-1.5, 1.5), ClosedInterval.of(8000, 50000), Color.BLUE),
         GIANT("Giant", ClosedInterval.of(-1.5, 1.5), ClosedInterval.of(1000, 50000), Color.YELLOW),
         RED_BRIGHT("Red bright giant", ClosedInterval.of(-5, -1.5), ClosedInterval.of(1000, 5000), Color.RED),
         BlUE_BRIGHT("Blue bright Giant", ClosedInterval.of(-5, -1.5), ClosedInterval.of(8000, 50000), Color.BLUE),
         BRIGHT("Bright giant", ClosedInterval.of(-5, -1.5), ClosedInterval.of(1000, 50000), Color.YELLOW),
-        RED_SUPER("Red supergiant", ClosedInterval.of(-20, -5), ClosedInterval.of(1000, 5000), Color.RED),
-        BlUE_SUPER("Blue supergiant", ClosedInterval.of(-20, -5), ClosedInterval.of(8000, 50000), Color.BLUE),
-        SUPER("Supergiant", ClosedInterval.of(-20, 1-5), ClosedInterval.of(1000, 50000), Color.YELLOW),
         SUB_DWARF("Sub dwarf", ClosedInterval.of(5, 15), ClosedInterval.of(2000, 5000), Color.ORANGERED),
-        DWARF("Dwarf", ClosedInterval.of(-5, 7), ClosedInterval.of(4000, 40000), Color.LIGHTBLUE),
+        DWARF("Dwarf (Main sequence)", ClosedInterval.of(-5, 7), ClosedInterval.of(4000, 40000), Color.LIGHTBLUE),
         UNCLASSIFIED("Main sequence", ClosedInterval.of(-20, 20), ClosedInterval.of(0, 40000), Color.BLACK);
 
         private final String type;
@@ -149,9 +149,9 @@ public enum CelestialObjectInfo {
         private final Interval temp;
         private final Color color;
 
-        StarType(String type, Interval magnitude, Interval temp, Color color) {
+        StarType(String type, Interval absoluteMagnitude, Interval temp, Color color) {
             this.type = type;
-            this.magnitude = magnitude;
+            this.magnitude = absoluteMagnitude;
             this.temp = temp;
             this.color = color;
         }
@@ -163,7 +163,7 @@ public enum CelestialObjectInfo {
          */
         public static StarType getStarType(Star star){
             for(StarType type : StarType.values()){
-                if(type.temp.contains(star.colorTemperature()) && type.magnitude.contains(star.magnitude())) return type;
+                if(type.temp.contains(star.colorTemperature()) && type.magnitude.contains(star.getAbsMagnitude())) return type;
             }
             throw new NoSuchElementException("No type found");
         }

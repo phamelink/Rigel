@@ -16,6 +16,7 @@ public final class Star extends CelestialObject {
 
     private final int hipparcosId;
     private final int temperature;
+    private final float absMagnitude;
 
 
     /**
@@ -29,12 +30,13 @@ public final class Star extends CelestialObject {
      * @throws IllegalArgumentException if Hipparcos is negative or the color indice
      *          is not contained in the interval [-0.5, 5.5]
      */
-    public Star(int hipparcosId, String name, EquatorialCoordinates equatorialPos, float magnitude,  float colorIndex) {
+    public Star(int hipparcosId, String name, EquatorialCoordinates equatorialPos, float magnitude, float absMagnitude,  float colorIndex) {
         super(name, equatorialPos, STAR_ANGULAR_SIZE, magnitude);
         Preconditions.checkArgument(hipparcosId >= 0);
         this.hipparcosId = hipparcosId;
         double colorCorrected = 0.92 * (float) Preconditions.checkInInterval(COLOR_INDEX_INTERVAL, colorIndex);
         this.temperature = (int) (4600d * (1 / (colorCorrected + 1.7) + 1 / (colorCorrected + 0.62)));
+        this.absMagnitude = absMagnitude;
     }
 
     /**
@@ -51,5 +53,14 @@ public final class Star extends CelestialObject {
      */
     public int colorTemperature(){
         return temperature;
+    }
+
+
+    /**
+     * Returns the absolute magnitude of the star.
+     * @return absolute magnitude
+     */
+    public float getAbsMagnitude() {
+        return absMagnitude;
     }
 }

@@ -50,11 +50,14 @@ public enum HygDatabaseLoader implements StarCatalogue.Loader {
                 int hipID = parseIntColumn(ColumnNames.HIP, values);
                 float magnitude = parseFloatColumn(ColumnNames.MAG, values);
                 float colorIndex = parseFloatColumn(ColumnNames.CI, values);
+                float absMag = parseFloatColumn(ColumnNames.ABSMAG, values);
 
 
-                builder.addStar(new Star(hipID, name, coord, magnitude, colorIndex));
+                builder.addStar(new Star(hipID, name, coord, magnitude, absMag, colorIndex));
             }
 
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
 

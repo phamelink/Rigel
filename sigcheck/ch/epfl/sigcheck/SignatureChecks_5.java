@@ -12,9 +12,6 @@ final class SignatureChecks_5 {
         String s = null;
         EquatorialCoordinates e = null;
         float f = 0;
-        Star t = new Star(i, s, e, f, f);
-        i = t.hipparcosId();
-        i = t.colorTemperature();
     }
 
     void checkAsterism() {
