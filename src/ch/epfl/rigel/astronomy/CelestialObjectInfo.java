@@ -8,6 +8,12 @@ import javafx.scene.paint.Color;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+/**
+ * CelestialObjectInfo enum
+ *
+ * @author Philip Hamelink (311769)
+ * @author Malo Ranzetti (296956)
+ */
 public enum CelestialObjectInfo {
     SUN("Sun", "bodies/sun.jpg", "The Sun—the heart of our solar system—is a yellow dwarf star, a hot ball of glowing gases. Its gravity holds the solar system together, keeping everything from the biggest planets to the smallest particles of debris in its orbit. Electric currents in the Sun generate a magnetic field that is carried out through the solar system by the solar wind—a stream of electrically charged gas blowing outward from the Sun in all directions."),
     MOON("Moon", "bodies/moon.jpg", "The brightest and largest object in our night sky, the Moon makes Earth a more livable planet by moderating our home planet's wobble on its axis, leading to a relatively stable climate. It also causes tides, creating a rhythm that has guided humans for thousands of years. The Moon was likely formed after a Mars-sized body collided with Earth."),
@@ -31,21 +37,37 @@ public enum CelestialObjectInfo {
         this.description = description;
     }
 
+    /**
+     * Getter for celestial object's name
+     * @return celestial object's name
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Getter for image of celestial object
+     * @return image of celestial object
+     */
     public Image getImage() {
         return image;
     }
 
+    /**
+     * Getter for given celestial object's official NASA description
+     * @param obj celestial object
+     * @return official NASA description
+     */
     public String getDescription(CelestialObject obj) {
         return description;
 
     }
 
-
-
+    /**
+     * Getter for celestial object's information
+     * @param name name of celestial object
+     * @return celestial object's information
+     */
     public static CelestialObjectInfo getInfoOf(String name){
         for(CelestialObjectInfo info : CelestialObjectInfo.values()){
             if(info.name.equals(name)) return info;
@@ -54,6 +76,9 @@ public enum CelestialObjectInfo {
         return CelestialObjectInfo.NONE;
     }
 
+    /**
+     * StarType enum
+     */
     public enum StarType {
         WHITE_DWARF("White dwarf", ClosedInterval.of(10, 15), ClosedInterval.of(5200, 7500), Color.ANTIQUEWHITE),
         SUB_GIANT("Sub giant", ClosedInterval.of(1, 3), ClosedInterval.of(5200, 6000), Color.ANTIQUEWHITE),
@@ -83,6 +108,11 @@ public enum CelestialObjectInfo {
             this.color = color;
         }
 
+        /**
+         * Getter for a given star's type
+         * @param star star to obtain type from
+         * @return given star's type
+         */
         public static StarType getStarType(Star star){
             for(StarType type : StarType.values()){
                 if(type.temp.contains(star.colorTemperature()) && type.magnitude.contains(star.magnitude())) return type;
@@ -90,18 +120,34 @@ public enum CelestialObjectInfo {
             throw new NoSuchElementException("No type found");
         }
 
+        /**
+         * Getter for star's type
+         * @return star's type
+         */
         public String getType() {
             return type;
         }
 
+        /**
+         * Getter for star's magnitude
+         * @return star's magnitude
+         */
         public Interval getMagnitude() {
             return magnitude;
         }
 
+        /**
+         * Getter for star's temperature
+         * @return star's temperature
+         */
         public Interval getTemp() {
             return temp;
         }
 
+        /**
+         * Getter for star's color
+         * @return star's color
+         */
         public Color getColor() {
             return color;
         }
