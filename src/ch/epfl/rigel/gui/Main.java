@@ -118,7 +118,7 @@ public class Main extends Application {
 
         //Window parameters
         primaryStage.setTitle("Rigel");
-        primaryStage.setMinHeight(900);
+        primaryStage.setMinHeight(1000);
         primaryStage.setMinWidth(1600);
         primaryStage.setScene(new Scene(root));
         primaryStage.getIcons().add(new Image("file:resources/icon.png"));
@@ -336,11 +336,11 @@ public class Main extends Application {
         save.setStyle("-fx-pref-width: 80; -fx-alignment: baseline-center;");
         open.setStyle("-fx-pref-width: 80; -fx-alignment: baseline-center;");
 
-        save.setOnAction((e) ->{
-            FileChooser fc = new FileChooser();
-            FileChooser.ExtensionFilter extensionFilter = new FileChooser.ExtensionFilter("Rigel View files (*.rgvf", "*.rgvf");
-            fc.getExtensionFilters().add(extensionFilter);
+        FileChooser fc = new FileChooser();
+        FileChooser.ExtensionFilter extensionFilter = new FileChooser.ExtensionFilter("Rigel View files (*.rgvf)", "*.rgvf");
+        fc.getExtensionFilters().add(extensionFilter);
 
+        save.setOnAction((e) ->{
             File toSave = fc.showSaveDialog(primaryStage);
             if(toSave != null) {
                 try {
@@ -365,10 +365,6 @@ public class Main extends Application {
         });
 
         open.setOnAction((e) ->{
-            FileChooser fc = new FileChooser();
-            FileChooser.ExtensionFilter extensionFilter = new FileChooser.ExtensionFilter("Rigel View files (*.rgvf", "*.rgvf");
-            fc.getExtensionFilters().add(extensionFilter);
-
             File toOpen = fc.showOpenDialog(primaryStage);
             if(toOpen != null) {
                 try {

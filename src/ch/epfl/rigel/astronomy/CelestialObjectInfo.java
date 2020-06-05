@@ -43,11 +43,9 @@ public enum CelestialObjectInfo {
                     "atmosphere. This dynamic planet has seasons, polar ice caps and weather and canyons and " +
                     "extinct volcanoes, evidence of an even more active past."),
     JUPITER("Jupiter", "bodies/jupiter.jpg",
-            "Jupiter has a long history surprising scientists—all the way back to 1610 when Galileo" +
-                    " Galilei found the first moons beyond Earth. That discovery changed the way we see the " +
-                    "universe. Fifth in line from the Sun, Jupiter is, by far, the largest planet in the solar" +
+            "Fifth in line from the Sun, Jupiter is, by far, the largest planet in the solar" +
                     " system – more than twice as massive as all the other planets combined. Jupiter's familiar" +
-                    " stripes and swirls are actually cold, windy clouds of ammonia and water, floating in an" +
+                    " stripes and swirls are actually cold clouds of ammonia and water, floating in an" +
                     " atmosphere of hydrogen and helium. Jupiter’s iconic Great Red Spot is a giant storm bigger" +
                     " than Earth that has raged for hundreds of years."),
     SATURN("Saturn", "bodies/saturn.png",
@@ -59,10 +57,9 @@ public enum CelestialObjectInfo {
     URANUS("Uranus", "bodies/uranus.jpg",
             "The first planet found with the aid of a telescope, Uranus was discovered in 1781 by" +
                     " astronomer William Herschel, although he originally thought it was either a comet or a star." +
-                    " It was two years later that the object was universally accepted as a new planet, in part" +
-                    " because of observations by astronomer Johann Elert Bode. Herschel tried unsuccessfully to" +
+                    " It was two years later that the object was universally accepted as a new planet. Herschel tried to" +
                     " name his discovery Georgium Sidus after King George III. Instead the scientific community" +
-                    " accepted Bode's suggestion to name it Uranus, the Greek god of the sky, as suggested by Bode."),
+                    " accepted Bode's suggestion to name it Uranus, the Greek god of the sky."),
     NEPTUNE("Neptune", "bodies/neptune.jpg",
             "Dark, cold and whipped by supersonic winds, ice giant Neptune is the eighth and most " +
                     "distant planet in our solar system. More than 30 times as far from the Sun as Earth, Neptune" +

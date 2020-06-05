@@ -78,7 +78,6 @@ public class ObservedSky {
             planetCoordinates[2 * skipI + 1] = coordinates.y();
             registerObject(planet, coordinates);
             objectCoord.put(planet.name(), eqConv.apply(planet.equatorialPos()));
-            System.out.println(planet.name() + "  " + eqConv.apply(planet.equatorialPos()));
             ++skipI;
         }
 
