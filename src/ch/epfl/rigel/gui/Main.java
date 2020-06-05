@@ -31,9 +31,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
@@ -168,7 +166,20 @@ public class Main extends Application {
         description.setWrappingWidth(180);
 
 
+        ObservableList<String> planetChoices = FXCollections.observableArrayList(canvasManager.getObservedSky().getObjectCoordinates().keySet()).sorted();
+        ChoiceBox<String> centerAtChoiceBox = new ChoiceBox<>(planetChoices);
+        centerAtChoiceBox.setValue(planetChoices.get(0));
+        canvasManager.getSkyCanvasPainter().indicatedObjectNameProperty().bind(centerAtChoiceBox.valueProperty());
 
+        SimpleStringProperty centeredString = new SimpleStringProperty("");
+        Button setCenterButton = new Button("Set Center");
+        setCenterButton.setOnAction((e) -> canvasManager.setAtCenter(centeredString, centerAtChoiceBox.valueProperty().get()));
+        Label centeredLabel = new Label();
+        centeredLabel.textProperty().bindBidirectional(centeredString);
+
+        CheckBox indicatorOn = new CheckBox( "Show indicator");
+        indicatorOn.setSelected(false);
+        canvasManager.getSkyCanvasPainter().indicatorIsOnProperty().bindBidirectional(indicatorOn.selectedProperty());
 
         Label graphicsLabel = new Label("Rendering parameters");
         graphicsLabel.setStyle("-fx-font-weight: bold;");
@@ -241,6 +252,15 @@ public class Main extends Application {
         infoBox.setHgap(10);
         infoBox.setVgap(10);
         infoBox.setPadding(new Insets(10, 10, 10, 10));
+
+
+        GridPane centerAt = new GridPane();
+        centerAt.setGridLinesVisible(false);
+        centerAt.setStyle("-fx-pref-width: 200; -fr-pref-height: 300;  -fx-alignment: baseline-left;" +
+                "-fx-background-color: white;");
+        centerAt.setHgap(10);
+        centerAt.setVgap(10);
+        centerAt.setPadding(new Insets(10, 10, 10, 10));
         
 
         GridPane graphicsBox = new GridPane();
@@ -272,13 +292,17 @@ public class Main extends Application {
 
 
         infoBox.addColumn(1, objectLabel, objectImage, description);
+        centerAt.addColumn(1, centerAtChoiceBox, setCenterButton, centeredLabel, indicatorOn);
         graphicsBox.addColumn(1, graphicsLabel ,stars, asterisms, realism, planets, sun, sunlight, moon, alt, fullScreen);
         BorderPane constructed = new BorderPane();
         constructed.setTop(infoBox);
+        constructed.setCenter(centerAt);
         constructed.setBottom(graphicsBox);
         constructed.setStyle("-fx-background-color:white;");
         return constructed;
     }
+
+
 
     private HBox controlBar(DateTimeBean dateTimeBean, ObserverLocationBean observerLocationBean, SkyCanvasManager canvasManager, ViewingParametersBean viewingParameters, Stage primaryStage) {
 

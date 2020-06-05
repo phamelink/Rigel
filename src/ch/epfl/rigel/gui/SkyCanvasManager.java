@@ -9,10 +9,7 @@ import ch.epfl.rigel.math.Angle;
 import ch.epfl.rigel.math.ClosedInterval;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
-import javafx.beans.value.ObservableBooleanValue;
-import javafx.beans.value.ObservableDoubleValue;
-import javafx.beans.value.ObservableIntegerValue;
-import javafx.beans.value.ObservableObjectValue;
+import javafx.beans.value.*;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -21,7 +18,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.transform.Transform;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -161,7 +160,7 @@ public class SkyCanvasManager {
         SkyCanvasPainter sp = getSkyCanvasPainter();
         addRefreshSensibilities(sp.starsEnabledProperty(),sp.asterismsEnabledProperty(), sp.realisticSkyEnabledProperty(),
                 sp.planetsEnabledProperty(), sp.sunEnabledProperty(), sp.moonEnabledProperty(),
-                sp.realisticSunEnabledProperty(), sp.altitudeLinesEnabledProperty());
+                sp.realisticSunEnabledProperty(), sp.altitudeLinesEnabledProperty(), sp.indicatorIsOnProperty());
 
         //Bind keyboard controls
         canvas.get().addEventFilter(KeyEvent.KEY_PRESSED, event -> {
@@ -253,6 +252,17 @@ public class SkyCanvasManager {
      */
     public void refreshCanvas(){
         skyCanvasPainter.get().draw(observedSky.get(), projection.get(), planeToCanvas.get());
+    }
+
+
+    public void setAtCenter(SimpleStringProperty stringProperty, String name) {
+        HorizontalCoordinates coord = observedSky.get().getObjectCoordinates().get(name);
+        if (coord.alt() >= 0) {
+            stringProperty.set("Centered at: " + name);
+            viewingParameters.setCenter(HorizontalCoordinates.of(coord.az(), ALT_BOUND.clip(coord.alt())));
+        } else {
+            stringProperty.set(name + " is not visible");
+        }
     }
 
     /**
@@ -523,4 +533,14 @@ public class SkyCanvasManager {
     public ObjectProperty<Optional<CelestialObject>> lastObjectInspectedProperty() {
         return lastObjectInspected;
     }
+
+    public ViewingParametersBean getViewingParameters() {
+        return viewingParameters;
+    }
+
+    //public ObservableObjectValue<Map<String, HorizontalCoordinates>> getObjectCoordProperty() {
+     //   return objectCoordProperty;
+    //}
+
+
 }
