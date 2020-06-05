@@ -35,7 +35,6 @@ import java.util.function.Function;
 public class SkyCanvasPainter {
 
     private static final ClosedInterval MAGNITUDE_INTERVAL = ClosedInterval.of(-2, 5);
-    private static final double ALT_LABEL_Y = 20;
 
     private final Canvas canvas;
     private final GraphicsContext gc;
@@ -97,7 +96,14 @@ public class SkyCanvasPainter {
             double diameter = getMagnitudeBasedCelestialObjectDiameter(stars.get(i), projection, planeToCanvas);
             if(!safeDisplayBounds.contains(p)) continue;
             Color starColor = BlackBodyColor.colorForTemperature(stars.get(i).colorTemperature());
+
             if(realisticSkyEnabled.get()) {
+
+                /*
+                BONUS
+                 */
+
+                //Create a radial gradient halo from star info
                 double haloDiameter = diameter * 5;
                 RadialGradient starGradient = new RadialGradient(
                         0,
@@ -114,7 +120,7 @@ public class SkyCanvasPainter {
                 gc.setFill(starGradient);
                 gc.fillOval(p.getX()-haloDiameter/2, p.getY()-haloDiameter/2, haloDiameter, haloDiameter);
             }else {
-
+                //Default rendering option
                 drawCelestialObject(new Point2D(stereoPoints[2 * i],stereoPoints[2 * i + 1]), planeToCanvas, BlackBodyColor.colorForTemperature(stars.get(i).colorTemperature()), getMagnitudeBasedCelestialObjectDiameter(stars.get(i), projection, planeToCanvas));
             }
         }
@@ -169,23 +175,30 @@ public class SkyCanvasPainter {
         double halodiameter = sunDiameter * 3000;
         Color inside = BlackBodyColor.colorForTemperature(dayLightFactor > 0.05 ?  (int) (20000 * dayLightFactor) : (int) (20000 * 0.05));
         Color outside = BlackBodyColor.colorForTemperature(dayLightFactor > 0.05 ?  (int) (40000 * dayLightFactor) : (int) (40000 * 0.05));
-        RadialGradient sunGradient = new RadialGradient(
-                0,
-                0,
-                sunPositionOnCanvas.getX(),
-                sunPositionOnCanvas.getY(),
-                halodiameter,
-                false,
-                CycleMethod.NO_CYCLE,
-                new Stop(0, inside.deriveColor(1,0.7,5 * skyBrightnessFactor, skyBrightnessFactor)),
-                new Stop( 0.03, outside.deriveColor(1,0.5,1,skyBrightnessFactor*0.01)),
-                new Stop(1, Color.DEEPSKYBLUE.deriveColor(1, 0, 0, 0))
-        );
-        gc.setFill(sunGradient);
-        if(isRealisticSunEnabled()) gc.fillOval(sunPositionOnCanvas.getX()-halodiameter/2, sunPositionOnCanvas.getY()-halodiameter/2, halodiameter, halodiameter);
 
+        /*
+        BONUS
+         */
 
-        drawCelestialObject(sunPositionOnCanvas, planeToCanvas,outside.deriveColor(1,1,1,0.25),  sunDiameter*2.2 );
+        if(isRealisticSunEnabled()){
+            //Sun light halo that depends on the time of day
+            RadialGradient sunGradient = new RadialGradient(
+                    0,
+                    0,
+                    sunPositionOnCanvas.getX(),
+                    sunPositionOnCanvas.getY(),
+                    halodiameter,
+                    false,
+                    CycleMethod.NO_CYCLE,
+                    new Stop(0, inside.deriveColor(1,0.7,5 * skyBrightnessFactor, skyBrightnessFactor)),
+                    new Stop( 0.03, outside.deriveColor(1,0.5,1,skyBrightnessFactor*0.01)),
+                    new Stop(1, Color.DEEPSKYBLUE.deriveColor(1, 0, 0, 0))
+            );
+            gc.setFill(sunGradient);
+            gc.fillOval(sunPositionOnCanvas.getX()-halodiameter/2, sunPositionOnCanvas.getY()-halodiameter/2, halodiameter, halodiameter);
+        }
+
+        //Default rendering options with some extra color depending on time of day
         drawCelestialObject(sunPositionOnCanvas, planeToCanvas,outside.deriveColor(1,1,1,0.25),  sunDiameter*2.2 );
         drawCelestialObject(sunPositionOnCanvas, planeToCanvas,Color.YELLOW,   sunDiameter + 2 );
         drawCelestialObject(sunPositionOnCanvas, planeToCanvas,Color.WHITE,  sunDiameter );
@@ -226,14 +239,19 @@ public class SkyCanvasPainter {
             gc.fillText(octant.name(), octantCoord.getX(), octantCoord.getY() + Font.getDefault().getSize());
         }
 
+        /*
+        BONUS
+         */
+
         if(altitudeLinesEnabled.get()) {
+            //Draw guides for altitude
             double xAltPos = canvas.getWidth() / 2;
             gc.setStroke(Color.PALEGREEN.deriveColor(1, 1, 1, 0.5));
             gc.setFill(Color.PALEGREEN.deriveColor(1, 2, 1, 0.8));
             gc.setLineWidth(1);
             gc.fillText("0°", xAltPos, planeToCanvas.transform(0, projection.apply(HorizontalCoordinates.of(projection.getCenter().az(), Angle.ofDeg(0.5))).y()).getY());
             for (int alt = -50; alt < 90; alt = alt + 10) {
-                if (alt == 0) continue;
+                if (alt == 0) continue; //Horizon is a special case
                 gc.fillText(alt + "°", xAltPos, planeToCanvas.transform(0, projection.apply(HorizontalCoordinates.of(projection.getCenter().az(), Angle.ofDeg(alt + 0.5))).y()).getY());
                 CartesianCoordinates circCenter = projection.circleCenterForParallel(HorizontalCoordinates.ofDeg(0, alt));
                 double circRadius = Math.abs(projection.circleRadiusForParallel(HorizontalCoordinates.ofDeg(0, alt)));
@@ -252,18 +270,28 @@ public class SkyCanvasPainter {
      * @param planeToCanvas Transform used
      */
     public void draw(ObservedSky sky, StereographicProjection projection, Transform planeToCanvas){
+
+        /*
+        BONUS
+         */
+
+        //Calculate time of day factors depending on the altitude of the sun in the sky
         dayLightFactor = Math.max(Math.PI / 4  * projection.inverseApply(sky.sunPosition()).alt(), 0);
         if (projection.inverseApply(sky.sunPosition()).alt() > 0.1) skyBrightnessFactor = 1;
         else if (projection.inverseApply(sky.sunPosition()).alt() <= 0.1 && projection.inverseApply(sky.sunPosition()).alt() >= -0.3) skyBrightnessFactor = (projection.inverseApply(sky.sunPosition()).alt() + 0.3) * 2.5;
         else skyBrightnessFactor = 0;
 
         clear();
+        //Only draw enabled objects
         if(starsEnabled.get()) drawStars(sky, projection, planeToCanvas);
         if(planetsEnabled.get()) drawPlanets(sky, projection, planeToCanvas);
+
         if (isRealisticSunEnabled()) {
+            //Simulate sky color (over stars and planets, but with a variable opacity)
             gc.setFill(BlackBodyColor.colorForTemperature(dayLightFactor > 0.03 ?  (int) (40000 * dayLightFactor) : (int) (40000 * 0.03)).deriveColor(1, 1.1, skyBrightnessFactor, skyBrightnessFactor));
             gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
         }
+
         if(sunEnabled.get()) drawSun(sky, projection, planeToCanvas);
         if(moonEnabled.get()) drawMoon(sky, projection, planeToCanvas);
         drawHorizon(projection, planeToCanvas);
@@ -295,90 +323,178 @@ public class SkyCanvasPainter {
     Getters/setters for properties
      */
 
+    /**
+     * Checks if stars are enabled
+     * @return true if stars are enabled
+     */
     public boolean isStarsEnabled() {
         return starsEnabled.get();
     }
 
+    /**
+     * Returns property concerning stars enabled
+     * @return stars enabled property
+     */
     public BooleanProperty starsEnabledProperty() {
         return starsEnabled;
     }
 
+    /**
+     * Set stars enabled
+     * @param starsEnabled new value
+     */
     public void setStarsEnabled(boolean starsEnabled) {
         this.starsEnabled.set(starsEnabled);
     }
 
+    /**
+     * Checks if asterisms are enabled
+     * @return true if asterisms are enabled
+     */
     public boolean isAsterismsEnabled() {
         return asterismsEnabled.get();
     }
 
+    /**
+     * Returns property concerning asterisms enabled
+     * @return asterisms enabled property
+     */
     public BooleanProperty asterismsEnabledProperty() {
         return asterismsEnabled;
     }
 
+    /**
+     * Set asterisms enabled
+     * @param asterismsEnabled new value
+     */
     public void setAsterismsEnabled(boolean asterismsEnabled) {
         this.asterismsEnabled.set(asterismsEnabled);
     }
 
+    /**
+     * Checks if sun is enabled
+     * @return true if sun is enabled
+     */
     public boolean isSunEnabled() {
         return sunEnabled.get();
     }
 
+    /**
+     * Returns property concerning sun enabled
+     * @return sun enabled property
+     */
     public BooleanProperty sunEnabledProperty() {
         return sunEnabled;
     }
 
+    /**
+     * Set sun enabled
+     * @param sunEnabled new value
+     */
     public void setSunEnabled(boolean sunEnabled) {
         this.sunEnabled.set(sunEnabled);
     }
 
+    /**
+     * Checks if moon is enabled
+     * @return true if moon is enabled
+     */
     public boolean isMoonEnabled() {
         return moonEnabled.get();
     }
 
+    /**
+     * Returns property concerning moon enabled
+     * @return moon enabled property
+     */
     public BooleanProperty moonEnabledProperty() {
         return moonEnabled;
     }
 
+    /**
+     * Set moon enabled
+     * @param moonEnabled new value
+     */
     public void setMoonEnabled(boolean moonEnabled) {
         this.moonEnabled.set(moonEnabled);
     }
 
+    /**
+     * Checks if planets are enabled
+     * @return true if planets are enabled
+     */
     public boolean isPlanetsEnabled() {
         return planetsEnabled.get();
     }
 
+    /**
+     * Returns property concerning planets enabled
+     * @return planets enabled property
+     */
     public BooleanProperty planetsEnabledProperty() {
         return planetsEnabled;
     }
 
+    /**
+     * Set planets enabled
+     * @param planetsEnabled new value
+     */
     public void setPlanetsEnabled(boolean planetsEnabled) {
         this.planetsEnabled.set(planetsEnabled);
     }
 
+    /**
+     * Checks if realistic sky is enabled
+     * @return true if realistic sky is enabled
+     */
     public boolean isRealisticSkyEnabled() {
         return realisticSkyEnabled.get();
     }
 
+    /**
+     * Returns property concerning realistic sky
+     * @return realistic sky enabled property
+     */
     public BooleanProperty realisticSkyEnabledProperty() {
         return realisticSkyEnabled;
     }
 
+    /**
+     * Checks if realisitc sun is enabled
+     * @return true if realistic sun is enabled
+     */
     public boolean isRealisticSunEnabled() {
         return realisticSunEnabled.get();
     }
 
+    /**
+     * Returns property concerning realistic sun
+     * @return realistic sun enabled property
+     */
     public BooleanProperty realisticSunEnabledProperty() {
         return realisticSunEnabled;
     }
 
+    /**
+     * Checks if alt lines are enabled
+     * @return true if alt lines are enabled
+     */
     public boolean isAltitudeLinesEnabled() {
         return altitudeLinesEnabled.get();
     }
 
+    /**
+     * Returns property concerning alt lines
+     * @return alt lines enabled property
+     */
     public BooleanProperty altitudeLinesEnabledProperty() {
         return altitudeLinesEnabled;
     }
 
+    /**
+     * Returns all rendering properties
+     * @return list of boolean rendering properties
+     */
     public List<Property<Boolean>> getRenderingProperties(){
         return List.of(starsEnabled, asterismsEnabled, sunEnabled, moonEnabled, planetsEnabled,
                 realisticSkyEnabled, realisticSunEnabled, altitudeLinesEnabled);

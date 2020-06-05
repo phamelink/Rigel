@@ -274,7 +274,6 @@ public class Main extends Application {
             }
         });
 
-
         infoBox.addColumn(1, objectLabel, objectImage, description);
         graphicsBox.addColumn(1, graphicsLabel ,stars, asterisms, realism, planets, sun, sunlight, moon, alt, fullScreen);
         BorderPane constructed = new BorderPane();

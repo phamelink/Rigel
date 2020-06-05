@@ -5,9 +5,6 @@ import ch.epfl.rigel.math.Interval;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
-import java.util.NoSuchElementException;
-import java.util.Optional;
-
 /**
  * CelestialObjectInfo enum
  *
@@ -165,7 +162,7 @@ public enum CelestialObjectInfo {
             for(StarType type : StarType.values()){
                 if(type.temp.contains(star.colorTemperature()) && type.magnitude.contains(star.getAbsMagnitude())) return type;
             }
-            throw new NoSuchElementException("No type found");
+            return UNCLASSIFIED; //Default fallback value
         }
 
         /**
