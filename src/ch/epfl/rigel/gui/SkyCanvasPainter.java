@@ -36,6 +36,7 @@ import java.util.function.Function;
 public class SkyCanvasPainter {
 
     private static final ClosedInterval MAGNITUDE_INTERVAL = ClosedInterval.of(-2, 5);
+    public static final int DIAMETER_EXTENSION_FOR_INDICATOR = 20;
 
     private final Canvas canvas;
     private final GraphicsContext gc;
@@ -181,7 +182,7 @@ public class SkyCanvasPainter {
         final double sunDiameter = deltaTransform(planeToCanvas, projection.applyToAngle(sky.sun().angularSize()));
         CartesianCoordinates sunPosition = sky.sunPosition();
         Point2D sunPositionOnCanvas = planeToCanvas.transform(sunPosition.x(), sunPosition.y());
-        double halodiameter = sunDiameter * 3000;
+        double haloDiameter = sunDiameter * 3000;
         Color inside = BlackBodyColor.colorForTemperature(dayLightFactor > 0.05 ?  (int) (20000 * dayLightFactor) : (int) (20000 * 0.05));
         Color outside = BlackBodyColor.colorForTemperature(dayLightFactor > 0.05 ?  (int) (40000 * dayLightFactor) : (int) (40000 * 0.05));
 
@@ -196,7 +197,7 @@ public class SkyCanvasPainter {
                     0,
                     sunPositionOnCanvas.getX(),
                     sunPositionOnCanvas.getY(),
-                    halodiameter,
+                    haloDiameter,
                     false,
                     CycleMethod.NO_CYCLE,
                     new Stop(0, inside.deriveColor(1,0.7,5 * skyBrightnessFactor, skyBrightnessFactor)),
@@ -204,7 +205,7 @@ public class SkyCanvasPainter {
                     new Stop(1, Color.DEEPSKYBLUE.deriveColor(1, 0, 0, 0))
             );
             gc.setFill(sunGradient);
-            gc.fillOval(sunPositionOnCanvas.getX()-halodiameter/2, sunPositionOnCanvas.getY()-halodiameter/2, halodiameter, halodiameter);
+            gc.fillOval(sunPositionOnCanvas.getX()-haloDiameter/2, sunPositionOnCanvas.getY()-haloDiameter/2, haloDiameter, haloDiameter);
         }
 
         //Default rendering options with some extra color depending on time of day
@@ -280,7 +281,7 @@ public class SkyCanvasPainter {
 
     private void drawIndicator(Point2D planePoint, double diameter) {
         gc.setStroke(Color.LIGHTGREEN);
-        gc.strokeOval(planePoint.getX()-(diameter+20)/2, planePoint.getY()-(diameter+20)/2, diameter+20, diameter+20);
+        gc.strokeOval(planePoint.getX()-(diameter+ DIAMETER_EXTENSION_FOR_INDICATOR)/2, planePoint.getY()-(diameter+DIAMETER_EXTENSION_FOR_INDICATOR)/2, diameter+DIAMETER_EXTENSION_FOR_INDICATOR, diameter+DIAMETER_EXTENSION_FOR_INDICATOR);
     }
 
     /**
@@ -520,12 +521,28 @@ public class SkyCanvasPainter {
                 realisticSkyEnabled, realisticSunEnabled, altitudeLinesEnabled, indicatorIsOn);
     }
 
+    /**
+     * Getter for indicatorIsOn boolean value
+     * @return indicatorIsOn boolean value
+     */
     public boolean getIndicatorIsOn() { return indicatorIsOn.get(); }
 
+    /**
+     * Returns indicatorIsOn boolean property
+     * @return indicatorIsOn boolean property
+     */
     public BooleanProperty indicatorIsOnProperty() { return indicatorIsOn; }
 
+    /**
+     * Getter for indicatedObjectName string
+     * @return indicatedObjectName string
+     */
     public String getIndicatedObjectName() { return indicatedObjectName.get(); }
 
+    /**
+     * Returns indicationObjectName property
+     * @return indicationObjectName property
+     */
     public StringProperty indicatedObjectNameProperty() { return indicatedObjectName; }
 
 }
