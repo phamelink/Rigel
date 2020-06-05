@@ -257,7 +257,11 @@ public class SkyCanvasManager {
         skyCanvasPainter.get().draw(observedSky.get(), projection.get(), planeToCanvas.get());
     }
 
-
+    /**
+     * Sets the center of the viewing parameter bean according to the given planet if it is visible and sets the correct string to the given string property
+     * @param stringProperty String property of desired information label
+     * @param name name of the planet to center view at
+     */
     public void setAtCenter(SimpleStringProperty stringProperty, String name) {
         HorizontalCoordinates coord = observedSky.get().getObjectCoordinates().get(name);
         if (coord.alt() >= 0) {
