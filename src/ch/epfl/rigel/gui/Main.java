@@ -129,6 +129,12 @@ public class Main extends Application {
     }
 
     private BorderPane sideBar(SkyCanvasManager canvasManager, Stage stage) {
+
+        /*
+        BONUS
+         */
+
+        //Inspected object information
         ObservableStringValue inspectedObjectName = Bindings.createStringBinding(()->{
             Optional<CelestialObject> obj = canvasManager.getLastObjectInspected();
             return obj.isPresent() ? obj.get().name() : "No object selected";
@@ -152,7 +158,6 @@ public class Main extends Application {
             }else return CelestialObjectInfo.NONE.getDescription(null);
         }, canvasManager.lastObjectInspectedProperty());
 
-        
         Label objectLabel = new Label();
         objectLabel.setStyle("-fx-font-weight: bold;");
         ImageView objectImage = new ImageView();
@@ -168,8 +173,7 @@ public class Main extends Application {
         description.setWrappingWidth(180);
 
 
-
-
+        //Rendering options
         Label graphicsLabel = new Label("Rendering parameters");
         graphicsLabel.setStyle("-fx-font-weight: bold;");
         CheckBox stars = new CheckBox("Stars");
@@ -190,7 +194,7 @@ public class Main extends Application {
         alt.setSelected(false);
         Button fullScreen = new Button();
 
-
+        //Rendering bindings
         canvasManager.getSkyCanvasPainter().starsEnabledProperty().bindBidirectional(stars.selectedProperty());
         canvasManager.getSkyCanvasPainter().asterismsEnabledProperty().bindBidirectional(asterisms.selectedProperty());
         canvasManager.getSkyCanvasPainter().realisticSkyEnabledProperty().bindBidirectional(realism.selectedProperty());
@@ -257,7 +261,7 @@ public class Main extends Application {
         classification.setStyle("-fx-font-weight:bold;");
         type.setStyle("-fx-font-weight:bold; -fx-background-color: grey;");
 
-
+        //Only show star information if inspected object is a star
         canvasManager.lastObjectInspectedProperty().addListener((p,o,n) -> {
             if(n.isPresent() && n.get() instanceof Star) {
                 infoBox.getChildren().removeAll(classification, type);
@@ -296,6 +300,12 @@ public class Main extends Application {
     }
 
     private HBox saveBox(DateTimeBean dateTimeBean, ObserverLocationBean observerLocationBean, ViewingParametersBean viewingParameters, Stage primaryStage) {
+
+        /*
+        BONUS
+         */
+
+        //Save / Open buttons
         Button save = new Button("Save view");
         Button open = new Button("Open view...");
         save.setStyle("-fx-pref-width: 80; -fx-alignment: baseline-center;");
@@ -309,6 +319,7 @@ public class Main extends Application {
             File toSave = fc.showSaveDialog(primaryStage);
             if(toSave != null) {
                 try {
+                    //Write current parameters to file
                     BufferedWriter fw = new BufferedWriter(new FileWriter(toSave));
                     fw.write(Double.toString(viewingParameters.getCenter().az()));
                     fw.newLine();
@@ -336,6 +347,7 @@ public class Main extends Application {
             File toOpen = fc.showOpenDialog(primaryStage);
             if(toOpen != null) {
                 try {
+                    //Set parameters to parameters read from file
                     BufferedReader fr = new BufferedReader(new FileReader(toOpen));
                     viewingParameters.setCenter(HorizontalCoordinates.of(Double.parseDouble(fr.readLine()), Double.parseDouble(fr.readLine())));
                     viewingParameters.setFieldOfViewDeg(Double.parseDouble(fr.readLine()));
@@ -349,9 +361,6 @@ public class Main extends Application {
             }
 
         });
-        
-        
-        
         
         HBox toReturn = new HBox(save, open);
         toReturn.setStyle("-fx-spacing: inherit; -fx-alignment: baseline-left;");

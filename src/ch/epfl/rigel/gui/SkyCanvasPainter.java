@@ -9,6 +9,7 @@ import ch.epfl.rigel.math.ClosedInterval;
 import ch.epfl.rigel.math.RightOpenInterval;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
@@ -376,5 +377,10 @@ public class SkyCanvasPainter {
 
     public BooleanProperty altitudeLinesEnabledProperty() {
         return altitudeLinesEnabled;
+    }
+
+    public List<Property<Boolean>> getRenderingProperties(){
+        return List.of(starsEnabled, asterismsEnabled, sunEnabled, moonEnabled, planetsEnabled,
+                realisticSkyEnabled, realisticSunEnabled, altitudeLinesEnabled);
     }
 }

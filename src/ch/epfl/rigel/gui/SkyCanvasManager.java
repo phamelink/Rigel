@@ -2,7 +2,6 @@ package ch.epfl.rigel.gui;
 
 import ch.epfl.rigel.astronomy.*;
 import ch.epfl.rigel.coordinates.CartesianCoordinates;
-import ch.epfl.rigel.coordinates.EquatorialToHorizontalConversion;
 import ch.epfl.rigel.coordinates.HorizontalCoordinates;
 import ch.epfl.rigel.coordinates.StereographicProjection;
 import ch.epfl.rigel.math.Angle;
@@ -11,14 +10,12 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableDoubleValue;
-import javafx.beans.value.ObservableIntegerValue;
 import javafx.beans.value.ObservableObjectValue;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
+import javafx.scene.transform.NonInvertibleTransformException;
 import javafx.scene.transform.Transform;
 
 import java.util.List;
@@ -39,12 +36,9 @@ public class SkyCanvasManager {
     private static final double HORIZONTAL_MOVEMENT_DELTA = Angle.ofDeg(10);
     private static final double VERTICAL_MOVEMENT_DELTA = Angle.ofDeg(5);
     private static final ClosedInterval ALT_BOUND = ClosedInterval.of(Angle.ofDeg(5.0), Angle.ofDeg(90.0));
-    private static final double CONTROL_FACTOR_X = 1.32;
-    private static final double CONTROL_FACTOR_Y = 0.74;
 
     private final DateTimeBean dateTimeBean;
     private final ObserverLocationBean observerLocation;
-    private final ViewingParametersBean viewingParameters;
 
     //Graphical elements
     private final ObservableObjectValue<Canvas> canvas;
@@ -61,7 +55,6 @@ public class SkyCanvasManager {
     private final ObservableObjectValue<TimeAnimator> timeAnimator;
     private final ObjectProperty<TimeAccelerator> timeAcc;
     private final ObservableDoubleValue dilationFactor;
-    private final ObservableDoubleValue dilationFactorY;
 
     private final ObservableObjectValue<Optional<CelestialObject>> objectUnderMouse;
     private final ObjectProperty<Optional<CelestialObject>> lastObjectInspected;
@@ -81,7 +74,6 @@ public class SkyCanvasManager {
     public SkyCanvasManager(StarCatalogue starCatalogue, DateTimeBean dateTimeBean, ObserverLocationBean observerLocation, ViewingParametersBean viewingParameters) {
 
         this.observerLocation = observerLocation;
-        this.viewingParameters = viewingParameters;
         this.dateTimeBean = dateTimeBean;
 
         //Create canvas
@@ -104,7 +96,7 @@ public class SkyCanvasManager {
                 (2 * Math.tan(Angle.ofDeg(viewingParameters.getFieldOfViewDeg()) / 4)),
                 viewingParameters.fieldOfViewDegProperty(), canvas.get().widthProperty());
 
-        dilationFactorY = Bindings.createDoubleBinding(() -> canvas.get().getHeight() /
+        Bindings.createDoubleBinding(() -> canvas.get().getHeight() /
                         (2 * Math.tan(Angle.ofDeg(viewingParameters.getFieldOfViewDeg()) / 4)),
                 viewingParameters.fieldOfViewDegProperty(), canvas.get().heightProperty());
 
@@ -158,10 +150,7 @@ public class SkyCanvasManager {
         observedSky.addListener((p,o,n) -> refreshCanvas());
         planeToCanvas.addListener((p,o,n) -> refreshCanvas());
         objectUnderMouse.addListener((p,o,n) -> refreshCanvas());
-        SkyCanvasPainter sp = getSkyCanvasPainter();
-        addRefreshSensibilities(sp.starsEnabledProperty(),sp.asterismsEnabledProperty(), sp.realisticSkyEnabledProperty(),
-                sp.planetsEnabledProperty(), sp.sunEnabledProperty(), sp.moonEnabledProperty(),
-                sp.realisticSunEnabledProperty(), sp.altitudeLinesEnabledProperty());
+        addRefreshSensibilities(getSkyCanvasPainter().getRenderingProperties());
 
         //Bind keyboard controls
         canvas.get().addEventFilter(KeyEvent.KEY_PRESSED, event -> {
@@ -198,8 +187,9 @@ public class SkyCanvasManager {
         canvas.get().addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
             canvas.get().requestFocus();
             if (event.isSecondaryButtonDown()) {
-                lastMouseDragPosition = new Point2D(event.getX(), event.getY());
+                lastMouseDragPosition = new Point2D(event.getX(), event.getY()); //Set initial drag position
             } else if (event.isPrimaryButtonDown() ) {
+                //Prevent selection of objects not displayed
                 if( getObjectUnderMouse().isEmpty()
                         || (getSkyCanvasPainter().isStarsEnabled() && getObjectUnderMouse().get() instanceof Star)
                         || (getSkyCanvasPainter().isPlanetsEnabled() && getObjectUnderMouse().get() instanceof Planet)
@@ -212,17 +202,24 @@ public class SkyCanvasManager {
             }
         });
 
+        /*
+        BONUS
+         */
+
         canvas.get().addEventFilter(MouseEvent.MOUSE_DRAGGED, event-> {
             if(event.isSecondaryButtonDown()) {
                 Point2D nextPoint = new Point2D(event.getX(), event.getY());
+                //Get drag movement delta from last drag position
                 double deltaX = lastMouseDragPosition.getX() - nextPoint.getX();
                 double deltaY = lastMouseDragPosition.getY() - nextPoint.getY();
-
-                double deltaPlaneX = 4 * Math.atan(deltaX / (2* dilationFactor.get())) * CONTROL_FACTOR_X;
-                double deltaPlaneY = -4 * Math.atan(deltaY / (2* dilationFactorY.get())) * CONTROL_FACTOR_Y;
-                HorizontalCoordinates newCoords = viewingParameters.getCenter().delta(deltaPlaneX, deltaPlaneY);
-                viewingParameters.setCenter(HorizontalCoordinates.of(newCoords.az(), ALT_BOUND.clip(newCoords.alt())));
-
+                //Get the new center using inverse functions to get a smoot drag dependent on viewing parameters
+                try {
+                    Point2D pointFromPlane  = getPlaneToCanvas().inverseDeltaTransform(deltaX, deltaY);
+                    HorizontalCoordinates newCoords = getProjection().inverseApply(CartesianCoordinates.of(pointFromPlane.getX(), pointFromPlane.getY()));
+                    viewingParameters.setCenter(HorizontalCoordinates.of(newCoords.az(), ALT_BOUND.clip(newCoords.alt())));
+                } catch (NonInvertibleTransformException e) {
+                    e.printStackTrace();
+                }
                 lastMouseDragPosition = nextPoint;
             }
         });
@@ -241,7 +238,7 @@ public class SkyCanvasManager {
 
     }
 
-    private void addRefreshSensibilities(Property<Boolean>... sensibilities){
+    private void addRefreshSensibilities(List<Property<Boolean>> sensibilities){
         for(Property<Boolean> s : sensibilities){
             s.addListener((p,o,n) -> refreshCanvas());
         }
@@ -516,10 +513,18 @@ public class SkyCanvasManager {
         return timeAnimator.get().getRunning();
     }
 
+    /**
+     * Returns last object inspected (can be empty)
+     * @return last object inspected
+     */
     public Optional<CelestialObject> getLastObjectInspected() {
         return lastObjectInspected.get();
     }
 
+    /**
+     * Returns property indicating the last object inspected
+     * @return last object inspected property
+     */
     public ObjectProperty<Optional<CelestialObject>> lastObjectInspectedProperty() {
         return lastObjectInspected;
     }
