@@ -41,6 +41,7 @@ public class SkyCanvasManager {
 
     private final DateTimeBean dateTimeBean;
     private final ObserverLocationBean observerLocation;
+    private final ViewingParametersBean viewingParameters;
 
     //Graphical elements
     private final ObservableObjectValue<Canvas> canvas;
@@ -77,6 +78,7 @@ public class SkyCanvasManager {
 
         this.observerLocation = observerLocation;
         this.dateTimeBean = dateTimeBean;
+        this.viewingParameters = viewingParameters;
 
         //Create canvas
         this.canvas = new SimpleObjectProperty<>(new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT));
@@ -152,10 +154,8 @@ public class SkyCanvasManager {
         observedSky.addListener((p,o,n) -> refreshCanvas());
         planeToCanvas.addListener((p,o,n) -> refreshCanvas());
         objectUnderMouse.addListener((p,o,n) -> refreshCanvas());
-        SkyCanvasPainter sp = getSkyCanvasPainter();
-        addRefreshSensibilities(sp.starsEnabledProperty(),sp.asterismsEnabledProperty(), sp.realisticSkyEnabledProperty(),
-                sp.planetsEnabledProperty(), sp.sunEnabledProperty(), sp.moonEnabledProperty(),
-                sp.realisticSunEnabledProperty(), sp.altitudeLinesEnabledProperty());
+        getSkyCanvasPainter().indicatedObjectNameProperty().addListener((p,o,n) -> refreshCanvas());
+        addRefreshSensibilities(getSkyCanvasPainter().getRenderingProperties());
 
         //Bind keyboard controls
         canvas.get().addEventFilter(KeyEvent.KEY_PRESSED, event -> {
@@ -262,7 +262,7 @@ public class SkyCanvasManager {
         HorizontalCoordinates coord = observedSky.get().getObjectCoordinates().get(name);
         if (coord.alt() >= 0) {
             stringProperty.set("Centered at: " + name);
-            viewingParameters.setCenter(HorizontalCoordinates.of(coord.az(), ALT_BOUND.clip(coord.alt())));
+             viewingParameters.setCenter(HorizontalCoordinates.of(coord.az(), ALT_BOUND.clip(coord.alt())));
         } else {
             stringProperty.set(name + " is not visible");
         }

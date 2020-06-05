@@ -517,7 +517,7 @@ public class SkyCanvasPainter {
      */
     public List<Property<Boolean>> getRenderingProperties(){
         return List.of(starsEnabled, asterismsEnabled, sunEnabled, moonEnabled, planetsEnabled,
-                realisticSkyEnabled, realisticSunEnabled, altitudeLinesEnabled);
+                realisticSkyEnabled, realisticSunEnabled, altitudeLinesEnabled, indicatorIsOn);
     }
 
     public boolean getIndicatorIsOn() { return indicatorIsOn.get(); }
