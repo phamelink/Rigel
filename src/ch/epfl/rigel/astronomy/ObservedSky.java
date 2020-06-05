@@ -1,6 +1,7 @@
 package ch.epfl.rigel.astronomy;
 
 import ch.epfl.rigel.coordinates.*;
+import javafx.beans.value.ObservableMapValue;
 
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -22,11 +23,15 @@ public class ObservedSky {
     private final double[] planetCoordinates;
     private final List<Star> starsAtTime;
     private final double[] starCoordinates;
+    //private final HorizontalCoordinates[] planetHorCoord;
+    //private final HorizontalCoordinates moonHorCoord;
+    //private final HorizontalCoordinates sunHorCoord;
 
     private final TreeMap<Double, CelestialObject> xMap;
     private final TreeMap<Double, CelestialObject> yMap;
     private final HashMap<CelestialObject, CartesianCoordinates> positionMap;
     private final TreeMap<Double, CelestialObject> distanceMap;
+    private final HashMap<String, HorizontalCoordinates> objectCoord;
 
     private final StarCatalogue catalogue;
 
@@ -39,7 +44,6 @@ public class ObservedSky {
      */
     public ObservedSky(ZonedDateTime when, GeographicCoordinates where,
                        StereographicProjection projection, StarCatalogue catalogue) {
-
         this.catalogue = catalogue;
         double daysUntil = Epoch.J2010.daysUntil(when);
 
@@ -51,11 +55,14 @@ public class ObservedSky {
         this.yMap = new TreeMap<>();
         this.positionMap = new HashMap<>();
         this.distanceMap = new TreeMap<>();
+        this.objectCoord = new HashMap<>();
 
         this.sunAtTime = SunModel.SUN.at(daysUntil,eclConv);
         this.moonAtTime = MoonModel.MOON.at(daysUntil, eclConv);
         this.sunPosition = toCartesian.apply(sunAtTime.equatorialPos());
+        objectCoord.put(sunAtTime.name(), eqConv.apply(sunAtTime.equatorialPos()));
         this.moonPosition = toCartesian.apply(moonAtTime.equatorialPos());
+        objectCoord.put(moonAtTime.name(), eqConv.apply(moonAtTime.equatorialPos()));
         registerObject(sunAtTime, sunPosition);
         registerObject(moonAtTime, moonPosition);
 
@@ -70,6 +77,8 @@ public class ObservedSky {
             planetCoordinates[2 * skipI] = coordinates.x();
             planetCoordinates[2 * skipI + 1] = coordinates.y();
             registerObject(planet, coordinates);
+            objectCoord.put(planet.name(), eqConv.apply(planet.equatorialPos()));
+            System.out.println(planet.name() + "  " + eqConv.apply(planet.equatorialPos()));
             ++skipI;
         }
 
@@ -77,6 +86,7 @@ public class ObservedSky {
         this.starCoordinates = new double[catalogue.stars().size() * 2];
         int index = 0;
         for(Star star : catalogue.stars()){
+            if (star.name().equals("Rigel")) objectCoord.put(star.name(), eqConv.apply(star.equatorialPos()));
             starsAtTime.add(star);
             CartesianCoordinates coordinates = toCartesian.apply(star.equatorialPos());
             starCoordinates[index * 2] = coordinates.x();
@@ -203,6 +213,13 @@ public class ObservedSky {
      */
     public List<Integer> asterismIndex(Asterism asterism){return catalogue.asterismIndices(asterism);}
 
+    /**
+     * Getter for a map with all planet' name and horizontal coordinates and those of stars which have a full name
+     * @return map with all planet' name and horizontal coordinates and those of stars which have a full name
+     */
+    public Map<String, HorizontalCoordinates> getObjectCoordinates() {
+        return objectCoord;
+    }
 
 
 }

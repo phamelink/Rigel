@@ -18,7 +18,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.transform.NonInvertibleTransformException;
 import javafx.scene.transform.Transform;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -150,7 +152,10 @@ public class SkyCanvasManager {
         observedSky.addListener((p,o,n) -> refreshCanvas());
         planeToCanvas.addListener((p,o,n) -> refreshCanvas());
         objectUnderMouse.addListener((p,o,n) -> refreshCanvas());
-        addRefreshSensibilities(getSkyCanvasPainter().getRenderingProperties());
+        SkyCanvasPainter sp = getSkyCanvasPainter();
+        addRefreshSensibilities(sp.starsEnabledProperty(),sp.asterismsEnabledProperty(), sp.realisticSkyEnabledProperty(),
+                sp.planetsEnabledProperty(), sp.sunEnabledProperty(), sp.moonEnabledProperty(),
+                sp.realisticSunEnabledProperty(), sp.altitudeLinesEnabledProperty());
 
         //Bind keyboard controls
         canvas.get().addEventFilter(KeyEvent.KEY_PRESSED, event -> {
@@ -250,6 +255,17 @@ public class SkyCanvasManager {
      */
     public void refreshCanvas(){
         skyCanvasPainter.get().draw(observedSky.get(), projection.get(), planeToCanvas.get());
+    }
+
+
+    public void setAtCenter(SimpleStringProperty stringProperty, String name) {
+        HorizontalCoordinates coord = observedSky.get().getObjectCoordinates().get(name);
+        if (coord.alt() >= 0) {
+            stringProperty.set("Centered at: " + name);
+            viewingParameters.setCenter(HorizontalCoordinates.of(coord.az(), ALT_BOUND.clip(coord.alt())));
+        } else {
+            stringProperty.set(name + " is not visible");
+        }
     }
 
     /**

@@ -11,6 +11,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.*;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
@@ -46,6 +47,8 @@ public class SkyCanvasPainter {
     private final BooleanProperty realisticSkyEnabled;
     private final BooleanProperty realisticSunEnabled;
     private final BooleanProperty altitudeLinesEnabled;
+    private final BooleanProperty indicatorIsOn;
+    private final StringProperty indicatedObjectName;
     private double dayLightFactor;
     private double skyBrightnessFactor;
 
@@ -65,7 +68,8 @@ public class SkyCanvasPainter {
         realisticSkyEnabled = new SimpleBooleanProperty(false);
         realisticSunEnabled = new SimpleBooleanProperty(false);
         altitudeLinesEnabled = new SimpleBooleanProperty(false);
-
+        indicatorIsOn = new SimpleBooleanProperty(false);
+        indicatedObjectName = new SimpleStringProperty();
     }
 
     /**
@@ -123,6 +127,8 @@ public class SkyCanvasPainter {
                 //Default rendering option
                 drawCelestialObject(new Point2D(stereoPoints[2 * i],stereoPoints[2 * i + 1]), planeToCanvas, BlackBodyColor.colorForTemperature(stars.get(i).colorTemperature()), getMagnitudeBasedCelestialObjectDiameter(stars.get(i), projection, planeToCanvas));
             }
+            if (indicatedObjectNameProperty().get().equals(stars.get(i).name()) && indicatorIsOnProperty().get())
+                drawIndicator(p, diameter);
         }
     }
 
@@ -156,9 +162,12 @@ public class SkyCanvasPainter {
         double[] stereoPoints = new double[sky.planetCoordinates().length];
         planeToCanvas.transform2DPoints(sky.planetCoordinates(), 0, stereoPoints, 0, planets.size());
         for (int i = 0; i < planets.size(); i++) {
-            drawCelestialObject(new Point2D(stereoPoints[2 * i],stereoPoints[2 * i + 1]), planeToCanvas,
-                    Color.LIGHTGRAY,
-                    getMagnitudeBasedCelestialObjectDiameter(planets.get(i), projection, planeToCanvas));
+            Point2D coord = new Point2D(stereoPoints[2 * i],stereoPoints[2 * i + 1]);
+            double diameter = getMagnitudeBasedCelestialObjectDiameter(planets.get(i), projection, planeToCanvas);
+            drawCelestialObject(coord, planeToCanvas, Color.LIGHTGRAY, diameter);
+            if (indicatorIsOn.get() && indicatedObjectName.get().equals(planets.get(i).name())) {
+                drawIndicator(coord, diameter);
+            }
         }
     }
 
@@ -202,6 +211,9 @@ public class SkyCanvasPainter {
         drawCelestialObject(sunPositionOnCanvas, planeToCanvas,outside.deriveColor(1,1,1,0.25),  sunDiameter*2.2 );
         drawCelestialObject(sunPositionOnCanvas, planeToCanvas,Color.YELLOW,   sunDiameter + 2 );
         drawCelestialObject(sunPositionOnCanvas, planeToCanvas,Color.WHITE,  sunDiameter );
+        if (indicatorIsOn.get() && indicatedObjectName.get().equals(sky.sun().name())) {
+            drawIndicator(sunPositionOnCanvas, sunDiameter);
+        }
     }
 
     /**
@@ -216,6 +228,9 @@ public class SkyCanvasPainter {
         Point2D planePoint = planeToCanvas.transform(moonCoordinates);
         drawCelestialObject(planePoint, planeToCanvas, Color.WHITE,
                 moonDiameter);
+        if (indicatorIsOn.get() && indicatedObjectName.get().equals(sky.moon().name())) {
+            drawIndicator(planePoint, moonDiameter);
+        }
     }
 
     /**
@@ -261,6 +276,11 @@ public class SkyCanvasPainter {
             }
         }
 
+    }
+
+    private void drawIndicator(Point2D planePoint, double diameter) {
+        gc.setStroke(Color.LIGHTGREEN);
+        gc.strokeOval(planePoint.getX()-(diameter+20)/2, planePoint.getY()-(diameter+20)/2, diameter+20, diameter+20);
     }
 
     /**
@@ -499,4 +519,13 @@ public class SkyCanvasPainter {
         return List.of(starsEnabled, asterismsEnabled, sunEnabled, moonEnabled, planetsEnabled,
                 realisticSkyEnabled, realisticSunEnabled, altitudeLinesEnabled);
     }
+
+    public boolean getIndicatorIsOn() { return indicatorIsOn.get(); }
+
+    public BooleanProperty indicatorIsOnProperty() { return indicatorIsOn; }
+
+    public String getIndicatedObjectName() { return indicatedObjectName.get(); }
+
+    public StringProperty indicatedObjectNameProperty() { return indicatedObjectName; }
+
 }
