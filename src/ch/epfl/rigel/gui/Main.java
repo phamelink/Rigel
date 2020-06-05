@@ -177,6 +177,7 @@ public class Main extends Application {
         canvasManager.getSkyCanvasPainter().indicatedObjectNameProperty().bind(centerAtChoiceBox.valueProperty());
 
         SimpleStringProperty centeredString = new SimpleStringProperty("");
+        centerAtChoiceBox.setOnAction((e) -> centeredString.set(""));
         Button setCenterButton = new Button("Set Center");
         setCenterButton.setOnAction((e) -> canvasManager.setAtCenter(centeredString, centerAtChoiceBox.valueProperty().get()));
         Label centeredLabel = new Label();
