@@ -43,6 +43,16 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="OpenJFX 11" level="application" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="file:///Library/Java/JavaVirtualMachines/javafx-sdk-11.0.2" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+        <jarDirectory url="file:///Library/Java/JavaVirtualMachines/javafx-sdk-11.0.2" recursive="false" />
+      </library>
+    </orderEntry>
+    <orderEntry type="library" name="javafx-swt" level="application" />
   </component>
 </module>
