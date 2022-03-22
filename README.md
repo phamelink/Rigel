@@ -12,6 +12,9 @@ The features include zooming in or out of the sky, simulating the passing time,
 clicking on stars or planets for specific information about the celestial object
 and many more.
 
+![Rigel](assets/images/Rigel.png)
+
+
 ## How to run with IntelliJ
 
 - First clone the repository
